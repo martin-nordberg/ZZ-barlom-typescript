@@ -1,0 +1,19 @@
+{
+  "name": "barlom",
+  "version": "0.1.0",
+  "description": "Barlom Language Environment",
+  "main": "AppServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martin-nordberg/barlom.git"
+  },
+  "author": "Martin E. Nordberg III, Ph.D.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/martin-nordberg/barlom/issues"
+  },
+  "homepage": "https://github.com/martin-nordberg/barlom#readme"
+}
