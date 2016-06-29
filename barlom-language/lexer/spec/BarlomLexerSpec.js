@@ -19,7 +19,7 @@ describe(
     it(
       "should read a token", function () {
         var token = lexer.readToken();
-        expect( token.text ).toBe( "junk" );
+        expect( token.text ).toBe( "stuff" );
         expect( token.fileName ).toBe( "example.barlom" );
       }
     );

@@ -10,8 +10,8 @@ export class BarlomToken {
     this._column = column;
   }
 
-  get text() {
-    return this._text;
+  get column() {
+    return this._column;
   }
 
   get fileName() {
@@ -22,13 +22,13 @@ export class BarlomToken {
     return this._line;
   }
 
-  get column() {
-    return this._column;
+  get text() {
+    return this._text;
   }
 
-  private _text;
+  private _column;
   private _fileName;
   private _line;
-  private _column;
+  private _text;
 
 }

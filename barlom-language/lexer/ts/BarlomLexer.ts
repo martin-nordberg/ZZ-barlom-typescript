@@ -7,19 +7,19 @@ import { BarlomToken } from "./BarlomToken";
 export class BarlomLexer {
 
     constructor( code : string, fileName : string ) {
-        this.fileName = fileName;
-        this.code = code;
+        this._fileName = fileName;
+        this._code = code;
         
-        this.position = 0;
+        this._position = 0;
     }
     
     public readToken() : BarlomToken {
-        return new BarlomToken( "junk", this.fileName, 1, 2 );   // TODO
+        return new BarlomToken( this._code, this._fileName, 1, 2 );   // TODO
     }
 
-    private code : string;
-    private fileName : string;
-    private position : number;
+    private _code : string;
+    private _fileName : string;
+    private _position : number;
 
 }    
     
