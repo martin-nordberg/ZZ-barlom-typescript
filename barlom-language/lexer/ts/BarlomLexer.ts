@@ -185,7 +185,7 @@ export class BarlomLexer {
       return this._processIdentifier();
     }
 
-    // Process an identifier starting with an underscore or else just '_'.
+    // Process an identifier or anonyous literal starting with an underscore.
     if ( ch === '_' ) {
       return this._processUnderscore();
     }
@@ -217,6 +217,11 @@ export class BarlomLexer {
         return this._makeToken( BarlomTokenType.COLON_COLON );
       }
       return this._makeToken( BarlomTokenType.COLON );
+    }
+    
+    // Process a code literal.
+    if ( ch === '`' ) {
+      return this._processCodeLiteral();
     }
 
     // TODO: lots more characters to recognize ...
@@ -304,6 +309,34 @@ export class BarlomLexer {
     return result;
   }
 
+  /**
+   * Process a back-tick-delimited code literal.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processCodeLiteral() : BarlomToken {
+    var ch = this._lookAheadChar();
+
+    while ( true ) {
+      if ( ch === '' ) {
+        return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_CODE );
+      }
+      
+      this._advance( ch );
+      
+      if ( ch === '`' ) {
+        return this._makeToken( BarlomTokenType.CodeLiteral );
+      }
+
+      ch = this._lookAheadChar();
+    }
+  }
+
+  /**
+   * Processes a token starting with a period character.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
   private _processDot() : BarlomToken {
 
     if ( this._hasLookAheadChar( '.' ) ) {

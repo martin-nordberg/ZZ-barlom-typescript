@@ -19,11 +19,18 @@ describe(
                 compare: function ( tokens, expectedTokenTypes ) {
 
                   for ( var i = 0; i < tokens.length; i += 1 ) {
-                    if ( tokens[i].tokenType !== expectedTokenTypes[i] ) {
+                    if ( tokens[i].tokenType !== expectedTokenTypes[2*i] ) {
                       return {
                         pass: false,
-                        message: "Expected token type " + BarlomTokenType[expectedTokenTypes[i]] + ", but found " +
+                        message: "Expected token type " + BarlomTokenType[expectedTokenTypes[2*i]] + ", but found " +
                         BarlomTokenType[tokens[i].tokenType] + " in position " + i + "."
+                      };
+                    }
+                    if ( tokens[i].text !== expectedTokenTypes[2*i+1] ) {
+                      return {
+                        pass: false,
+                        message: "Expected token text `" + expectedTokenTypes[2*i+1] + "`, but found `" +
+                        tokens[i].text + "` in position " + i + "."
                       };
                     }
                   }
@@ -73,7 +80,12 @@ describe(
 
         var tokens = lexer.readAllTokens();
 
-        expect( tokens ).toHaveTokenTypes( [BarlomTokenType.DOT, BarlomTokenType.EOF] );
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.DOT, ".",
+            BarlomTokenType.EOF, ""
+          ]
+        );
       }
     );
 
@@ -85,10 +97,10 @@ describe(
 
         expect( tokens ).toHaveTokenTypes(
           [
-            BarlomTokenType.WHITE_SPACE,
-            BarlomTokenType.SEMICOLON,
-            BarlomTokenType.WHITE_SPACE,
-            BarlomTokenType.EOF
+            BarlomTokenType.WHITE_SPACE, "  \n",
+            BarlomTokenType.SEMICOLON, ";",
+            BarlomTokenType.WHITE_SPACE, " ",
+            BarlomTokenType.EOF, ""
           ]
         );
       }
@@ -102,11 +114,11 @@ describe(
 
         expect( tokens ).toHaveTokenTypes(
           [
-            BarlomTokenType.DOT,
-            BarlomTokenType.RANGE_INCLUSIVE,
-            BarlomTokenType.RANGE_EXCLUSIVE,
-            BarlomTokenType.DOT_DOT_DOT,
-            BarlomTokenType.EOF
+            BarlomTokenType.DOT, ".",
+            BarlomTokenType.RANGE_INCLUSIVE, "..",
+            BarlomTokenType.RANGE_EXCLUSIVE, "..<",
+            BarlomTokenType.DOT_DOT_DOT, "...",
+            BarlomTokenType.EOF, ""
           ]
         );
       }
@@ -120,12 +132,28 @@ describe(
 
         expect( tokens ).toHaveTokenTypes(
           [
-            BarlomTokenType.Identifier,
-            BarlomTokenType.Identifier,
-            BarlomTokenType.AnonymousLiteral,
-            BarlomTokenType.ERROR_INVALID_IDENTIFIER,
-            BarlomTokenType.Identifier,
-            BarlomTokenType.EOF
+            BarlomTokenType.Identifier, "_a",
+            BarlomTokenType.Identifier, "__abc'",
+            BarlomTokenType.AnonymousLiteral, "_",
+            BarlomTokenType.ERROR_INVALID_IDENTIFIER, "__",
+            BarlomTokenType.Identifier, "_a1",
+            BarlomTokenType.EOF, ""
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan code literals", function () {
+        var lexer = new BarlomLexer( "`variable code = true` `not code", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.CodeLiteral, "`variable code = true`",
+            BarlomTokenType.ERROR_UNCLOSED_CODE, "`not code",
+            BarlomTokenType.EOF, ""
           ]
         );
       }
