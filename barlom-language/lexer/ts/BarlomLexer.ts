@@ -1,4 +1,3 @@
-
 import { BarlomToken } from './BarlomToken';
 import { BarlomTokenType } from './BarlomTokenType';
 
@@ -92,7 +91,7 @@ function isDigitOrUnderscore( ch : string ) {
  */
 function isIdentifierChar( ch : string ) {
   return ( 'a' <= ch && ch <= 'z' ) ||
-         ( 'A' <= ch && ch <= 'Z' );
+      ( 'A' <= ch && ch <= 'Z' );
   // TODO: Unicode ?
 }
 
@@ -128,19 +127,19 @@ export class BarlomLexer {
    * @param fileName the name of the file.
    * @param options options for how the lexer should treat white space and comments.
    */
-  constructor( 
-      code : string, 
-      fileName : string, 
+  constructor(
+      code : string,
+      fileName : string,
       options = {
         skipComments: true,
         skipWhiteSpace: true
-      } 
+      }
   ) {
     this._fileName = fileName;
     this._code = code;
 
-    this._skipComments = options.hasOwnProperty( 'skipComments') ? options.skipComments : true;
-    this._skipWhiteSpace = options.hasOwnProperty( 'skipWhiteSpace') ? options.skipWhiteSpace : true;
+    this._skipComments = options.hasOwnProperty( 'skipComments' ) ? options.skipComments : true;
+    this._skipWhiteSpace = options.hasOwnProperty( 'skipWhiteSpace' ) ? options.skipWhiteSpace : true;
 
     this._startPos = 0;
     this._endPos = 0;
@@ -148,6 +147,24 @@ export class BarlomLexer {
     this._endLine = 1;
     this._startCol = 1;
     this._endCol = 1;
+  }
+
+  /**
+   * Reads all the tokens in the input.
+   * @returns {Array} An array containing the tokens read (including EOF in the last element).
+   */
+  public readAllTokens() : BarlomToken[] {
+    var result = [];
+
+    var token = this.readToken();
+    while ( token.tokenType !== BarlomTokenType.EOF ) {
+      result.push( token );
+      token = this.readToken();
+    }
+
+    result.push( token );
+
+    return result;
   }
 
   /**
@@ -178,10 +195,12 @@ export class BarlomLexer {
       return this._processWhiteSpace();
     }
 
-    // Process common single character punctuation marks
+    // Process tokens starting with a dot.
     if ( ch === '.' ) {
-      return this._makeToken( BarlomTokenType.DOT );
+      return this._processDot();
     }
+
+    // Process common single character punctuation marks
     if ( ch === ',' ) {
       return this._makeToken( BarlomTokenType.COMMA );
     }
@@ -194,14 +213,14 @@ export class BarlomLexer {
 
     // Process tokens starting with a colon.
     if ( ch === ':' ) {
-      if ( this._lookAheadChar() === ':' ) {
+      if ( this._hasLookAheadChar( ':' ) ) {
         return this._makeToken( BarlomTokenType.COLON_COLON );
       }
       return this._makeToken( BarlomTokenType.COLON );
     }
 
     // TODO: lots more characters to recognize ...
-    
+
     return this._makeToken( BarlomTokenType.ERROR_UNEXPECTED_CHARACTER );
 
   }
@@ -226,7 +245,7 @@ export class BarlomLexer {
   }
 
   /**
-   * Advance the end indexes of the token when the last character is known to not be a line feed.
+   * Advances the end indexes of the token when the last character is known to not be a line feed.
    * @private
    */
   private _advanceSameLine() : void {
@@ -235,7 +254,21 @@ export class BarlomLexer {
   }
 
   /**
-   * Return the next character of lookahead in the input.
+   * Tests whether the next character of lookahead is as given.
+   * @param ch the character to look for.
+   * @returns {boolean} True if the given character is next in the input.
+   * @private
+   */
+  private _hasLookAheadChar( ch : string ) : boolean {
+    if ( this._endPos >= this._code.length ) {
+      return false;
+    }
+
+    return this._code.charAt( this._endPos ) === ch;
+  }
+
+  /**
+   * Returns the next character of lookahead in the input.
    * @returns {string} the character found or '' for EOF.
    * @private
    */
@@ -254,7 +287,7 @@ export class BarlomLexer {
    * @returns {BarlomToken}
    * @private
    */
-  private _makeToken( tokenType : BarlomTokenType ) :BarlomToken {
+  private _makeToken( tokenType : BarlomTokenType ) : BarlomToken {
 
     let result = new BarlomToken(
         tokenType,
@@ -269,6 +302,27 @@ export class BarlomLexer {
     this._startCol = this._endCol;
 
     return result;
+  }
+
+  private _processDot() : BarlomToken {
+
+    if ( this._hasLookAheadChar( '.' ) ) {
+      this._advanceSameLine();
+      var ch = this._lookAheadChar();
+
+      if ( ch === '.' ) {
+        this._advanceSameLine();
+        return this._makeToken( BarlomTokenType.DOT_DOT_DOT );
+      }
+      else if ( ch === '<' ) {
+        this._advanceSameLine();
+        return this._makeToken( BarlomTokenType.RANGE_EXCLUSIVE );
+      }
+
+      return this._makeToken( BarlomTokenType.RANGE_INCLUSIVE );
+    }
+
+    return this._makeToken( BarlomTokenType.DOT );
   }
 
   /**

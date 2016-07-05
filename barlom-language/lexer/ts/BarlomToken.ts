@@ -14,23 +14,23 @@ export class BarlomToken {
     this._column = column;
   }
 
-  get column() {
+  get column() : number {
     return this._column;
   }
 
-  get fileName() {
+  get fileName() : string {
     return this._fileName;
   }
 
-  get line() {
+  get line() : number {
     return this._line;
   }
 
-  get text() {
+  get text() : string {
     return this._text;
   }
 
-  get tokenType() {
+  get tokenType() : BarlomTokenType {
     return this._tokenType;
   }
 
@@ -44,10 +44,10 @@ export class BarlomToken {
     return new BarlomToken( tokenType, this._text, this._fileName, this._line, this._column );
   }
 
-  private _column;
-  private _fileName;
-  private _line;
-  private _text;
-  private _tokenType;
+  private _column : number;
+  private _fileName : string;
+  private _line : number;
+  private _text : string;
+  private _tokenType : BarlomTokenType;
 
 }

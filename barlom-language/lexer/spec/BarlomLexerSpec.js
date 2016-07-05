@@ -1,13 +1,43 @@
 /**
- * Created by mnordberg on 6/28/16.
+ * Specification for BarlomLexer
  */
-
-
 describe(
   "BarlomLexer", function () {
 
     var BarlomLexer = require( '../js/BarlomLexer' ).BarlomLexer;
     var BarlomTokenType = require( '../js/BarlomTokenType' ).BarlomTokenType;
+
+    /**
+     * Defines a matcher that compares all the tokens from a lexer run.
+     */
+    beforeEach(
+      function () {
+        jasmine.addMatchers(
+          {
+            toHaveTokenTypes: function () {
+              return {
+                compare: function ( tokens, expectedTokenTypes ) {
+
+                  for ( var i = 0; i < tokens.length; i += 1 ) {
+                    if ( tokens[i].tokenType !== expectedTokenTypes[i] ) {
+                      return {
+                        pass: false,
+                        message: "Expected token type " + BarlomTokenType[expectedTokenTypes[i]] + ", but found " +
+                        BarlomTokenType[tokens[i].tokenType] + " in position " + i + "."
+                      };
+                    }
+                  }
+
+                  return {
+                    pass: true
+                  }
+                }
+              };
+            }
+          }
+        );
+      }
+    );
 
     it(
       "should read an identifier token", function () {
@@ -38,14 +68,12 @@ describe(
     );
 
     it(
-      "should ignore white space when so configured", function () {
+      "should ignore white space by default", function () {
         var lexer = new BarlomLexer( "  \n. ", "example.barlom" );
 
-        var token1 = lexer.readToken();
-        var token2 = lexer.readToken();
+        var tokens = lexer.readAllTokens();
 
-        expect( token1.tokenType ).toBe( BarlomTokenType.DOT );
-        expect( token2.tokenType ).toBe( BarlomTokenType.EOF );
+        expect( tokens ).toHaveTokenTypes( [BarlomTokenType.DOT, BarlomTokenType.EOF] );
       }
     );
 
@@ -53,15 +81,53 @@ describe(
       "should not ignore white space when so configured", function () {
         var lexer = new BarlomLexer( "  \n; ", "example.barlom", { skipWhiteSpace: false } );
 
-        var token1 = lexer.readToken();
-        var token2 = lexer.readToken();
-        var token3 = lexer.readToken();
-        var token4 = lexer.readToken();
+        var tokens = lexer.readAllTokens();
 
-        expect( token1.tokenType ).toBe( BarlomTokenType.WHITE_SPACE );
-        expect( token2.tokenType ).toBe( BarlomTokenType.SEMICOLON );
-        expect( token3.tokenType ).toBe( BarlomTokenType.WHITE_SPACE );
-        expect( token4.tokenType ).toBe( BarlomTokenType.EOF );
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.WHITE_SPACE,
+            BarlomTokenType.SEMICOLON,
+            BarlomTokenType.WHITE_SPACE,
+            BarlomTokenType.EOF
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan dot tokens", function () {
+        var lexer = new BarlomLexer( ". .. ..< ...", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.DOT,
+            BarlomTokenType.RANGE_INCLUSIVE,
+            BarlomTokenType.RANGE_EXCLUSIVE,
+            BarlomTokenType.DOT_DOT_DOT,
+            BarlomTokenType.EOF
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan underscore tokens", function () {
+        var lexer = new BarlomLexer( "_a __abc' _ __ _a1", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.Identifier,
+            BarlomTokenType.Identifier,
+            BarlomTokenType.AnonymousLiteral,
+            BarlomTokenType.ERROR_INVALID_IDENTIFIER,
+            BarlomTokenType.Identifier,
+            BarlomTokenType.EOF
+          ]
+        );
       }
     );
 
