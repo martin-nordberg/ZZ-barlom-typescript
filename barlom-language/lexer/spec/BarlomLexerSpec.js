@@ -144,6 +144,25 @@ describe(
     );
 
     it(
+      "should scan colon tokens", function () {
+        var lexer = new BarlomLexer( ": :: :::::", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.COLON, ":",
+            BarlomTokenType.COLON_COLON, "::",
+            BarlomTokenType.COLON_COLON, "::",
+            BarlomTokenType.COLON_COLON, "::",
+            BarlomTokenType.COLON, ":",
+            BarlomTokenType.EOF, ""
+          ]
+        );
+      }
+    );
+
+    it(
       "should scan code literals", function () {
         var lexer = new BarlomLexer( "`variable code = true` `not code", "example.barlom" );
 
@@ -153,6 +172,35 @@ describe(
           [
             BarlomTokenType.CodeLiteral, "`variable code = true`",
             BarlomTokenType.ERROR_UNCLOSED_CODE, "`not code",
+            BarlomTokenType.EOF, ""
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan numeric tokens", function () {
+        var lexer = new BarlomLexer( "123 45_67 89.01 23.4E+5 67E-8 90E12 3.4.5 67.89.1-ALPHA+345 0b1100 0B00_11 0xAB23 0X001a 1.2D 3ul 4S", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.IntegerLiteral, "123",
+            BarlomTokenType.IntegerLiteral, "45_67",
+            BarlomTokenType.NumberLiteral, "89.01",
+            BarlomTokenType.NumberLiteral, "23.4E+5",
+            BarlomTokenType.NumberLiteral, "67E-8",
+            BarlomTokenType.NumberLiteral, "90E12",
+            BarlomTokenType.VersionLiteral, "3.4.5",
+            BarlomTokenType.VersionLiteral, "67.89.1-ALPHA+345",
+            BarlomTokenType.BinaryIntegerLiteral, "0b1100",
+            BarlomTokenType.BinaryIntegerLiteral, "0B00_11",
+            BarlomTokenType.HexIntegerLiteral, "0xAB23",
+            BarlomTokenType.HexIntegerLiteral, "0X001a",
+            BarlomTokenType.NumberLiteral, "1.2D",
+            BarlomTokenType.IntegerLiteral, "3ul",
+            BarlomTokenType.IntegerLiteral, "4S",
             BarlomTokenType.EOF, ""
           ]
         );
