@@ -23,7 +23,7 @@ describe(
                       return {
                         pass: false,
                         message: "Expected token type " + BarlomTokenType[expectedTokenTypes[2*i]] + ", but found " +
-                        BarlomTokenType[tokens[i].tokenType] + " in position " + i + "."
+                        BarlomTokenType[tokens[i].tokenType] + " `" + tokens[i].text + "` in position " + i + "."
                       };
                     }
                     if ( tokens[i].text !== expectedTokenTypes[2*i+1] ) {
@@ -201,6 +201,30 @@ describe(
             BarlomTokenType.NumberLiteral, "1.2D",
             BarlomTokenType.IntegerLiteral, "3ul",
             BarlomTokenType.IntegerLiteral, "4S",
+            BarlomTokenType.EOF, ""
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan date/time literals", function () {
+        var lexer = new BarlomLexer( "$2016-07-01$ $2016-07-01T12:34$ $2016-07-01T10:01Z$ $2016-07-01T10:01:59$ $2016-12-31T01:34-05:00$ $2016-11-30T01:01:01+05:00$ $2016-07-01T04:00:05.045$ $2016-07-01T04:00:05.1Z$ $2016-01-01T00:00Z$ $T12:34$", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.DateTimeLiteral, "$2016-07-01$",
+            BarlomTokenType.DateTimeLiteral, "$2016-07-01T12:34$",
+            BarlomTokenType.DateTimeLiteral, "$2016-07-01T10:01Z$",
+            BarlomTokenType.DateTimeLiteral, "$2016-07-01T10:01:59$",
+            BarlomTokenType.DateTimeLiteral, "$2016-12-31T01:34-05:00$",
+            BarlomTokenType.DateTimeLiteral, "$2016-11-30T01:01:01+05:00$",
+            BarlomTokenType.DateTimeLiteral, "$2016-07-01T04:00:05.045$",
+            BarlomTokenType.DateTimeLiteral, "$2016-07-01T04:00:05.1Z$",
+            BarlomTokenType.DateTimeLiteral, "$2016-01-01T00:00Z$",
+            BarlomTokenType.DateTimeLiteral, "$T12:34$",
             BarlomTokenType.EOF, ""
           ]
         );

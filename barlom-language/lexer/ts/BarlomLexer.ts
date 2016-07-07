@@ -250,6 +250,11 @@ export class BarlomLexer {
       return this._processColon();
     }
 
+    // Process a time literal
+    if ( ch === '$' ) {
+      return this._processDateTimeLiteral();
+    }
+
     // Process a code literal.
     if ( ch === '`' ) {
       return this._processCodeLiteral();
@@ -281,12 +286,62 @@ export class BarlomLexer {
   }
 
   /**
+   * Tests whether the first character of lookahead meets a given condition. Advances one character if so.
+   * @param predicate function that checks whether the next character should be advanced over.
+   * @returns {boolean} True if the given character is next in the input.
+   * @private
+   */
+  private _advanceIf( predicate ) : boolean {
+    if ( this._endPos >= this._code.length ) {
+      return false;
+    }
+
+    if ( predicate( this._code.charAt( this._endPos ) ) ) {
+      this._advanceSameLine();
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Tests whether the first character of lookahead is as given. Advances one character if so.
+   * @param ch the character to look for.
+   * @returns {boolean} True if the given character is next in the input.
+   * @private
+   */
+  private _advanceOverLookAhead1Char( ch : string ) : boolean {
+    if ( this._endPos >= this._code.length ) {
+      return false;
+    }
+
+    if ( this._code.charAt( this._endPos ) === ch ) {
+      this._advanceSameLine();
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
    * Advances the end indexes of the token when the last character is known to not be a line feed.
    * @private
    */
   private _advanceSameLine( numChars : number = 1 ) : void {
     this._endPos += numChars;
     this._endCol += numChars;
+  }
+
+  /**
+   * Tests whether the first character of lookahead meets a given condition. Advances one character if so.
+   * @param predicate function that checks whether the next character should be advanced over.
+   * @returns {boolean} True if the given character is next in the input.
+   * @private
+   */
+  private _advanceWhile( predicate ) : void {
+    while ( this._endPos < this._code.length && predicate( this._code.charAt( this._endPos ) ) ) {
+      this._advanceSameLine();
+    }
   }
 
   /**
@@ -412,12 +467,143 @@ export class BarlomLexer {
    * @private
    */
   private _processColon() : BarlomToken {
-    if ( this._hasLookAhead1Char( ':' ) ) {
-      this._advanceSameLine();
+    if ( this._advanceOverLookAhead1Char( ':' ) ) {
       return this._makeToken( BarlomTokenType.COLON_COLON );
     }
     return this._makeToken( BarlomTokenType.COLON );
 
+  }
+
+  /**
+   * Processes a date/time literal after the opening '$' has been scanned.
+   * @returns {BarlomToken} the time literal recognized.
+   * @private
+   */
+  private _processDateTimeLiteral() : BarlomToken {
+
+    var ch = this._lookAhead1Char();
+
+    // Year/month/day
+    if ( isDigit( ch ) ) {
+      this._advanceSameLine();
+
+      // year
+      for ( var i = 0; i < 3; i += 1 ) {
+        if ( !isDigit( this._lookAhead1Char() ) ) {
+          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        }
+        this._advanceSameLine();
+      }
+      if ( !this._advanceOverLookAhead1Char( '-' ) ) {
+        return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+      }
+
+      // month
+      for ( var i = 0; i < 2; i += 1 ) {
+        if ( !isDigit( this._lookAhead1Char() ) ) {
+          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        }
+        this._advanceSameLine();
+      }
+      if ( !this._advanceOverLookAhead1Char( '-' ) ) {
+        return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+      }
+
+      // day
+      for ( var i = 0; i < 2; i += 1 ) {
+        if ( !isDigit( this._lookAhead1Char() ) ) {
+          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        }
+        this._advanceSameLine();
+      }
+
+      ch = this._lookAhead1Char();
+    }
+
+    // Time
+    if ( ch === 'T' ) {
+      this._advanceSameLine();
+
+      // hour
+      for ( var i = 0; i < 2; i += 1 ) {
+        if ( !isDigit( this._lookAhead1Char() ) ) {
+          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        }
+        this._advanceSameLine();
+      }
+      if ( !this._advanceOverLookAhead1Char( ':' ) ) {
+        return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+      }
+
+      // minutes
+      for ( var i = 0; i < 2; i += 1 ) {
+        if ( !isDigit( this._lookAhead1Char() ) ) {
+          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        }
+        this._advanceSameLine();
+      }
+
+      // seconds
+      ch = this._lookAhead1Char();
+      if ( ch === ':' ) {
+        this._advanceSameLine();
+        for ( var i = 0; i < 2; i += 1 ) {
+          if ( !isDigit( this._lookAhead1Char() ) ) {
+            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          }
+          this._advanceSameLine();
+        }
+
+        // seconds fraction
+        if ( this._advanceOverLookAhead1Char( '.' ) ) {
+          if ( !isDigit( this._lookAhead1Char() ) ) {
+            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          }
+          this._advanceSameLine();
+
+          for ( var i = 0; i < 2; i += 1 ) {
+            if ( !isDigit( this._lookAhead1Char() ) ) {
+              break;
+            }
+            this._advanceSameLine();
+          }
+        }
+
+        ch = this._lookAhead1Char();
+      }
+
+      // time zone
+      if ( ch === '+' || ch === '-' ) {
+        this._advanceSameLine();
+        // hour
+        for ( var i = 0; i < 2; i += 1 ) {
+          if ( !isDigit( this._lookAhead1Char() ) ) {
+            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          }
+          this._advanceSameLine();
+        }
+        if ( !this._advanceOverLookAhead1Char( ':' ) ) {
+          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        }
+
+        // minutes
+        for ( var i = 0; i < 2; i += 1 ) {
+          if ( !isDigit( this._lookAhead1Char() ) ) {
+            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          }
+          this._advanceSameLine();
+        }
+      }
+      else if ( ch === 'Z' ) {
+        this._advanceSameLine();
+      }
+    }
+
+    if ( !this._advanceOverLookAhead1Char( '$' ) ) {
+      return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+    }
+
+    return this._makeToken( BarlomTokenType.DateTimeLiteral );
   }
 
   /**
@@ -427,8 +613,7 @@ export class BarlomLexer {
    */
   private _processDot() : BarlomToken {
 
-    if ( this._hasLookAhead1Char( '.' ) ) {
-      this._advanceSameLine();
+    if ( this._advanceOverLookAhead1Char( '.' ) ) {
       var ch = this._lookAhead1Char();
 
       if ( ch === '.' ) {
@@ -454,16 +639,10 @@ export class BarlomLexer {
   private _processIdentifier() : BarlomToken {
 
     // Consume identifier body characters ...
-    var ch = this._lookAhead1Char();
-    while ( isIdentifierBodyChar( ch ) ) {
-      this._advanceSameLine();
-      ch = this._lookAhead1Char();
-    }
+    this._advanceWhile( isIdentifierBodyChar );
 
     // Allow a trailing prime.
-    if ( ch === "'" ) {
-      this._advanceSameLine();
-    }
+    this._advanceOverLookAhead1Char( "'" );
 
     // Build the token.
     let result = this._makeToken( BarlomTokenType.Identifier );
@@ -490,25 +669,19 @@ export class BarlomLexer {
       if ( ( this._hasLookAhead1Char( 'b' ) || this._hasLookAhead1Char( 'B' ) ) &&
           ( this._hasLookAhead2Char( '0' ) || this._hasLookAhead2Char( '1' ) ) ) {
         this._advanceSameLine( 2 );
-        while ( isBinaryDigitOrUnderscore( this._lookAhead1Char() ) ) {
-          this._advanceSameLine();
-        }
+        this._advanceWhile( isBinaryDigitOrUnderscore );
         return this._makeToken( BarlomTokenType.BinaryIntegerLiteral );
       }
 
       if ( ( this._hasLookAhead1Char( 'x' ) || this._hasLookAhead1Char( 'X' ) ) &&
           isHexDigit( this._lookAhead2Char() ) ) {
         this._advanceSameLine( 2 );
-        while ( isHexDigitOrUnderscore( this._lookAhead1Char() ) ) {
-          this._advanceSameLine();
-        }
+        this._advanceWhile( isHexDigitOrUnderscore );
         return this._makeToken( BarlomTokenType.HexIntegerLiteral );
       }
     }
 
-    while ( isDigitOrUnderscore( this._lookAhead1Char() ) ) {
-      this._advanceSameLine();
-    }
+    this._advanceWhile( isDigitOrUnderscore );
 
     var ch1 = this._lookAhead1Char();
     var ch2 = this._lookAhead2Char();
@@ -518,9 +691,7 @@ export class BarlomLexer {
     // number or version
     if ( ch1 === '.' && isDigit( ch2 ) ) {
       this._advanceSameLine( 2 );
-      while ( isDigitOrUnderscore( this._lookAhead1Char() ) ) {
-        this._advanceSameLine();
-      }
+      this._advanceWhile( isDigitOrUnderscore );
 
       ch1 = this._lookAhead1Char();
       ch2 = this._lookAhead2Char();
@@ -547,9 +718,7 @@ export class BarlomLexer {
     }
 
     if ( isNumber ) {
-      while ( isDigit( this._lookAhead1Char() ) ) {
-        this._advanceSameLine();
-      }
+      this._advanceWhile( isDigit );
 
       // number size suffix
       if ( ch1 === 'd' || ch1 === 'D' || ch1 === 'f' || ch1 === 'F' || ch1 === 'g' || ch1 === 'G' ) {
@@ -611,24 +780,18 @@ export class BarlomLexer {
    */
   private _processVersionLiteral() : BarlomToken {
 
-    while ( isDigit( this._lookAhead1Char() ) ) {
-      this._advanceSameLine();
-    }
+    this._advanceWhile( isDigit );
 
     // Scan an optional pre-release fragment
     if ( this._hasLookAhead1Char( '-' ) ) {
       var ch2 = this._lookAhead2Char();
       if ( isIdentifierChar( ch2 ) ) {
         this._advanceSameLine( 2 );
-        while ( isIdentifierBodyChar( this._lookAhead1Char() ) ) {
-          this._advanceSameLine();
-        }
+        this._advanceWhile( isIdentifierBodyChar );
       }
       else if ( isDigit( ch2 ) ) {
         this._advanceSameLine( 2 );
-        while ( isDigit( this._lookAhead1Char() ) ) {
-          this._advanceSameLine();
-        }
+        this._advanceWhile( isDigit );
       }
     }
 
@@ -637,15 +800,11 @@ export class BarlomLexer {
       var ch2 = this._lookAhead2Char();
       if ( isIdentifierChar( ch2 ) ) {
         this._advanceSameLine( 2 );
-        while ( isIdentifierBodyChar( this._lookAhead1Char() ) ) {
-          this._advanceSameLine();
-        }
+        this._advanceWhile( isIdentifierBodyChar );
       }
       else if ( isDigit( ch2 ) ) {
         this._advanceSameLine( 2 );
-        while ( isDigit( this._lookAhead1Char() ) ) {
-          this._advanceSameLine();
-        }
+        this._advanceWhile( isDigit );
       }
     }
 
@@ -658,11 +817,7 @@ export class BarlomLexer {
    * @private
    */
   private _processWhiteSpace() : BarlomToken {
-    var ch = this._lookAhead1Char();
-    while ( isWhiteSpace( ch ) ) {
-      this._advance( ch );
-      ch = this._lookAhead1Char();
-    }
+    this._advanceWhile( isWhiteSpace );
     if ( this._skipWhiteSpace ) {
       return this._skip();
     }
