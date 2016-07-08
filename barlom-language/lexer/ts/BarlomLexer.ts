@@ -1,5 +1,15 @@
 import { BarlomToken } from './BarlomToken';
 import { BarlomTokenType } from './BarlomTokenType';
+import {
+    isBinaryDigitOrUnderscore,
+    isDigit,
+    isDigitOrUnderscore,
+    isHexDigit,
+    isHexDigitOrUnderscore,
+    isIdentifierBodyChar,
+    isIdentifierChar,
+    isWhiteSpace } from './LexerPredicates';
+import { Scanner } from './Scanner';
 
 let keywords = {};
 keywords['and'] = BarlomTokenType.AND;
@@ -67,85 +77,6 @@ keywords['with'] = BarlomTokenType.WITH;
 keywords['xor'] = BarlomTokenType.XOR;
 
 /**
- * Determines whether the given character is a numeric digit.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character is a digit.
- */
-function isBinaryDigitOrUnderscore( ch : string ) {
-  return '0' === ch || ch === '1' || ch === '_';
-}
-
-/**
- * Determines whether the given character is a numeric digit.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character is a digit.
- */
-function isDigit( ch : string ) {
-  return '0' <= ch && ch <= '9';
-}
-
-/**
- * Determines whether the given character is a numeric digit or else an underscore spacer.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character is a digit or an underscore.
- */
-function isDigitOrUnderscore( ch : string ) {
-  return isDigit( ch ) || ch === '_';
-}
-
-/**
- * Determines whether the given character is a hexadecimal digit.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character is a hex digit.
- */
-function isHexDigit( ch : string ) {
-  return ( '0' <= ch && ch <= '9' ) ||
-      ( 'a' <= ch && ch <= 'f' ) ||
-      ( 'A' <= ch && ch <= 'F' );
-}
-
-/**
- * Determines whether the given character is a hexadecimal digit or else an underscore spacer.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character is a hex digit or an underscore.
- */
-function isHexDigitOrUnderscore( ch : string ) {
-  return isHexDigit( ch ) || ch === '_';
-}
-
-/**
- * Determines whether the given character is alphabetical and can start an identifier.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character can start an identifier.
- */
-function isIdentifierChar( ch : string ) {
-  return ( 'a' <= ch && ch <= 'z' ) ||
-      ( 'A' <= ch && ch <= 'Z' );
-  // TODO: Unicode ?
-}
-
-/**
- * Determines whether the given character can be part of an identifier.
- * @param ch the character to check (assumed single character).
- * @returns {boolean} true if the character can be part of an identifier.
- */
-function isIdentifierBodyChar( ch : string ) {
-  return isIdentifierChar( ch ) || isDigitOrUnderscore( ch );
-}
-
-/**
- * Determines whether a character is white space.
- * NOTE: Tab characters are NOT recognized. Tools are expected to automatically adjust indenting
- * when needed to suit the taste of an individual developer, but in the absence of a tool, there
- * is no possibility of tab munging. Also form feeds are a relic of the past not recognized either.
- * @param ch the character to check.
- * @returns {boolean} true if it's a whitespace character.
- */
-function isWhiteSpace( ch : string ) {
-  return ch === ' ' || ch === '\n' || ch === '\r';
-}
-
-/**
  * Lexer for the Barlom language.
  */
 export class BarlomLexer {
@@ -165,17 +96,10 @@ export class BarlomLexer {
       }
   ) {
     this._fileName = fileName;
-    this._code = code;
+    this._scanner = new Scanner( code );
 
     this._skipComments = options.hasOwnProperty( 'skipComments' ) ? options.skipComments : true;
     this._skipWhiteSpace = options.hasOwnProperty( 'skipWhiteSpace' ) ? options.skipWhiteSpace : true;
-
-    this._startPos = 0;
-    this._endPos = 0;
-    this._startLine = 1;
-    this._endLine = 1;
-    this._startCol = 1;
-    this._endCol = 1;
   }
 
   /**
@@ -183,6 +107,7 @@ export class BarlomLexer {
    * @returns {Array} An array containing the tokens read (including EOF in the last element).
    */
   public readAllTokens() : BarlomToken[] {
+
     var result = [];
 
     var token = this.readToken();
@@ -194,6 +119,7 @@ export class BarlomLexer {
     result.push( token );
 
     return result;
+
   }
 
   /**
@@ -202,11 +128,10 @@ export class BarlomLexer {
    */
   public readToken() : BarlomToken {
 
-    var ch = this._scanChar();
-
+    var ch = this._scanner.scanChar();
     // Jump out early for end of file.
     if ( ch === '' ) {
-      return new BarlomToken( BarlomTokenType.EOF, '', this._fileName, this._startLine, this._startCol );
+      return new BarlomToken( BarlomTokenType.EOF, '', this._fileName, this._scanner.startLine, this._scanner.startCol );
     }
 
     // Process an identifier.
@@ -267,157 +192,6 @@ export class BarlomLexer {
   }
 
   /**
-   * Advance the position and token indexes over the given character, which might be a new line character.
-   * @param ch the character known to be next in the scan.
-   * @private
-   */
-  private _advance( ch : string ) {
-
-    this._endPos += 1;
-
-    if ( ch === '\n' ) {
-      this._endLine += 1;
-      this._endCol = 1;
-    }
-    else {
-      this._endCol += 1;
-    }
-
-  }
-
-  /**
-   * Tests whether the first character of lookahead meets a given condition. Advances one character if so.
-   * @param predicate function that checks whether the next character should be advanced over.
-   * @returns {boolean} True if the given character is next in the input.
-   * @private
-   */
-  private _advanceIf( predicate ) : boolean {
-    if ( this._endPos >= this._code.length ) {
-      return false;
-    }
-
-    if ( predicate( this._code.charAt( this._endPos ) ) ) {
-      this._endPos += 1;
-      this._endCol += 1;
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * Tests whether the first character of lookahead is as given. Advances one character if so.
-   * @param ch the character to look for.
-   * @returns {boolean} True if the given character is next in the input.
-   * @private
-   */
-  private _advanceOverLookAhead1Char( ch : string ) : boolean {
-    if ( this._endPos >= this._code.length ) {
-      return false;
-    }
-
-    if ( this._code.charAt( this._endPos ) === ch ) {
-      this._endPos += 1;
-      this._endCol += 1;
-      return true;
-    }
-    
-    return false;
-  }
-
-  /**
-   * Advances the end indexes of the token when the last character is known to not be a line feed.
-   * @private
-   */
-  private _advanceSameLine( numChars : number = 1 ) : void {
-    this._endPos += numChars;
-    this._endCol += numChars;
-  }
-
-  /**
-   * Tests whether the first character of lookahead meets a given condition. Advances one character if so.
-   * @param predicate function that checks whether the next character should be advanced over.
-   * @returns {boolean} True if the given character is next in the input.
-   * @private
-   */
-  private _advanceWhile( predicate ) : void {
-    while ( this._endPos < this._code.length && predicate( this._code.charAt( this._endPos ) ) ) {
-      this._endPos += 1;
-      this._endCol += 1;
-    }
-  }
-
-  /**
-   * Tests whether the first character of lookahead is as given.
-   * @param ch the character to look for.
-   * @returns {boolean} True if the given character is next in the input.
-   * @private
-   */
-  private _hasLookAhead1Char( ch : string ) : boolean {
-    if ( this._endPos >= this._code.length ) {
-      return false;
-    }
-
-    return this._code.charAt( this._endPos ) === ch;
-  }
-
-  /**
-   * Tests whether the second character of lookahead is as given.
-   * @param ch the character to look for.
-   * @returns {boolean} True if the given character is second in the remaining input.
-   * @private
-   */
-  private _hasLookAhead2Char( ch : string ) : boolean {
-    var index = this._endPos + 1;
-    if ( index >= this._code.length ) {
-      return false;
-    }
-
-    return this._code.charAt( index ) === ch;
-  }
-
-  /**
-   * Returns the first character of lookahead in the input.
-   * @returns {string} the character found or '' for EOF.
-   * @private
-   */
-  private _lookAhead1Char() : string {
-    if ( this._endPos >= this._code.length ) {
-      return '';
-    }
-
-    return this._code.charAt( this._endPos );
-  }
-
-  /**
-   * Returns the second character of lookahead in the input.
-   * @returns {string} the character found or '' for EOF.
-   * @private
-   */
-  private _lookAhead2Char() : string {
-    var index = this._endPos + 1;
-    if ( index >= this._code.length ) {
-      return '';
-    }
-
-    return this._code.charAt( index );
-  }
-
-  /**
-   * Returns the third character of lookahead in the input.
-   * @returns {string} the character found or '' for EOF.
-   * @private
-   */
-  private _lookAhead3Char() : string {
-    var index = this._endPos + 2;
-    if ( index >= this._code.length ) {
-      return '';
-    }
-
-    return this._code.charAt( index );
-  }
-
-  /**
    * Constructs the token from the current start/end index positions of the token in progress. Also resets
    * the indexes to begin the next token.
    * @param tokenType the type of token that has been recognized.
@@ -428,17 +202,16 @@ export class BarlomLexer {
 
     let result = new BarlomToken(
         tokenType,
-        this._code.substring( this._startPos, this._endPos ),
+        this._scanner.tokenText,
         this._fileName,
-        this._startLine,
-        this._startCol
+        this._scanner.startLine,
+        this._scanner.startColumn
     );
 
-    this._startPos = this._endPos;
-    this._startLine = this._endLine;
-    this._startCol = this._endCol;
+    this._scanner.beginNextToken();
 
     return result;
+
   }
 
   /**
@@ -447,21 +220,21 @@ export class BarlomLexer {
    * @private
    */
   private _processCodeLiteral() : BarlomToken {
-    var ch = this._lookAhead1Char();
 
     while ( true ) {
-      if ( ch === '' ) {
+
+      if ( this._scanner.isEof() ) {
         return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_CODE );
       }
 
-      this._advance( ch );
-
-      if ( ch === '`' ) {
+      if ( this._scanner.advanceOverLookAhead1Char( '`' ) ) {
         return this._makeToken( BarlomTokenType.CodeLiteral );
       }
 
-      ch = this._lookAhead1Char();
+      this._scanner.advance();
+
     }
+  
   }
 
   /**
@@ -470,9 +243,11 @@ export class BarlomLexer {
    * @private
    */
   private _processColon() : BarlomToken {
-    if ( this._advanceOverLookAhead1Char( ':' ) ) {
+
+    if ( this._scanner.advanceOverLookAhead1Char( ':' ) ) {
       return this._makeToken( BarlomTokenType.COLON_COLON );
     }
+
     return this._makeToken( BarlomTokenType.COLON );
 
   }
@@ -485,31 +260,33 @@ export class BarlomLexer {
   private _processDateTimeLiteral() : BarlomToken {
 
     // Year/month/day
-    if ( this._advanceIf( isDigit ) ) {
+    if ( this._scanner.advanceIf( isDigit ) ) {
 
       // year
       for ( var i = 0; i < 3; i += 1 ) {
-        if ( !this._advanceIf( isDigit ) ) {
+        if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
         }
       }
-      if ( !this._advanceOverLookAhead1Char( '-' ) ) {
+
+      if ( !this._scanner.advanceOverLookAhead1Char( '-' ) ) {
         return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
       }
 
       // month
       for ( var i = 0; i < 2; i += 1 ) {
-        if ( !this._advanceIf( isDigit ) ) {
+        if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
         }
       }
-      if ( !this._advanceOverLookAhead1Char( '-' ) ) {
+
+      if ( !this._scanner.advanceOverLookAhead1Char( '-' ) ) {
         return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
       }
 
       // day
       for ( var i = 0; i < 2; i += 1 ) {
-        if ( !this._advanceIf( isDigit ) ) {
+        if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
         }
       }
@@ -517,43 +294,43 @@ export class BarlomLexer {
     }
 
     // Time
-    if ( this._advanceOverLookAhead1Char( 'T' ) ) {
+    if ( this._scanner.advanceOverLookAhead1Char( 'T' ) ) {
 
       // hour
       for ( var i = 0; i < 2; i += 1 ) {
-        if ( !this._advanceIf( isDigit ) ) {
+        if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
         }
       }
 
-      if ( !this._advanceOverLookAhead1Char( ':' ) ) {
+      if ( !this._scanner.advanceOverLookAhead1Char( ':' ) ) {
         return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
       }
 
       // minutes
       for ( var i = 0; i < 2; i += 1 ) {
-        if ( !this._advanceIf( isDigit ) ) {
+        if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
         }
       }
 
       // seconds
-      if ( this._advanceOverLookAhead1Char( ':' ) ) {
+      if ( this._scanner.advanceOverLookAhead1Char( ':' ) ) {
 
         for ( var i = 0; i < 2; i += 1 ) {
-          if ( !this._advanceIf( isDigit ) ) {
+          if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
           }
         }
 
         // seconds fraction
-        if ( this._advanceOverLookAhead1Char( '.' ) ) {
-          if ( !this._advanceIf( isDigit ) ) {
+        if ( this._scanner.advanceOverLookAhead1Char( '.' ) ) {
+          if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
           }
 
           for ( var i = 0; i < 2; i += 1 ) {
-            if ( !this._advanceIf( isDigit ) ) {
+            if ( !this._scanner.advanceIf( isDigit ) ) {
               break;
             }
           }
@@ -562,30 +339,34 @@ export class BarlomLexer {
       }
 
       // time zone
-      if ( this._advanceOverLookAhead1Char( '+' ) || this._advanceOverLookAhead1Char( '-' ) ) {
+      if ( this._scanner.advanceOverLookAhead1Char( '+' ) || this._scanner.advanceOverLookAhead1Char( '-' ) ) {
+
         // hour
         for ( var i = 0; i < 2; i += 1 ) {
-          if ( !this._advanceIf( isDigit ) ) {
+          if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
           }
         }
-        if ( !this._advanceOverLookAhead1Char( ':' ) ) {
+
+        if ( !this._scanner.advanceOverLookAhead1Char( ':' ) ) {
           return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
         }
 
         // minutes
         for ( var i = 0; i < 2; i += 1 ) {
-          if ( !this._advanceIf( isDigit ) ) {
+          if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
           }
         }
+
       }
       else {
-        this._advanceOverLookAhead1Char( 'Z' );
+        this._scanner.advanceOverLookAhead1Char( 'Z' );
       }
+
     }
 
-    if ( !this._advanceOverLookAhead1Char( '$' ) ) {
+    if ( !this._scanner.advanceOverLookAhead1Char( '$' ) ) {
       return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
     }
 
@@ -599,15 +380,17 @@ export class BarlomLexer {
    */
   private _processDot() : BarlomToken {
 
-    if ( this._advanceOverLookAhead1Char( '.' ) ) {
-      if ( this._advanceOverLookAhead1Char( '.' ) ) {
+    if ( this._scanner.advanceOverLookAhead1Char( '.' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( '.' ) ) {
         return this._makeToken( BarlomTokenType.DOT_DOT_DOT );
       }
-      else if ( this._advanceOverLookAhead1Char( '<' ) ) {
+      else if ( this._scanner.advanceOverLookAhead1Char( '<' ) ) {
         return this._makeToken( BarlomTokenType.RANGE_EXCLUSIVE );
       }
 
       return this._makeToken( BarlomTokenType.RANGE_INCLUSIVE );
+
     }
 
     return this._makeToken( BarlomTokenType.DOT );
@@ -621,10 +404,10 @@ export class BarlomLexer {
   private _processIdentifier() : BarlomToken {
 
     // Consume identifier body characters ...
-    this._advanceWhile( isIdentifierBodyChar );
+    this._scanner.advanceWhile( isIdentifierBodyChar );
 
     // Allow a trailing prime.
-    this._advanceOverLookAhead1Char( "'" );
+    this._scanner.advanceOverLookAhead1Char( "'" );
 
     // Build the token.
     let result = this._makeToken( BarlomTokenType.Identifier );
@@ -648,63 +431,68 @@ export class BarlomLexer {
   private _processNumeric( ch0 : string ) : BarlomToken {
 
     if ( ch0 === '0' ) {
-      if ( ( this._hasLookAhead1Char( 'b' ) || this._hasLookAhead1Char( 'B' ) ) &&
-          ( this._hasLookAhead2Char( '0' ) || this._hasLookAhead2Char( '1' ) ) ) {
-        this._advanceSameLine( 2 );
-        this._advanceWhile( isBinaryDigitOrUnderscore );
+
+      if ( ( this._scanner.hasLookAhead1Char( 'b' ) || this._scanner.hasLookAhead1Char( 'B' ) ) &&
+          ( this._scanner.hasLookAhead2Char( '0' ) || this._scanner.hasLookAhead2Char( '1' ) ) ) {
+        this._scanner.advanceSameLine( 2 );
+        this._scanner.advanceWhile( isBinaryDigitOrUnderscore );
         return this._makeToken( BarlomTokenType.BinaryIntegerLiteral );
       }
 
-      if ( ( this._hasLookAhead1Char( 'x' ) || this._hasLookAhead1Char( 'X' ) ) &&
-          isHexDigit( this._lookAhead2Char() ) ) {
-        this._advanceSameLine( 2 );
-        this._advanceWhile( isHexDigitOrUnderscore );
+      if ( ( this._scanner.hasLookAhead1Char( 'x' ) || this._scanner.hasLookAhead1Char( 'X' ) ) &&
+          isHexDigit( this._scanner.lookAhead2Char() ) ) {
+        this._scanner.advanceSameLine( 2 );
+        this._scanner.advanceWhile( isHexDigitOrUnderscore );
         return this._makeToken( BarlomTokenType.HexIntegerLiteral );
       }
+
     }
 
-    this._advanceWhile( isDigitOrUnderscore );
+    this._scanner.advanceWhile( isDigitOrUnderscore );
 
-    var ch1 = this._lookAhead1Char();
-    var ch2 = this._lookAhead2Char();
-
+    var ch1 = this._scanner.lookAhead1Char();
+    var ch2 = this._scanner.lookAhead2Char();
     var isNumber = false;
 
     // number or version
     if ( ch1 === '.' && isDigit( ch2 ) ) {
-      this._advanceSameLine( 2 );
-      this._advanceWhile( isDigitOrUnderscore );
 
-      ch1 = this._lookAhead1Char();
-      ch2 = this._lookAhead2Char();
+      this._scanner.advanceSameLine( 2 );
+
+      this._scanner.advanceWhile( isDigitOrUnderscore );
+
+      ch1 = this._scanner.lookAhead1Char();
+      ch2 = this._scanner.lookAhead2Char();
 
       // version
       if ( ch1 === '.' && isDigit( ch2 ) ) {
-        this._advanceSameLine( 2 );
+        this._scanner.advanceSameLine( 2 );
         return this._processVersionLiteral();
       }
 
       isNumber = true;
+
     }
 
     // number with exponent
     if ( ch1 === 'e' || ch1 === 'E' ) {
+
       if ( isDigit( ch2 ) ) {
-        this._advanceSameLine( 2 );
+        this._scanner.advanceSameLine( 2 );
         isNumber = true;
       }
-      else if ( ( ch2 === '-' || ch2 === '+' ) && isDigit( this._lookAhead3Char() ) ) {
-        this._advanceSameLine( 3 );
+      else if ( ( ch2 === '-' || ch2 === '+' ) && isDigit( this._scanner.lookAhead3Char() ) ) {
+        this._scanner.advanceSameLine( 3 );
         isNumber = true;
       }
+
     }
 
     if ( isNumber ) {
-      this._advanceWhile( isDigit );
-
+      this._scanner.advanceWhile( isDigit );
       // number size suffix
       if ( ch1 === 'd' || ch1 === 'D' || ch1 === 'f' || ch1 === 'F' || ch1 === 'g' || ch1 === 'G' ) {
-        this._advanceSameLine();
+        this._scanner.advanceSameLine();
       }
 
       return this._makeToken( BarlomTokenType.NumberLiteral );
@@ -712,14 +500,14 @@ export class BarlomLexer {
 
     // integer unsigned suffix
     if ( ch1 === 'u' || ch1 === 'U' ) {
-      this._advanceSameLine();
-      ch1 = this._lookAhead1Char();
+      this._scanner.advanceSameLine();
+      ch1 = this._scanner.lookAhead1Char();
     }
 
     // integer size suffix
     if ( ch1 === 'i' || ch1 === 'I' || ch1 === 'l' || ch1 === 'L' ||
         ch1 === 's' || ch1 === 'S' || ch1 === 'y' || ch1 === 'Y' ) {
-      this._advanceSameLine();
+      this._scanner.advanceSameLine();
     }
 
     return this._makeToken( BarlomTokenType.IntegerLiteral );
@@ -732,17 +520,19 @@ export class BarlomLexer {
    */
   private _processUnderscore() : BarlomToken {
 
-    if ( this._advanceIf( isIdentifierChar ) ) {
+    if ( this._scanner.advanceIf( isIdentifierChar ) ) {
       return this._processIdentifier();
     }
-    else if ( this._advanceOverLookAhead1Char( '_' ) ) {
-      if ( this._advanceIf( isIdentifierChar ) ) {
+    else if ( this._scanner.advanceOverLookAhead1Char( '_' ) ) {
+
+      if ( this._scanner.advanceIf( isIdentifierChar ) ) {
         return this._processIdentifier();
       }
       else {
         // An identifier can start with at most two underscores that must be followed by an alphabetic character.
         return this._makeToken( BarlomTokenType.ERROR_INVALID_IDENTIFIER );
       }
+
     }
     else {
       return this._makeToken( BarlomTokenType.AnonymousLiteral );
@@ -757,32 +547,36 @@ export class BarlomLexer {
    */
   private _processVersionLiteral() : BarlomToken {
 
-    this._advanceWhile( isDigit );
+    this._scanner.advanceWhile( isDigit );
 
     // Scan an optional pre-release fragment
-    if ( this._hasLookAhead1Char( '-' ) ) {
-      var ch2 = this._lookAhead2Char();
+    if ( this._scanner.hasLookAhead1Char( '-' ) ) {
+
+      var ch2 = this._scanner.lookAhead2Char();
       if ( isIdentifierChar( ch2 ) ) {
-        this._advanceSameLine( 2 );
-        this._advanceWhile( isIdentifierBodyChar );
+        this._scanner.advanceSameLine( 2 );
+        this._scanner.advanceWhile( isIdentifierBodyChar );
       }
       else if ( isDigit( ch2 ) ) {
-        this._advanceSameLine( 2 );
-        this._advanceWhile( isDigit );
+        this._scanner.advanceSameLine( 2 );
+        this._scanner.advanceWhile( isDigit );
       }
+
     }
 
     // Scan an optional build fragment
-    if ( this._hasLookAhead1Char( '+' ) ) {
-      var ch2 = this._lookAhead2Char();
+    if ( this._scanner.hasLookAhead1Char( '+' ) ) {
+
+      var ch2 = this._scanner.lookAhead2Char();
       if ( isIdentifierChar( ch2 ) ) {
-        this._advanceSameLine( 2 );
-        this._advanceWhile( isIdentifierBodyChar );
+        this._scanner.advanceSameLine( 2 );
+        this._scanner.advanceWhile( isIdentifierBodyChar );
       }
       else if ( isDigit( ch2 ) ) {
-        this._advanceSameLine( 2 );
-        this._advanceWhile( isDigit );
+        this._scanner.advanceSameLine( 2 );
+        this._scanner.advanceWhile( isDigit );
       }
+
     }
 
     return this._makeToken( BarlomTokenType.VersionLiteral );
@@ -794,28 +588,15 @@ export class BarlomLexer {
    * @private
    */
   private _processWhiteSpace() : BarlomToken {
-    this._advanceWhile( isWhiteSpace );
+
+    this._scanner.advanceWhile( isWhiteSpace );
+
     if ( this._skipWhiteSpace ) {
       return this._skip();
     }
+
     return this._makeToken( BarlomTokenType.WHITE_SPACE );
-  }
 
-  /**
-   * Reads the next character from the input and advances the token indexes.
-   * @returns {string} the character read
-   * @private
-   */
-  private _scanChar() : string {
-    if ( this._endPos >= this._code.length ) {
-      return '';
-    }
-
-    let result = this._code.charAt( this._endPos );
-
-    this._advance( result );
-
-    return result;
   }
 
   /**
@@ -828,16 +609,10 @@ export class BarlomLexer {
     return this.readToken();
   }
 
-  private _code : string;
-  private _endCol : number;
-  private _endLine : number;
-  private _endPos : number;
   private _fileName : string;
+  private _scanner;
   private _skipComments : boolean;
   private _skipWhiteSpace : boolean;
-  private _startCol : number;
-  private _startLine : number;
-  private _startPos : number;
 
 }
     
