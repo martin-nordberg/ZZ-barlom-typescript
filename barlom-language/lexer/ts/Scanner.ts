@@ -26,8 +26,6 @@ export class Scanner {
    */
   public advance() {
 
-    this._endPos += 1;
-
     if ( this._code.charAt( this._endPos ) === '\n' ) {
       this._endLine += 1;
       this._endCol = 1;
@@ -35,6 +33,8 @@ export class Scanner {
     else {
       this._endCol += 1;
     }
+
+    this._endPos += 1;
 
   }
 

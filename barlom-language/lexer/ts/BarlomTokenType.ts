@@ -315,6 +315,7 @@ export enum BarlomTokenType {
   //-------------------------------------------------------------------------------------------------
 
   ERROR_INVALID_IDENTIFIER,
+  ERROR_INVALID_MULTILINE_TEXT_LITERAL,
   ERROR_INVALID_TEXT_LITERAL,
   ERROR_INVALID_TIME_LITERAL,
   ERROR_UNCLOSED_BLOCK_COMMENT,

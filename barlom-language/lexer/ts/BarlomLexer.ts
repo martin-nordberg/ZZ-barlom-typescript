@@ -134,7 +134,7 @@ export class BarlomLexer {
     var ch = this._scanner.scanChar();
     // Jump out early for end of file.
     if ( ch === '' ) {
-      return new BarlomToken( BarlomTokenType.EOF, '', this._fileName, this._scanner.startLine, this._scanner.startCol );
+      return new BarlomToken( BarlomTokenType.EOF, '', this._fileName, this._scanner.startLine, this._scanner.startColumn );
     }
 
     // Process an identifier.
@@ -435,8 +435,43 @@ export class BarlomLexer {
    * @private
    */
   private _processMultilineTextLiteral( quoteChar : string ) : BarlomToken {
-    // TODO
-    return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_MULTILINE_TEXT_LITERAL );
+
+    function isNotClosingQuoteOrBackSlashOrNewLine( ch : string ) : boolean {
+      return ch !== quoteChar && ch != '\\' && ch !== '\r' && ch != '\n';
+    }
+
+    while ( true ) {
+
+      this._scanner.advanceWhile( isNotClosingQuoteOrBackSlashOrNewLine );
+
+      if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
+
+        if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) &&
+            this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
+          return this._makeToken( BarlomTokenType.TextMultilineLiteral );
+        }
+
+        continue;
+
+      }
+      
+      if ( this._scanner.hasLookAhead1Char( '\r' ) || this._scanner.hasLookAhead1Char( '\n' ) ) {
+        this._scanner.advance();
+        continue;
+      }
+
+      if ( !this._scanTextEscape() ) {
+        break;
+      }
+
+    }
+
+    if ( this._scanner.isEof() ) {
+      return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_MULTILINE_TEXT_LITERAL )
+    }
+
+    return this._makeToken( BarlomTokenType.ERROR_INVALID_MULTILINE_TEXT_LITERAL )
+
   }
 
   /**
@@ -653,7 +688,9 @@ export class BarlomLexer {
    */
   private _processWhiteSpace() : BarlomToken {
 
-    this._scanner.advanceWhile( isWhiteSpace );
+    while ( isWhiteSpace( this._scanner.lookAhead1Char() ) ) {
+      this._scanner.advance();
+    }
 
     if ( this._skipWhiteSpace ) {
       return this._skip();
