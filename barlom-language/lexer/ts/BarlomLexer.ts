@@ -8,7 +8,10 @@ import {
     isHexDigitOrUnderscore,
     isIdentifierBodyChar,
     isIdentifierChar,
-    isWhiteSpace } from './LexerPredicates';
+    isQuoteChar,
+    isUnicodeNameChar,
+    isWhiteSpace
+} from './LexerPredicates';
 import { Scanner } from './Scanner';
 
 let keywords = {};
@@ -154,6 +157,11 @@ export class BarlomLexer {
       return this._processDot();
     }
 
+    // Process text literals
+    if ( isQuoteChar( ch ) ) {
+      return this._processQuote( ch );
+    }
+
     // Process numeric tokens
     if ( isDigit( ch ) ) {
       return this._processNumeric( ch );
@@ -234,7 +242,7 @@ export class BarlomLexer {
       this._scanner.advance();
 
     }
-  
+
   }
 
   /**
@@ -422,6 +430,16 @@ export class BarlomLexer {
   }
 
   /**
+   * Processes a multi-line quoted string after the opening three quote characters have been scanned.
+   * @param quoteChar the quote character seen.
+   * @private
+   */
+  private _processMultilineTextLiteral( quoteChar : string ) : BarlomToken {
+    // TODO
+    return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_MULTILINE_TEXT_LITERAL );
+  }
+
+  /**
    * Processes a token starting with a numeric digit - a binary, hex, or decimal integer or a number or a version
    * literal.
    * @param ch0 the first character of the token already scanned.
@@ -511,6 +529,52 @@ export class BarlomLexer {
     }
 
     return this._makeToken( BarlomTokenType.IntegerLiteral );
+
+  }
+
+  /**
+   * Processes a token starting with a single or double quote.
+   * @param quoteChar the opening quote character.
+   * @private
+   */
+  private _processQuote( quoteChar : string ) : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
+
+      // multiline text literal
+      if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
+        return this._processMultilineTextLiteral( quoteChar );
+      }
+
+      // empty text literal
+      return this._makeToken( BarlomTokenType.TextLiteral );
+
+    }
+
+    function isNotClosingQuoteOrBackSlashOrNewLine( ch : string ) : boolean {
+      return ch !== quoteChar && ch != '\\' && ch !== '\r' && ch != '\n';
+    }
+
+    while ( true ) {
+
+      this._scanner.advanceWhile( isNotClosingQuoteOrBackSlashOrNewLine );
+
+      if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
+        return this._makeToken( BarlomTokenType.TextLiteral );
+      }
+
+      if ( !this._scanTextEscape() ) {
+        break;
+      }
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( '\r' ) || this._scanner.hasLookAhead1Char( '\n' ) || this._scanner.isEof() ) {
+      return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_TEXT_LITERAL )
+    }
+
+    return this._makeToken( BarlomTokenType.ERROR_INVALID_TEXT_LITERAL )
+
   }
 
   /**
@@ -600,12 +664,68 @@ export class BarlomLexer {
   }
 
   /**
+   * Scans what is expected to be by process of elimination a text esacpe sequence.
+   * @returns {boolean} true if the escape sequence was recognized.
+   * @private
+   */
+  private _scanTextEscape() : boolean {
+
+    if ( !this._scanner.advanceOverLookAhead1Char( '\\' ) ) {
+      return false;
+    }
+
+    // bfnrt"'\\
+    if (
+        this._scanner.advanceOverLookAhead1Char( 'b' ) ||
+        this._scanner.advanceOverLookAhead1Char( 'f' ) ||
+        this._scanner.advanceOverLookAhead1Char( 'n' ) ||
+        this._scanner.advanceOverLookAhead1Char( 'r' ) ||
+        this._scanner.advanceOverLookAhead1Char( 't' ) ||
+        this._scanner.advanceOverLookAhead1Char( '"' ) ||
+        this._scanner.advanceOverLookAhead1Char( "'" ) ||
+        this._scanner.advanceOverLookAhead1Char( '\\' )
+    ) {
+      return true;
+    }
+
+    // unicode
+    if ( this._scanner.advanceOverLookAhead1Char( 'u' ) ) {
+
+      // unicode by name - see http://unicode.org/charts/charindex.html
+      if ( this._scanner.advanceOverLookAhead1Char( '{' ) ) {
+
+        if ( !this._scanner.advanceIf( isUnicodeNameChar ) ) {
+          return false;
+        }
+
+        this._scanner.advanceWhile( isUnicodeNameChar );
+
+        return this._scanner.advanceOverLookAhead1Char( '}' );
+
+      }
+
+      // unicode by number
+      for ( var i = 0 ; i < 4 ; i += 1 ) {
+        if ( !this._scanner.advanceIf( isHexDigit ) ) {
+          return false;
+        }
+      }
+
+      return true
+
+    }
+
+    return false;
+
+  }
+
+  /**
    * Skips the token that has just been recognized and reads the next one instead.
    * @returns {BarlomToken} the token read after discarding the current one.
    * @private
    */
   private _skip() : BarlomToken {
-    this._makeToken( BarlomTokenType.WHITE_SPACE );
+    this._scanner.beginNextToken();
     return this.readToken();
   }
 

@@ -231,5 +231,43 @@ describe(
       }
     );
 
+    it(
+      "should scan single-quoted text literals", function () {
+        var lexer = new BarlomLexer( " '' 'abc' ' \\t \\r\\n ' '\"' '  " );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.TextLiteral, "''",
+            BarlomTokenType.TextLiteral, "'abc'",
+            BarlomTokenType.TextLiteral, "' \\t \\r\\n '",
+            BarlomTokenType.TextLiteral, "'\"'",
+            BarlomTokenType.ERROR_UNCLOSED_TEXT_LITERAL, "'  ",
+            BarlomTokenType.EOF, ""
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan double-quoted text literals", function () {
+        var lexer = new BarlomLexer( ' "xxx" "" " \\u01AB \\b \\u{HOT BEVERAGE}\\u{FACE WITH STUCK-OUT TONGUE AND TIGHTLY-CLOSED EYES}" "\'" "  \r\n ' );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.TextLiteral, '"xxx"',
+            BarlomTokenType.TextLiteral, '""',
+            BarlomTokenType.TextLiteral, '" \\u01AB \\b \\u{HOT BEVERAGE}\\u{FACE WITH STUCK-OUT TONGUE AND TIGHTLY-CLOSED EYES}"',
+            BarlomTokenType.TextLiteral, '"\'"',
+            BarlomTokenType.ERROR_UNCLOSED_TEXT_LITERAL, '"  ',
+            BarlomTokenType.EOF, ""
+          ]
+        );
+      }
+    );
+
   }
 );
