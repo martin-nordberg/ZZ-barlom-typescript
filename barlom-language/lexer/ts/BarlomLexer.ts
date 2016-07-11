@@ -9,8 +9,7 @@ import {
     isIdentifierBodyChar,
     isIdentifierChar,
     isQuoteChar,
-    isUnicodeNameChar,
-    isWhiteSpace
+    isUnicodeNameChar
 } from './LexerPredicates';
 import { Scanner } from './Scanner';
 
@@ -88,21 +87,13 @@ export class BarlomLexer {
    * Constructs a lexer that will return tokens from the given code which has been read from the given file.
    * @param code the code to scan.
    * @param fileName the name of the file.
-   * @param options options for how the lexer should treat white space and comments.
    */
   constructor(
       code : string,
-      fileName : string,
-      options = {
-        skipComments: true,
-        skipWhiteSpace: true
-      }
+      fileName : string
   ) {
     this._fileName = fileName;
     this._scanner = new Scanner( code );
-
-    this._skipComments = options.hasOwnProperty( 'skipComments' ) ? options.skipComments : true;
-    this._skipWhiteSpace = options.hasOwnProperty( 'skipWhiteSpace' ) ? options.skipWhiteSpace : true;
   }
 
   /**
@@ -131,12 +122,18 @@ export class BarlomLexer {
    */
   public readToken() : BarlomToken {
 
+    // Skip white space.
+    if ( this._scanner.advanceWhileWhiteSpace() ) {
+      this._scanner.beginNextToken();
+    }
+
     var ch = this._scanner.scanChar();
-    // Jump out early for end of file.
+
+    // Detect end of file.
     if ( ch === '' ) {
       return new BarlomToken( BarlomTokenType.EOF, '', this._fileName, this._scanner.startLine, this._scanner.startColumn );
     }
-
+    
     // Process an identifier.
     if ( isIdentifierChar( ch ) ) {
       return this._processIdentifier();
@@ -147,40 +144,37 @@ export class BarlomLexer {
       return this._processUnderscore();
     }
 
-    // Process whitespace.
-    if ( isWhiteSpace( ch ) ) {
-      return this._processWhiteSpace();
-    }
-
     // Process tokens starting with a dot.
     if ( ch === '.' ) {
       return this._processDot();
     }
 
-    // Process text literals
+    // Process text literals.
     if ( isQuoteChar( ch ) ) {
       return this._processQuote( ch );
     }
 
-    // Process numeric tokens
+    // Process numeric tokens.
     if ( isDigit( ch ) ) {
       return this._processNumeric( ch );
     }
 
-    // Process tokens starting with a dash
+    // Process tokens starting with a dash.
     if ( ch === '-' ) {
       return this._processDash();
     }
 
+    // Process tokens starting with the equals character.
     if ( ch === '=' ) {
       return this._processEquals();
     }
 
+    // Process tokens starting with a left brace.
     if ( ch === '{' ) {
       return this._processLeftBrace();
     }
 
-    // Process common single character punctuation marks
+    // Process common single character punctuation marks.
     if ( ch === ',' ) {
       return this._makeToken( BarlomTokenType.COMMA );
     }
@@ -196,7 +190,7 @@ export class BarlomLexer {
       return this._processColon();
     }
 
-    // Process a time literal
+    // Process a time literal.
     if ( ch === '$' ) {
       return this._processDateTimeLiteral();
     }
@@ -244,15 +238,13 @@ export class BarlomLexer {
 
     while ( true ) {
 
-      if ( this._scanner.isEof() ) {
-        return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_CODE );
-      }
-
       if ( this._scanner.advanceOverLookAhead1Char( '`' ) ) {
         return this._makeToken( BarlomTokenType.CodeLiteral );
       }
 
-      this._scanner.advance();
+      if ( this._scanner.scanChar() === '' ) {
+        return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_CODE );
+      }
 
     }
 
@@ -466,15 +458,17 @@ export class BarlomLexer {
       this._scanner.advanceSameLine( 2 );
       
       while ( true ) {
-        
+
         if ( this._scanner.advanceOverLookAhead1Char( '}' ) &&
              this._scanner.advanceOverLookAhead1Char( '}' ) &&
              this._scanner.advanceOverLookAhead1Char( '}' ) ) {
           return this._makeToken( BarlomTokenType.TemplateLiteral );
         }
-        
-        this._scanner.advance();
-        
+
+        if ( this._scanner.scanChar() === '' ) {
+          return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_TEMPLATE );
+        }
+
       }
       
     }
@@ -536,13 +530,14 @@ export class BarlomLexer {
   private _processMultilineTextLiteral( quoteChar : string ) : BarlomToken {
 
     function isNotClosingQuoteOrBackSlashOrNewLine( ch : string ) : boolean {
-      return ch !== quoteChar && ch != '\\' && ch !== '\r' && ch != '\n';
+      return ch !== quoteChar && ch != '\\' && ch != '\n';
     }
 
     while ( true ) {
 
       this._scanner.advanceWhile( isNotClosingQuoteOrBackSlashOrNewLine );
 
+      // ending quote character
       if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
 
         if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) &&
@@ -554,8 +549,8 @@ export class BarlomLexer {
 
       }
       
-      if ( this._scanner.hasLookAhead1Char( '\r' ) || this._scanner.hasLookAhead1Char( '\n' ) ) {
-        this._scanner.advance();
+      // new line
+      if ( this._scanner.advanceWhileWhiteSpace() ) {
         continue;
       }
 
@@ -781,25 +776,6 @@ export class BarlomLexer {
   }
 
   /**
-   * Process a sequence of white space characters.
-   * @returns {BarlomToken} the token scanned.
-   * @private
-   */
-  private _processWhiteSpace() : BarlomToken {
-
-    while ( isWhiteSpace( this._scanner.lookAhead1Char() ) ) {
-      this._scanner.advance();
-    }
-
-    if ( this._skipWhiteSpace ) {
-      return this._skip();
-    }
-
-    return this._makeToken( BarlomTokenType.WHITE_SPACE );
-
-  }
-
-  /**
    * Scans what is expected to be by process of elimination a text esacpe sequence.
    * @returns {boolean} true if the escape sequence was recognized.
    * @private
@@ -867,8 +843,6 @@ export class BarlomLexer {
 
   private _fileName : string;
   private _scanner;
-  private _skipComments : boolean;
-  private _skipWhiteSpace : boolean;
 
 }
     

@@ -21,24 +21,6 @@ export class Scanner {
   }
 
   /**
-   * Advance the position and token indexes over the given character, which might be a new line character.
-   * @private
-   */
-  public advance() {
-
-    if ( this._code.charAt( this._endPos ) === '\n' ) {
-      this._endLine += 1;
-      this._endCol = 1;
-    }
-    else {
-      this._endCol += 1;
-    }
-
-    this._endPos += 1;
-
-  }
-
-  /**
    * Tests whether the first character of lookahead meets a given condition. Advances one character if so.
    * @param predicate function that checks whether the next character should be advanced over.
    * @returns {boolean} True if the given character is next in the input.
@@ -102,6 +84,45 @@ export class Scanner {
       this._endPos += 1;
       this._endCol += 1;
     }
+  }
+
+  /**
+   * Advance the position and token indexes over the current character if it is white space. Track the line number
+   * accordingly. NOTE: Tab characters are NOT recognized as white space. The world is weary of tab munging. Barlom
+   * tools are expected to indent code to individual user's tastes using space characters.
+   * @private
+   */
+  public advanceWhileWhiteSpace() : boolean {
+
+    var result = false;
+
+    while ( true ) {
+
+      if ( this._endPos >= this._code.length ) {
+        break;
+      }
+
+      var ch = this._code.charAt( this._endPos );
+
+      if ( ch === ' ' || ch === '\r' ) {
+        this._endPos += 1;
+        this._endCol += 1;
+        result = true;
+      }
+      else if ( ch === '\n' ) {
+        this._endPos += 1;
+        this._endCol = 1;
+        this._endLine += 1;
+        result = true;
+      }
+      else {
+        break;
+      }
+
+    }
+
+    return result;
+
   }
 
   /**
@@ -214,7 +235,15 @@ export class Scanner {
 
     let result = this._code.charAt( this._endPos );
 
-    this.advance();
+    if ( result === '\n' ) {
+      this._endLine += 1;
+      this._endCol = 1;
+    }
+    else {
+      this._endCol += 1;
+    }
+
+    this._endPos += 1;
 
     return result;
 

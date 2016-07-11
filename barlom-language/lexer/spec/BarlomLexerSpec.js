@@ -104,23 +104,6 @@ describe(
     );
 
     it(
-      "should not ignore white space when so configured", function () {
-        var lexer = new BarlomLexer( "  \n; ", "example.barlom", { skipWhiteSpace: false } );
-
-        var tokens = lexer.readAllTokens();
-
-        expect( tokens ).toHaveTokenTypes(
-          [
-            BarlomTokenType.WHITE_SPACE, "  \n", 1, 1,
-            BarlomTokenType.SEMICOLON, ";", 2, 1,
-            BarlomTokenType.WHITE_SPACE, " ", 2, 2,
-            BarlomTokenType.EOF, "", 2, 3
-          ]
-        );
-      }
-    );
-
-    it(
       "should scan dot tokens", function () {
         var lexer = new BarlomLexer( ". .. ..< ...", "example.barlom" );
 
@@ -157,7 +140,7 @@ describe(
 
     it(
       "should scan left brace tokens", function () {
-        var lexer = new BarlomLexer( "{ {{ {{{ {{}} }}} {", "example.barlom" );
+        var lexer = new BarlomLexer( "{ {{ {{{ {{}} }}} { {{{ }}", "example.barlom" );
 
         var tokens = lexer.readAllTokens();
 
@@ -168,7 +151,8 @@ describe(
             BarlomTokenType.LEFT_BRACE, "{", 1, 4,
             BarlomTokenType.TemplateLiteral, "{{{ {{}} }}}", 1, 6,
             BarlomTokenType.LEFT_BRACE, "{", 1, 19,
-            BarlomTokenType.EOF, "", 1, 20
+            BarlomTokenType.ERROR_UNCLOSED_TEMPLATE, "{{{ }}", 1, 21,
+            BarlomTokenType.EOF, "", 1, 27
           ]
         );
       }
