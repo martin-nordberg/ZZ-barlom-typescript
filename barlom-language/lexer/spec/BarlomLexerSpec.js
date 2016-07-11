@@ -139,6 +139,42 @@ describe(
     );
 
     it(
+      "should scan equals tokens", function () {
+        var lexer = new BarlomLexer( "= => =/=", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.EQUALS, "=", 1, 1,
+            BarlomTokenType.EQUAL_ARROW, "=>", 1, 3,
+            BarlomTokenType.NOT_EQUAL_TO, "=/=", 1, 6,
+            BarlomTokenType.EOF, "", 1, 9
+          ]
+        );
+      }
+    );
+
+    it(
+      "should scan left brace tokens", function () {
+        var lexer = new BarlomLexer( "{ {{ {{{ {{}} }}} {", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.LEFT_BRACE, "{", 1, 1,
+            BarlomTokenType.LEFT_BRACE, "{", 1, 3,
+            BarlomTokenType.LEFT_BRACE, "{", 1, 4,
+            BarlomTokenType.TemplateLiteral, "{{{ {{}} }}}", 1, 6,
+            BarlomTokenType.LEFT_BRACE, "{", 1, 19,
+            BarlomTokenType.EOF, "", 1, 20
+          ]
+        );
+      }
+    );
+
+    it(
       "should scan dash tokens", function () {
         var lexer = new BarlomLexer( "- -- -> -= --- --( -->", "example.barlom" );
 

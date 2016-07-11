@@ -172,6 +172,14 @@ export class BarlomLexer {
       return this._processDash();
     }
 
+    if ( ch === '=' ) {
+      return this._processEquals();
+    }
+
+    if ( ch === '{' ) {
+      return this._processLeftBrace();
+    }
+
     // Process common single character punctuation marks
     if ( ch === ',' ) {
       return this._makeToken( BarlomTokenType.COMMA );
@@ -384,6 +392,7 @@ export class BarlomLexer {
     }
 
     return this._makeToken( BarlomTokenType.DateTimeLiteral );
+
   }
 
   /**
@@ -418,6 +427,7 @@ export class BarlomLexer {
     }
 
     return this._makeToken( BarlomTokenType.MINUS );
+
   }
 
   /**
@@ -441,6 +451,56 @@ export class BarlomLexer {
     }
 
     return this._makeToken( BarlomTokenType.DOT );
+
+  }
+
+  /**
+   * Processes a token starting with a left brace character: '{', '{{{'
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processLeftBrace() : BarlomToken {
+
+    if ( this._scanner.hasLookAhead1Char( '{' ) && this._scanner.hasLookAhead2Char( '{' ) ) {
+      
+      this._scanner.advanceSameLine( 2 );
+      
+      while ( true ) {
+        
+        if ( this._scanner.advanceOverLookAhead1Char( '}' ) &&
+             this._scanner.advanceOverLookAhead1Char( '}' ) &&
+             this._scanner.advanceOverLookAhead1Char( '}' ) ) {
+          return this._makeToken( BarlomTokenType.TemplateLiteral );
+        }
+        
+        this._scanner.advance();
+        
+      }
+      
+    }
+
+    return this._makeToken( BarlomTokenType.LEFT_BRACE );
+
+  }
+
+  /**
+   * Processes a token starting with an equals character: '=', '=>', '=/='
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processEquals() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+      return this._makeToken( BarlomTokenType.EQUAL_ARROW );
+    }
+
+    if ( this._scanner.hasLookAhead1Char( '/' ) && this._scanner.hasLookAhead2Char( '=' ) ) {
+      this._scanner.advanceSameLine( 2 );
+      return this._makeToken( BarlomTokenType.NOT_EQUAL_TO );
+    }
+
+    return this._makeToken( BarlomTokenType.EQUALS );
+
   }
 
   /**
