@@ -139,6 +139,27 @@ describe(
     );
 
     it(
+      "should scan dash tokens", function () {
+        var lexer = new BarlomLexer( "- -- -> -= --- --( -->", "example.barlom" );
+
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.MINUS, "-", 1, 1,
+            BarlomTokenType.MINUS_MINUS, "--", 1, 3,
+            BarlomTokenType.ARROW, "->", 1, 6,
+            BarlomTokenType.MINUS_EQUALS, "-=", 1, 9,
+            BarlomTokenType.EDGE_PLAIN, "---", 1, 12,
+            BarlomTokenType.EDGE_LPAREN, "--(", 1, 16,
+            BarlomTokenType.EDGE_RIGHT, "-->", 1, 20,
+            BarlomTokenType.EOF, "", 1, 23
+          ]
+        );
+      }
+    );
+
+    it(
       "should scan underscore tokens", function () {
         var lexer = new BarlomLexer( "_a __abc' _ __ _a1", "example.barlom" );
 

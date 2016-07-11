@@ -167,6 +167,11 @@ export class BarlomLexer {
       return this._processNumeric( ch );
     }
 
+    // Process tokens starting with a dash
+    if ( ch === '-' ) {
+      return this._processDash();
+    }
+
     // Process common single character punctuation marks
     if ( ch === ',' ) {
       return this._makeToken( BarlomTokenType.COMMA );
@@ -379,6 +384,40 @@ export class BarlomLexer {
     }
 
     return this._makeToken( BarlomTokenType.DateTimeLiteral );
+  }
+
+  /**
+   * Processes a token starting with a dash character: '-', '--', '->', '-=', '---', '--(', '-->'.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processDash() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '-' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( '(' ) ) {
+        return this._makeToken( BarlomTokenType.EDGE_LPAREN );
+      }
+      else if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+        return this._makeToken( BarlomTokenType.EDGE_RIGHT );
+      }
+      else if ( this._scanner.advanceOverLookAhead1Char( '-' ) ) {
+        return this._makeToken( BarlomTokenType.EDGE_PLAIN );
+      }
+
+      return this._makeToken( BarlomTokenType.MINUS_MINUS );
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+      return this._makeToken( BarlomTokenType.ARROW );
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.MINUS_EQUALS );
+    }
+
+    return this._makeToken( BarlomTokenType.MINUS );
   }
 
   /**
