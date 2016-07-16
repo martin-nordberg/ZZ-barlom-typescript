@@ -4,8 +4,8 @@
 describe(
   "BarlomLexer", function () {
 
-    var BarlomLexer = require( '../js/BarlomLexer' ).BarlomLexer;
-    var BarlomTokenType = require( '../js/BarlomTokenType' ).BarlomTokenType;
+    var BarlomLexer = require( '../../js/lexer/src/BarlomLexer' ).BarlomLexer;
+    var BarlomTokenType = require( '../../js/lexer/src/BarlomTokenType' ).BarlomTokenType;
 
     /**
      * Defines a matcher that compares all the tokens from a lexer run.

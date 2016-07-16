@@ -272,11 +272,11 @@ export class BarlomLexer {
    */
   private _processAt() : BarlomToken {
 
-    if ( this._scanner.advanceOverLookAhead1Char( '|' ) ) {
+    function isNotClosingPipe( ch : string ) : boolean {
+      return ch !== '|' && ch !== '\r' && ch != '\n';
+    }
 
-      function isNotClosingPipe( ch : string ) : boolean {
-        return ch !== '|' && ch !== '\r' && ch != '\n';
-      }
+    if ( this._scanner.advanceOverLookAhead1Char( '|' ) ) {
 
       this._scanner.advanceWhile( isNotClosingPipe );
 
@@ -1204,11 +1204,11 @@ export class BarlomLexer {
    */
   private _processSlash() : BarlomToken {
 
-    if ( this._scanner.advanceOverLookAhead1Char( '*' ) ) {
+    function isNotAsteriskOrNewLine( ch : string ) : boolean {
+      return ch !== '*' && ch != '\n';
+    }
 
-      function isNotAsteriskOrNewLine( ch : string ) : boolean {
-        return ch !== '*' && ch != '\n';
-      }
+    if ( this._scanner.advanceOverLookAhead1Char( '*' ) ) {
 
       while ( true ) {
 

@@ -1,9 +1,9 @@
 /**
  * Main application for Barlom IDE.
  */
-var BarlomLexer = require( '../../barlom-language/lexer/js/BarlomLexer' ).BarlomLexer;
-var BarlomTokenType = require( '../../barlom-language/lexer/js/BarlomTokenType' ).BarlomTokenType;
-var BarlomToken = require( '../../barlom-language/lexer/js/BarlomToken' ).BarlomToken;
+var BarlomLexer = require( '../../barlom-language/js/lexer/src/BarlomLexer' ).BarlomLexer;
+var BarlomTokenType = require( '../../barlom-language/js/lexer/src/BarlomTokenType' ).BarlomTokenType;
+var BarlomToken = require( '../../barlom-language/js/lexer/src/BarlomToken' ).BarlomToken;
 
 var greeter = new BarlomLexer( "Hello, brave Barlom world.", "example.barlom", { skipWhiteSpace: false } );
 
