@@ -176,6 +176,57 @@ export class Scanner {
   }
 
   /**
+   * Tests whether the third character of lookahead is as given.
+   * @param ch the character to look for.
+   * @returns {boolean} True if the given character is third in the remaining input.
+   * @private
+   */
+  public hasLookAhead3Char( ch : string ) : boolean {
+
+    var index = this._endPos + 2;
+    if ( index >= this._code.length ) {
+      return false;
+    }
+
+    return this._code.charAt( index ) === ch;
+
+  }
+
+  /**
+   * Tests whether the fourth character of lookahead is as given.
+   * @param ch the character to look for.
+   * @returns {boolean} True if the given character is fourth in the remaining input.
+   * @private
+   */
+  public hasLookAhead4Char( ch : string ) : boolean {
+
+    var index = this._endPos + 3;
+    if ( index >= this._code.length ) {
+      return false;
+    }
+
+    return this._code.charAt( index ) === ch;
+
+  }
+
+  /**
+   * Tests whether the fifth character of lookahead is as given.
+   * @param ch the character to look for.
+   * @returns {boolean} True if the given character is fifth in the remaining input.
+   * @private
+   */
+  public hasLookAhead5Char( ch : string ) : boolean {
+
+    var index = this._endPos + 4;
+    if ( index >= this._code.length ) {
+      return false;
+    }
+
+    return this._code.charAt( index ) === ch;
+
+  }
+
+  /**
    * Returns the first character of lookahead in the input.
    * @returns {string} the character found or '' for EOF.
    * @private

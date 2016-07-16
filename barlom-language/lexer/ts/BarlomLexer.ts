@@ -8,7 +8,6 @@ import {
     isHexDigitOrUnderscore,
     isIdentifierBodyChar,
     isIdentifierChar,
-    isQuoteChar,
     isUnicodeNameChar
 } from './LexerPredicates';
 import { Scanner } from './Scanner';
@@ -25,6 +24,7 @@ keywords['check'] = BarlomTokenType.CHECK;
 keywords['cleanup'] = BarlomTokenType.CLEANUP;
 keywords['constant'] = BarlomTokenType.CONSTANT;
 keywords['detect'] = BarlomTokenType.DETECT;
+keywords['div'] = BarlomTokenType.DIV;
 keywords['edge'] = BarlomTokenType.EDGE;
 keywords['else'] = BarlomTokenType.ELSE;
 keywords['end'] = BarlomTokenType.END;
@@ -44,8 +44,10 @@ keywords['is'] = BarlomTokenType.IS;
 keywords['isnot'] = BarlomTokenType.ISNOT;
 keywords['let'] = BarlomTokenType.LET;
 keywords['match'] = BarlomTokenType.MATCH;
+keywords['mod'] = BarlomTokenType.MOD;
 keywords['module'] = BarlomTokenType.MODULE;
 keywords['not'] = BarlomTokenType.NOT;
+keywords['notin'] = BarlomTokenType.NOTIN;
 keywords['object'] = BarlomTokenType.OBJECT;
 keywords['or'] = BarlomTokenType.OR;
 keywords['package'] = BarlomTokenType.PACKAGE;
@@ -133,25 +135,10 @@ export class BarlomLexer {
     if ( ch === '' ) {
       return new BarlomToken( BarlomTokenType.EOF, '', this._fileName, this._scanner.startLine, this._scanner.startColumn );
     }
-    
+
     // Process an identifier.
     if ( isIdentifierChar( ch ) ) {
       return this._processIdentifier();
-    }
-
-    // Process an identifier or anonymous literal starting with an underscore.
-    if ( ch === '_' ) {
-      return this._processUnderscore();
-    }
-
-    // Process tokens starting with a dot.
-    if ( ch === '.' ) {
-      return this._processDot();
-    }
-
-    // Process text literals.
-    if ( isQuoteChar( ch ) ) {
-      return this._processQuote( ch );
     }
 
     // Process numeric tokens.
@@ -159,50 +146,69 @@ export class BarlomLexer {
       return this._processNumeric( ch );
     }
 
-    // Process tokens starting with a dash.
-    if ( ch === '-' ) {
-      return this._processDash();
-    }
+    switch ( ch ) {
+      case '"':
+        return this._processDoubleQuote();
+      case "'":
+        return this._processSingleQuote();
+      case '_':
+        return this._processUnderscore();
+      case '.':
+        return this._processDot();
+      case '-':
+        return this._processDash();
+      case '(':
+        return this._makeToken( BarlomTokenType.LEFT_PARENTHESIS );
+      case ')':
+        return this._makeToken( BarlomTokenType.RIGHT_PARENTHESIS );
+      case '=':
+        return this._processEquals();
+      case '{':
+        return this._processLeftBrace();
+      case '}':
+        return this._makeToken( BarlomTokenType.RIGHT_BRACE );
+      case ',':
+        return this._makeToken( BarlomTokenType.COMMA );
+      case '[':
+        return this._processLeftBracket();
+      case ']':
+        return this._makeToken( BarlomTokenType.RIGHT_BRACKET );
+      case '/':
+        return this._processSlash();
+      case '?':
+        return this._processQuestion();
+      case ';':
+        return this._makeToken( BarlomTokenType.SEMICOLON );
+      case ':':
+        return this._processColon();
+      case '<':
+        return this._processLessThan();
+      case '>':
+        return this._processGreaterThan();
+      case '$':
+        return this._processDateTimeLiteral();
+      case '`':
+        return this._processCodeLiteral();
+      case '&':
+        return this._processAmpersand();
+      case '+':
+        return this._processPlus();
+      case '*':
+        return this._processAsterisk();
+      case '^':
+        return this._processCaret();
+      case '%':
+        return this._processPercent();
+      case '~':
+        return this._processTilde();
+      case '@':
+        return this._processAt();
+      case '#':
+        return this._processHash();
 
-    // Process tokens starting with the equals character.
-    if ( ch === '=' ) {
-      return this._processEquals();
+      default:
+        return this._makeToken( BarlomTokenType.ErrorUnexpectedCharacter );
     }
-
-    // Process tokens starting with a left brace.
-    if ( ch === '{' ) {
-      return this._processLeftBrace();
-    }
-
-    // Process common single character punctuation marks.
-    if ( ch === ',' ) {
-      return this._makeToken( BarlomTokenType.COMMA );
-    }
-    if ( ch === '?' ) {
-      return this._makeToken( BarlomTokenType.QUESTION );
-    }
-    if ( ch === ';' ) {
-      return this._makeToken( BarlomTokenType.SEMICOLON );
-    }
-
-    // Process tokens starting with a colon.
-    if ( ch === ':' ) {
-      return this._processColon();
-    }
-
-    // Process a time literal.
-    if ( ch === '$' ) {
-      return this._processDateTimeLiteral();
-    }
-
-    // Process a code literal.
-    if ( ch === '`' ) {
-      return this._processCodeLiteral();
-    }
-
-    // TODO: lots more characters to recognize ...
-
-    return this._makeToken( BarlomTokenType.ERROR_UNEXPECTED_CHARACTER );
 
   }
 
@@ -230,6 +236,62 @@ export class BarlomLexer {
   }
 
   /**
+   * Process a token starting with an ampersand: '&' or '&='.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processAmpersand() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.CONCAT_EQUALS )
+    }
+
+    return this._makeToken( BarlomTokenType.CONCATENATE );
+
+  }
+
+  /**
+   * Process a token starting with an asterisk: '*' or '*='.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processAsterisk() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.TIMES_EQUALS )
+    }
+
+    return this._makeToken( BarlomTokenType.TIMES );
+
+  }
+
+  /**
+   * Process an @ sign or location literal.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processAt() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '|' ) ) {
+
+      function isNotClosingPipe( ch : string ) : boolean {
+        return ch !== '|' && ch !== '\r' && ch != '\n';
+      }
+
+      this._scanner.advanceWhile( isNotClosingPipe );
+
+      if ( this._scanner.advanceOverLookAhead1Char( "|" ) ) {
+        return this._makeToken( BarlomTokenType.LocationLiteral );
+      }
+
+      return this._makeToken( BarlomTokenType.ErrorUnclosedLocationLiteral )
+    }
+
+    return this._makeToken( BarlomTokenType.AT );
+
+  }
+
+  /**
    * Process a back-tick-delimited code literal.
    * @returns {BarlomToken} the token scanned.
    * @private
@@ -243,7 +305,7 @@ export class BarlomLexer {
       }
 
       if ( this._scanner.scanChar() === '' ) {
-        return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_CODE );
+        return this._makeToken( BarlomTokenType.ErrorUnclosedCodeLiteral );
       }
 
     }
@@ -251,17 +313,97 @@ export class BarlomLexer {
   }
 
   /**
-   * Processes a token starting with a colon.
+   * Process a token starting with a caret: '^' or '^='.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processCaret() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.POWER_EQUALS )
+    }
+
+    return this._makeToken( BarlomTokenType.POWER );
+
+  }
+
+  /**
+   * Processes a token starting with a colon:
+   *   ::>
+   *   ::
+   *   :>
+   *   :
    * @returns {BarlomToken} the token scanned.
    * @private
    */
   private _processColon() : BarlomToken {
 
     if ( this._scanner.advanceOverLookAhead1Char( ':' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+        return this._makeToken( BarlomTokenType.ARROW_COLON_COLON_RIGHT );
+      }
+
       return this._makeToken( BarlomTokenType.COLON_COLON );
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+      return this._makeToken( BarlomTokenType.ARROW_COLON_RIGHT );
     }
 
     return this._makeToken( BarlomTokenType.COLON );
+
+  }
+
+  /**
+   * Processes a token starting with a dash character:
+   *   ->
+   *   -=
+   *   -->>
+   *   -->
+   *   ---
+   *   --<>
+   *   -
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processDash() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+      return this._makeToken( BarlomTokenType.ARROW_DASH_RIGHT );
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.MINUS_EQUALS );
+    }
+
+    if ( this._scanner.hasLookAhead1Char( '-' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( '>' ) ) {
+
+        this._scanner.advanceSameLine( 2 );
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_DOUBLE_RIGHT)
+        }
+        else {
+          return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_RIGHT );
+        }
+
+      }
+      else if ( this._scanner.hasLookAhead2Char( '-' ) ) {
+        this._scanner.advanceSameLine( 2 );
+        return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_DASH );
+      }
+      else if ( this._scanner.hasLookAhead2Char( '<' ) && this._scanner.hasLookAhead3Char( '>' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_DIAMOND_RIGHT );
+      }
+
+    }
+
+    return this._makeToken( BarlomTokenType.MINUS );
 
   }
 
@@ -272,35 +414,39 @@ export class BarlomLexer {
    */
   private _processDateTimeLiteral() : BarlomToken {
 
+    var literalStarted = false;
+
     // Year/month/day
     if ( this._scanner.advanceIf( isDigit ) ) {
+
+      literalStarted = true;
 
       // year
       for ( var i = 0; i < 3; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
-          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
       }
 
       if ( !this._scanner.advanceOverLookAhead1Char( '-' ) ) {
-        return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
       }
 
       // month
       for ( var i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
-          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
       }
 
       if ( !this._scanner.advanceOverLookAhead1Char( '-' ) ) {
-        return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
       }
 
       // day
       for ( var i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
-          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
       }
 
@@ -309,21 +455,23 @@ export class BarlomLexer {
     // Time
     if ( this._scanner.advanceOverLookAhead1Char( 'T' ) ) {
 
+      literalStarted = true;
+
       // hour
       for ( var i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
-          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
       }
 
       if ( !this._scanner.advanceOverLookAhead1Char( ':' ) ) {
-        return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+        return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
       }
 
       // minutes
       for ( var i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
-          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
       }
 
@@ -332,14 +480,14 @@ export class BarlomLexer {
 
         for ( var i = 0; i < 2; i += 1 ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
-            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+            return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
         }
 
         // seconds fraction
         if ( this._scanner.advanceOverLookAhead1Char( '.' ) ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
-            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+            return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
 
           for ( var i = 0; i < 2; i += 1 ) {
@@ -357,18 +505,18 @@ export class BarlomLexer {
         // hour
         for ( var i = 0; i < 2; i += 1 ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
-            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+            return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
         }
 
         if ( !this._scanner.advanceOverLookAhead1Char( ':' ) ) {
-          return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+          return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
 
         // minutes
         for ( var i = 0; i < 2; i += 1 ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
-            return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+            return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
         }
 
@@ -379,51 +527,27 @@ export class BarlomLexer {
 
     }
 
-    if ( !this._scanner.advanceOverLookAhead1Char( '$' ) ) {
-      return this._makeToken( BarlomTokenType.ERROR_INVALID_TIME_LITERAL );
+    if ( literalStarted ) {
+
+      if ( !this._scanner.advanceOverLookAhead1Char( '$' ) ) {
+        return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
+      }
+
+      return this._makeToken( BarlomTokenType.DateTimeLiteral );
+
     }
 
-    return this._makeToken( BarlomTokenType.DateTimeLiteral );
+    return this._makeToken( BarlomTokenType.TO_STRING );
 
   }
 
   /**
-   * Processes a token starting with a dash character: '-', '--', '->', '-=', '---', '--(', '-->'.
-   * @returns {BarlomToken} the token scanned.
-   * @private
-   */
-  private _processDash() : BarlomToken {
-
-    if ( this._scanner.advanceOverLookAhead1Char( '-' ) ) {
-
-      if ( this._scanner.advanceOverLookAhead1Char( '(' ) ) {
-        return this._makeToken( BarlomTokenType.EDGE_LPAREN );
-      }
-      else if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
-        return this._makeToken( BarlomTokenType.EDGE_RIGHT );
-      }
-      else if ( this._scanner.advanceOverLookAhead1Char( '-' ) ) {
-        return this._makeToken( BarlomTokenType.EDGE_PLAIN );
-      }
-
-      return this._makeToken( BarlomTokenType.MINUS_MINUS );
-
-    }
-
-    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
-      return this._makeToken( BarlomTokenType.ARROW );
-    }
-
-    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
-      return this._makeToken( BarlomTokenType.MINUS_EQUALS );
-    }
-
-    return this._makeToken( BarlomTokenType.MINUS );
-
-  }
-
-  /**
-   * Processes a token starting with a period character.
+   * Processes a token starting with a period character:
+   *   ...
+   *   ..<
+   *   ..
+   *   .?
+   *   .
    * @returns {BarlomToken} the token scanned.
    * @private
    */
@@ -442,58 +566,139 @@ export class BarlomLexer {
 
     }
 
+    if ( this._scanner.advanceOverLookAhead1Char( '?' ) ) {
+      return this._makeToken( BarlomTokenType.DOT_QUESTION );
+    }
+
     return this._makeToken( BarlomTokenType.DOT );
 
   }
 
   /**
-   * Processes a token starting with a left brace character: '{', '{{{'
-   * @returns {BarlomToken} the token scanned.
+   * Processes a token starting with a double quote.
    * @private
    */
-  private _processLeftBrace() : BarlomToken {
+  private _processDoubleQuote() : BarlomToken {
 
-    if ( this._scanner.hasLookAhead1Char( '{' ) && this._scanner.hasLookAhead2Char( '{' ) ) {
-      
-      this._scanner.advanceSameLine( 2 );
-      
-      while ( true ) {
+    if ( this._scanner.advanceOverLookAhead1Char( '"' ) ) {
 
-        if ( this._scanner.advanceOverLookAhead1Char( '}' ) &&
-             this._scanner.advanceOverLookAhead1Char( '}' ) &&
-             this._scanner.advanceOverLookAhead1Char( '}' ) ) {
-          return this._makeToken( BarlomTokenType.TemplateLiteral );
-        }
-
-        if ( this._scanner.scanChar() === '' ) {
-          return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_TEMPLATE );
-        }
-
+      // multiline text literal
+      if ( this._scanner.advanceOverLookAhead1Char( '"' ) ) {
+        return this._processMultilineTextLiteral( '"' );
       }
-      
+
+      // empty text literal
+      return this._makeToken( BarlomTokenType.TextLiteral_DoubleQuoted );
+
     }
 
-    return this._makeToken( BarlomTokenType.LEFT_BRACE );
+    function isNotClosingQuoteOrBackSlashOrNewLine( ch : string ) : boolean {
+      return ch !== '"' && ch != '\\' && ch !== '\r' && ch != '\n';
+    }
+
+    while ( true ) {
+
+      this._scanner.advanceWhile( isNotClosingQuoteOrBackSlashOrNewLine );
+
+      if ( this._scanner.advanceOverLookAhead1Char( '"' ) ) {
+        return this._makeToken( BarlomTokenType.TextLiteral_DoubleQuoted );
+      }
+
+      if ( !this._scanTextEscape() ) {
+        break;
+      }
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( '\r' ) || this._scanner.hasLookAhead1Char( '\n' ) || this._scanner.isEof() ) {
+      return this._makeToken( BarlomTokenType.ErrorUnclosedTextLiteral )
+    }
+
+    return this._makeToken( BarlomTokenType.ErrorInvalidTextLiteral )
 
   }
 
   /**
-   * Processes a token starting with an equals character: '=', '=>', '=/='
+   * Processes a token starting with an equals character:
+   *   =>
+   *   ==>
+   *   ==>>
+   *   ==<>
+   *   =
    * @returns {BarlomToken} the token scanned.
    * @private
    */
   private _processEquals() : BarlomToken {
 
     if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
-      return this._makeToken( BarlomTokenType.EQUAL_ARROW );
+      return this._makeToken( BarlomTokenType.ARROW_EQUAL_RIGHT );
     }
 
-    if ( this._scanner.hasLookAhead1Char( '/' ) && this._scanner.hasLookAhead2Char( '=' ) ) {
-      this._scanner.advanceSameLine( 2 );
-      return this._makeToken( BarlomTokenType.NOT_EQUAL_TO );
+    if ( this._scanner.hasLookAhead1Char( '=' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( '>' ) ) {
+
+        this._scanner.advanceSameLine( 2 );
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_DOUBLE_RIGHT );
+        }
+
+        return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_RIGHT );
+
+      }
+
+      if ( this._scanner.hasLookAhead2Char( '<' ) && this._scanner.hasLookAhead3Char( '>' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_DIAMOND_RIGHT );
+      }
+
     }
 
     return this._makeToken( BarlomTokenType.EQUALS );
+
+  }
+
+  /**
+   * Process a token starting with greater than: '>' or '>='.
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processGreaterThan() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.GREATER_THAN_OR_EQUAL )
+    }
+
+    return this._makeToken( BarlomTokenType.GREATER_THAN );
+
+  }
+
+  /**
+   * Processes a token starting with a hash character: a user-defined keyword or token
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processHash() : BarlomToken {
+
+    // TODO: user-define literals - need nested brace-matching
+    // if ( this._scanner.advanceOverLookAhead1Char( '[' ) ) {
+    //
+    // }
+    // if ( this._scanner.advanceOverLookAhead1Char( '{' ) ) {
+    //
+    // }
+    // if ( this._scanner.advanceOverLookAhead1Char( '/' ) ) {
+    //
+    // }
+
+    if ( !this._scanner.advanceIf( isIdentifierChar ) ) {
+      return this._makeToken( BarlomTokenType.ErrorUnexpectedCharacter );
+    }
+
+    this._scanner.advanceWhile( isIdentifierChar );
+
+    return this._makeToken( BarlomTokenType.UserDefinedKeyWord );
 
   }
 
@@ -523,6 +728,210 @@ export class BarlomLexer {
   }
 
   /**
+   * Processes a token starting with a left brace character: '{', '{{{'
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processLeftBrace() : BarlomToken {
+
+    if ( this._scanner.hasLookAhead1Char( '{' ) && this._scanner.hasLookAhead2Char( '{' ) ) {
+      
+      this._scanner.advanceSameLine( 2 );
+      
+      while ( true ) {
+
+        if ( this._scanner.advanceOverLookAhead1Char( '}' ) &&
+             this._scanner.advanceOverLookAhead1Char( '}' ) &&
+             this._scanner.advanceOverLookAhead1Char( '}' ) ) {
+          return this._makeToken( BarlomTokenType.TemplateLiteral );
+        }
+
+        if ( this._scanner.scanChar() === '' ) {
+          return this._makeToken( BarlomTokenType.ErrorUnclosedTemplate );
+        }
+
+      }
+      
+    }
+
+    return this._makeToken( BarlomTokenType.LEFT_BRACE );
+
+  }
+
+  /**
+   * Processes a token starting with a left bracket character: '[', '[%%'
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processLeftBracket() : BarlomToken {
+
+    if ( this._scanner.hasLookAhead1Char( '%' ) && this._scanner.hasLookAhead2Char( '%' ) ) {
+      this._scanner.advanceSameLine( 2 );
+      return this._makeToken( BarlomTokenType.GRAPH_START );
+    }
+
+    return this._makeToken( BarlomTokenType.LEFT_BRACKET );
+
+  }
+
+  /**
+   * Processes a token starting with a less than character:
+   *   <-->
+   *   <--
+   *   <->
+   *   <-
+   *   <==>
+   *   <==
+   *   <=>
+   *   <=
+   *   <~~>
+   *   <~~
+   *   <~>
+   *   <~
+   *   <::>
+   *   <::
+   *   <:>
+   *   <:
+   *   <<--
+   *   <<==
+   *   <<~~
+   *   <>--
+   *   <>==
+   *   <>~~
+   *   <>
+   *   <
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processLessThan() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '-' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( '-' ) ) {
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_LEFT_RIGHT );
+        }
+
+        return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_LEFT );
+
+      }
+
+      if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+        return this._makeToken( BarlomTokenType.ARROW_DASH_LEFT_RIGHT );
+      }
+
+      return this._makeToken( BarlomTokenType.ARROW_DASH_LEFT );
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_LEFT_RIGHT );
+        }
+
+        return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_LEFT );
+
+      }
+
+      if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+        return this._makeToken( BarlomTokenType.COMPARE );
+      }
+
+      return this._makeToken( BarlomTokenType.LESS_THAN_OR_EQUAL );
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '~' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( '~' ) ) {
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_LEFT_RIGHT );
+        }
+
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_LEFT );
+
+      }
+
+      if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_LEFT_RIGHT );
+      }
+
+      return this._makeToken( BarlomTokenType.ARROW_TILDE_LEFT );
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( ':' ) ) {
+
+      if ( this._scanner.advanceOverLookAhead1Char( ':' ) ) {
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_COLON_COLON_LEFT_RIGHT );
+        }
+
+        return this._makeToken( BarlomTokenType.ARROW_COLON_COLON_LEFT );
+
+      }
+
+      if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+        return this._makeToken( BarlomTokenType.ARROW_COLON_LEFT_RIGHT );
+      }
+
+      return this._makeToken( BarlomTokenType.ARROW_COLON_LEFT );
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( '<' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( '-' ) && this._scanner.hasLookAhead3Char( '-' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_DOUBLE_LEFT );
+      }
+
+      if ( this._scanner.hasLookAhead2Char( '=' ) && this._scanner.hasLookAhead3Char( '=' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_DOUBLE_LEFT );
+      }
+
+      if ( this._scanner.hasLookAhead2Char( '~' ) && this._scanner.hasLookAhead3Char( '~' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_DOUBLE_LEFT );
+      }
+
+      return this._makeToken( BarlomTokenType.LESS_THAN );
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+
+      if ( this._scanner.hasLookAhead1Char( '-' ) && this._scanner.hasLookAhead1Char( '-' ) ) {
+        this._scanner.advanceSameLine( 2 );
+        return this._makeToken( BarlomTokenType.ARROW_DASH_DASH_DIAMOND_LEFT );
+      }
+
+      if ( this._scanner.hasLookAhead1Char( '=' ) && this._scanner.hasLookAhead2Char( '=' ) ) {
+        this._scanner.advanceSameLine( 2 );
+        return this._makeToken( BarlomTokenType.ARROW_EQUAL_EQUAL_DIAMOND_LEFT );
+      }
+
+      if ( this._scanner.hasLookAhead1Char( '~' ) && this._scanner.hasLookAhead2Char( '~' ) ) {
+        this._scanner.advanceSameLine( 2 );
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_DIAMOND_LEFT );
+      }
+
+      return this._makeToken( BarlomTokenType.NOT_EQUAL_TO );
+
+    }
+
+    return this._makeToken( BarlomTokenType.LESS_THAN );
+
+  }
+
+  /**
    * Processes a multi-line quoted string after the opening three quote characters have been scanned.
    * @param quoteChar the quote character seen.
    * @private
@@ -542,7 +951,12 @@ export class BarlomLexer {
 
         if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) &&
             this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
-          return this._makeToken( BarlomTokenType.TextMultilineLiteral );
+          if ( quoteChar === "'" ) {
+            return this._makeToken( BarlomTokenType.TextLiteral_SingleQuotedMultiline );
+          }
+          else {
+            return this._makeToken( BarlomTokenType.TextLiteral_DoubleQuotedMultiline );
+          }
         }
 
         continue;
@@ -561,10 +975,10 @@ export class BarlomLexer {
     }
 
     if ( this._scanner.isEof() ) {
-      return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_MULTILINE_TEXT_LITERAL )
+      return this._makeToken( BarlomTokenType.ErrorUnclosedTextLiteralMultiline )
     }
 
-    return this._makeToken( BarlomTokenType.ERROR_INVALID_MULTILINE_TEXT_LITERAL )
+    return this._makeToken( BarlomTokenType.ErrorInvalidMultilineTextLiteral )
 
   }
 
@@ -583,14 +997,14 @@ export class BarlomLexer {
           ( this._scanner.hasLookAhead2Char( '0' ) || this._scanner.hasLookAhead2Char( '1' ) ) ) {
         this._scanner.advanceSameLine( 2 );
         this._scanner.advanceWhile( isBinaryDigitOrUnderscore );
-        return this._makeToken( BarlomTokenType.BinaryIntegerLiteral );
+        return this._makeToken( BarlomTokenType.IntegerLiteral_Binary );
       }
 
       if ( ( this._scanner.hasLookAhead1Char( 'x' ) || this._scanner.hasLookAhead1Char( 'X' ) ) &&
           isHexDigit( this._scanner.lookAhead2Char() ) ) {
         this._scanner.advanceSameLine( 2 );
         this._scanner.advanceWhile( isHexDigitOrUnderscore );
-        return this._makeToken( BarlomTokenType.HexIntegerLiteral );
+        return this._makeToken( BarlomTokenType.IntegerLiteral_Hex );
       }
 
     }
@@ -657,39 +1071,66 @@ export class BarlomLexer {
       this._scanner.advanceSameLine();
     }
 
-    return this._makeToken( BarlomTokenType.IntegerLiteral );
+    return this._makeToken( BarlomTokenType.IntegerLiteral_Decimal );
 
   }
 
   /**
-   * Processes a token starting with a single or double quote.
-   * @param quoteChar the opening quote character.
+   * Process a token starting with a plus sign: '+' or '+='.
+   * @returns {BarlomToken} the token scanned.
    * @private
    */
-  private _processQuote( quoteChar : string ) : BarlomToken {
+  private _processPlus() : BarlomToken {
 
-    if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.PLUS_EQUALS )
+    }
+
+    return this._makeToken( BarlomTokenType.PLUS );
+
+  }
+
+  /**
+   * Processes a token starting with a question mark.
+   * @private
+   */
+  private _processQuestion() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '?' ) ) {
+      return this._makeToken( BarlomTokenType.QUESTION_QUESTION );
+    }
+
+    return this._makeToken( BarlomTokenType.QUESTION );
+  }
+
+  /**
+   * Processes a token starting with a single quote.
+   * @private
+   */
+  private _processSingleQuote() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( "'" ) ) {
 
       // multiline text literal
-      if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
-        return this._processMultilineTextLiteral( quoteChar );
+      if ( this._scanner.advanceOverLookAhead1Char( "'" ) ) {
+        return this._processMultilineTextLiteral( "'" );
       }
 
       // empty text literal
-      return this._makeToken( BarlomTokenType.TextLiteral );
+      return this._makeToken( BarlomTokenType.TextLiteral_SingleQuoted );
 
     }
 
     function isNotClosingQuoteOrBackSlashOrNewLine( ch : string ) : boolean {
-      return ch !== quoteChar && ch != '\\' && ch !== '\r' && ch != '\n';
+      return ch !== "'" && ch != '\\' && ch !== '\r' && ch != '\n';
     }
 
     while ( true ) {
 
       this._scanner.advanceWhile( isNotClosingQuoteOrBackSlashOrNewLine );
 
-      if ( this._scanner.advanceOverLookAhead1Char( quoteChar ) ) {
-        return this._makeToken( BarlomTokenType.TextLiteral );
+      if ( this._scanner.advanceOverLookAhead1Char( "'" ) ) {
+        return this._makeToken( BarlomTokenType.TextLiteral_SingleQuoted );
       }
 
       if ( !this._scanTextEscape() ) {
@@ -699,10 +1140,275 @@ export class BarlomLexer {
     }
 
     if ( this._scanner.hasLookAhead1Char( '\r' ) || this._scanner.hasLookAhead1Char( '\n' ) || this._scanner.isEof() ) {
-      return this._makeToken( BarlomTokenType.ERROR_UNCLOSED_TEXT_LITERAL )
+      return this._makeToken( BarlomTokenType.ErrorUnclosedTextLiteral )
     }
 
-    return this._makeToken( BarlomTokenType.ERROR_INVALID_TEXT_LITERAL )
+    return this._makeToken( BarlomTokenType.ErrorInvalidTextLiteral )
+
+  }
+
+  /**
+   * Processes a token starting with a percent sign:
+   *   %
+   *   %%]
+   * @private
+   */
+  private _processPercent() : BarlomToken {
+
+    if ( this._scanner.hasLookAhead1Char( '%' ) && this._scanner.hasLookAhead2Char( ']' ) ) {
+      this._scanner.advanceSameLine( 2 );
+      return this._makeToken( BarlomTokenType.GRAPH_END );
+    }
+
+    return this._makeToken( BarlomTokenType.PERCENT );
+
+  }
+
+  /**
+   * Processes a regular expression literal after the initial '~/' has bee recognized.
+   * @private
+   */
+  private _processRegularExpressionLiteral() : BarlomToken {
+
+    function isNotSlashOrNewLine( ch : string ) : boolean {
+      return ch !== '/' && ch != '\n';
+    }
+
+    this._scanner.advanceWhile( isNotSlashOrNewLine );
+
+    if ( this._scanner.isEof() || this._scanner.hasLookAhead1Char( '\n' ) ) {
+      return this._makeToken( BarlomTokenType.ErrorUnclosedRegularExpression );
+    }
+
+    // closing slash
+    this._scanner.advanceSameLine();
+
+    // suffix
+    while ( this._scanner.advanceOverLookAhead1Char( 'i' ) ||
+        this._scanner.advanceOverLookAhead1Char( 'g' ) ||
+        this._scanner.advanceOverLookAhead1Char( 'm' )
+        ) {
+      // keep going
+    }
+
+    return this._makeToken( BarlomTokenType.RegularExpressionLiteral );
+
+  }
+
+  /**
+   * Processes a token starting with a forward slash.
+   *   /
+   *   /*...* /
+   *   /=
+   * @private
+   */
+  private _processSlash() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '*' ) ) {
+
+      function isNotAsteriskOrNewLine( ch : string ) : boolean {
+        return ch !== '*' && ch != '\n';
+      }
+
+      while ( true ) {
+
+        this._scanner.advanceWhile( isNotAsteriskOrNewLine );
+
+        // closing characters
+        if ( this._scanner.advanceOverLookAhead1Char( '*' ) ) {
+
+          if ( this._scanner.advanceOverLookAhead1Char( '/' ) ) {
+            return this._makeToken( BarlomTokenType.Documentation );
+          }
+
+          continue;
+
+        }
+
+        // new line
+        if ( this._scanner.advanceWhileWhiteSpace() ) {
+          continue;
+        }
+
+        return this._makeToken( BarlomTokenType.ErrorUnclosedBlockComment )
+
+      }
+
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=') ) {
+      return this._makeToken( BarlomTokenType.DIVIDE_EQUALS );
+    }
+
+    return this._makeToken( BarlomTokenType.DIVIDED_BY );
+
+  }
+
+  /**
+   * Process a token that starts with a tilde:
+   *   ~/ ... /igm
+   *   ~=
+   *   ~>
+   *   ~~>>
+   *   ~~>
+   *   ~~~
+   *   ~~<>
+   *   ~and~
+   *   ~nand~
+   *   ~nor~
+   *   ~not~
+   *   ~or~
+   *   ~shl~
+   *   ~shr~
+   *   ~xor~
+   *   ~zshr~
+   *   ~
+   * @returns {BarlomToken} the token scanned.
+   * @private
+   */
+  private _processTilde() : BarlomToken {
+
+    if ( this._scanner.advanceOverLookAhead1Char( '/' ) ) {
+      return this._processRegularExpressionLiteral();
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '=' ) ) {
+      return this._makeToken( BarlomTokenType.TILDE_EQUALS );
+    }
+
+    if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+      return this._makeToken( BarlomTokenType.ARROW_TILDE_RIGHT );
+    }
+
+    if ( this._scanner.hasLookAhead1Char( '~' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( '>' ) ) {
+
+        this._scanner.advanceSameLine( 2 );
+
+        if ( this._scanner.advanceOverLookAhead1Char( '>' ) ) {
+          return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_DOUBLE_RIGHT );
+        }
+
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_RIGHT );
+
+      }
+
+      if ( this._scanner.hasLookAhead2Char( '~' ) ) {
+        this._scanner.advanceSameLine( 2 );
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_TILDE );
+      }
+
+      if ( this._scanner.hasLookAhead2Char( '<' ) && this._scanner.hasLookAhead3Char( '>' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.ARROW_TILDE_TILDE_DIAMOND_RIGHT );
+      }
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( 'a' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( 'n' ) &&
+          this._scanner.hasLookAhead3Char( 'd' ) &&
+          this._scanner.hasLookAhead4Char( '~' ) ) {
+        this._scanner.advanceSameLine( 4 );
+        return this._makeToken( BarlomTokenType.BITWISE_AND );
+      }
+
+      return this._makeToken( BarlomTokenType.TILDE )
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( 'n') ) {
+
+      if ( this._scanner.hasLookAhead2Char( 'a' ) &&
+          this._scanner.hasLookAhead3Char( 'n' ) &&
+          this._scanner.hasLookAhead4Char( 'd' ) &&
+          this._scanner.hasLookAhead5Char( '~' ) ) {
+        this._scanner.advanceSameLine( 5 );
+        return this._makeToken( BarlomTokenType.BITWISE_NAND );
+      }
+
+      if ( this._scanner.hasLookAhead2Char( 'o' ) ) {
+
+        if ( this._scanner.hasLookAhead3Char( 't' ) &&
+          this._scanner.hasLookAhead4Char( '~' ) ) {
+          this._scanner.advanceSameLine( 4 );
+          return this._makeToken( BarlomTokenType.BITWISE_NOT );
+        }
+
+        if ( this._scanner.hasLookAhead3Char( 'r' ) &&
+          this._scanner.hasLookAhead4Char( '~' ) ) {
+          this._scanner.advanceSameLine( 4 );
+          return this._makeToken( BarlomTokenType.BITWISE_NOR );
+        }
+
+      }
+
+      return this._makeToken( BarlomTokenType.TILDE )
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( 'o' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( 'r' ) &&
+          this._scanner.hasLookAhead3Char( '~' ) ) {
+        this._scanner.advanceSameLine( 3 );
+        return this._makeToken( BarlomTokenType.BITWISE_OR );
+      }
+
+      return this._makeToken( BarlomTokenType.TILDE )
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( 's' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( 'h' ) ) {
+
+        if ( this._scanner.hasLookAhead3Char( 'l' ) &&
+            this._scanner.hasLookAhead4Char( '~' ) ) {
+          this._scanner.advanceSameLine( 4 );
+          return this._makeToken( BarlomTokenType.BITWISE_SHIFT_LEFT );
+        }
+
+        if ( this._scanner.hasLookAhead3Char( 'r' ) &&
+            this._scanner.hasLookAhead4Char( '~' ) ) {
+          this._scanner.advanceSameLine( 4 );
+          return this._makeToken( BarlomTokenType.BITWISE_SHIFT_RIGHT );
+        }
+
+      }
+
+      return this._makeToken( BarlomTokenType.TILDE )
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( 'x' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( 'o' ) &&
+          this._scanner.hasLookAhead3Char( 'r' ) &&
+          this._scanner.hasLookAhead4Char( '~' ) ) {
+        this._scanner.advanceSameLine( 4 );
+        return this._makeToken( BarlomTokenType.BITWISE_XOR );
+      }
+
+      return this._makeToken( BarlomTokenType.TILDE )
+
+    }
+
+    if ( this._scanner.hasLookAhead1Char( 'z' ) ) {
+
+      if ( this._scanner.hasLookAhead2Char( 's' ) &&
+          this._scanner.hasLookAhead3Char( 'h' ) &&
+          this._scanner.hasLookAhead4Char( 'r' ) &&
+          this._scanner.hasLookAhead5Char( '~' ) ) {
+        this._scanner.advanceSameLine( 5 );
+        return this._makeToken( BarlomTokenType.BITWISE_ZERO_SHIFT_RIGHT );
+      }
+
+    }
+
+    return this._makeToken( BarlomTokenType.TILDE )
 
   }
 
@@ -723,12 +1429,12 @@ export class BarlomLexer {
       }
       else {
         // An identifier can start with at most two underscores that must be followed by an alphabetic character.
-        return this._makeToken( BarlomTokenType.ERROR_INVALID_IDENTIFIER );
+        return this._makeToken( BarlomTokenType.ErrorInvalidIdentifier );
       }
 
     }
     else {
-      return this._makeToken( BarlomTokenType.AnonymousLiteral );
+      return this._makeToken( BarlomTokenType.ANONYMOUS_LITERAL );
     }
 
   }
@@ -829,16 +1535,6 @@ export class BarlomLexer {
 
     return false;
 
-  }
-
-  /**
-   * Skips the token that has just been recognized and reads the next one instead.
-   * @returns {BarlomToken} the token read after discarding the current one.
-   * @private
-   */
-  private _skip() : BarlomToken {
-    this._scanner.beginNextToken();
-    return this.readToken();
   }
 
   private _fileName : string;

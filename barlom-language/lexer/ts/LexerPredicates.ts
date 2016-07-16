@@ -67,15 +67,6 @@ export function isIdentifierBodyChar( ch : string ) : boolean {
 }
 
 /**
- * Determines whetehr the given character is a single or double quote character.
- * @param ch the character to check.
- * @returns {boolean} true if ch is "'" or '"'.
- */
-export function isQuoteChar( ch : string ) : boolean {
-  return ch === '"' || ch === "'";
-}
-
-/**
  * Returns a character allowed to appear in a Unicode escape sequence, e.g. \u{TEARDROP-SPOKED ASTERISK}.
  * See http://unicode.org/charts/charindex.html#T.
  * @param ch the character to check.
