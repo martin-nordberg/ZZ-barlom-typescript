@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/barlom-ide/js" />
+      <excludeFolder url="file://$MODULE_DIR$/barlom-language/js" />
       <excludeFolder url="file://$MODULE_DIR$/barlom-language/lexer/js" />
     </content>
     <orderEntry type="inheritedJdk" />

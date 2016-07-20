@@ -104,9 +104,9 @@ export class BarlomLexer {
    */
   public readAllTokens() : BarlomToken[] {
 
-    var result = [];
+    let result = [];
 
-    var token = this.readToken();
+    let token = this.readToken();
     while ( token.tokenType !== BarlomTokenType.EOF ) {
       result.push( token );
       token = this.readToken();
@@ -129,7 +129,7 @@ export class BarlomLexer {
       this._scanner.beginNextToken();
     }
 
-    var ch = this._scanner.scanChar();
+    const ch = this._scanner.scanChar();
 
     // Detect end of file.
     if ( ch === '' ) {
@@ -414,7 +414,7 @@ export class BarlomLexer {
    */
   private _processDateTimeLiteral() : BarlomToken {
 
-    var literalStarted = false;
+    let literalStarted = false;
 
     // Year/month/day
     if ( this._scanner.advanceIf( isDigit ) ) {
@@ -422,7 +422,7 @@ export class BarlomLexer {
       literalStarted = true;
 
       // year
-      for ( var i = 0; i < 3; i += 1 ) {
+      for ( let i = 0; i < 3; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
@@ -433,7 +433,7 @@ export class BarlomLexer {
       }
 
       // month
-      for ( var i = 0; i < 2; i += 1 ) {
+      for ( let i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
@@ -444,7 +444,7 @@ export class BarlomLexer {
       }
 
       // day
-      for ( var i = 0; i < 2; i += 1 ) {
+      for ( let i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
@@ -458,7 +458,7 @@ export class BarlomLexer {
       literalStarted = true;
 
       // hour
-      for ( var i = 0; i < 2; i += 1 ) {
+      for ( let i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
@@ -469,7 +469,7 @@ export class BarlomLexer {
       }
 
       // minutes
-      for ( var i = 0; i < 2; i += 1 ) {
+      for ( let i = 0; i < 2; i += 1 ) {
         if ( !this._scanner.advanceIf( isDigit ) ) {
           return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
         }
@@ -478,7 +478,7 @@ export class BarlomLexer {
       // seconds
       if ( this._scanner.advanceOverLookAhead1Char( ':' ) ) {
 
-        for ( var i = 0; i < 2; i += 1 ) {
+        for ( let i = 0; i < 2; i += 1 ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
@@ -490,7 +490,7 @@ export class BarlomLexer {
             return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
 
-          for ( var i = 0; i < 2; i += 1 ) {
+          for ( let i = 0; i < 2; i += 1 ) {
             if ( !this._scanner.advanceIf( isDigit ) ) {
               break;
             }
@@ -503,7 +503,7 @@ export class BarlomLexer {
       if ( this._scanner.advanceOverLookAhead1Char( '+' ) || this._scanner.advanceOverLookAhead1Char( '-' ) ) {
 
         // hour
-        for ( var i = 0; i < 2; i += 1 ) {
+        for ( let i = 0; i < 2; i += 1 ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
@@ -514,7 +514,7 @@ export class BarlomLexer {
         }
 
         // minutes
-        for ( var i = 0; i < 2; i += 1 ) {
+        for ( let i = 0; i < 2; i += 1 ) {
           if ( !this._scanner.advanceIf( isDigit ) ) {
             return this._makeToken( BarlomTokenType.ErrorInvalidTimeLiteral );
           }
@@ -1011,9 +1011,9 @@ export class BarlomLexer {
 
     this._scanner.advanceWhile( isDigitOrUnderscore );
 
-    var ch1 = this._scanner.lookAhead1Char();
-    var ch2 = this._scanner.lookAhead2Char();
-    var isNumber = false;
+    let ch1 = this._scanner.lookAhead1Char();
+    let ch2 = this._scanner.lookAhead2Char();
+    let isNumber = false;
 
     // number or version
     if ( ch1 === '.' && isDigit( ch2 ) ) {
@@ -1451,7 +1451,7 @@ export class BarlomLexer {
     // Scan an optional pre-release fragment
     if ( this._scanner.hasLookAhead1Char( '-' ) ) {
 
-      var ch2 = this._scanner.lookAhead2Char();
+      const ch2 = this._scanner.lookAhead2Char();
       if ( isIdentifierChar( ch2 ) ) {
         this._scanner.advanceSameLine( 2 );
         this._scanner.advanceWhile( isIdentifierBodyChar );
@@ -1466,7 +1466,7 @@ export class BarlomLexer {
     // Scan an optional build fragment
     if ( this._scanner.hasLookAhead1Char( '+' ) ) {
 
-      var ch2 = this._scanner.lookAhead2Char();
+      const ch2 = this._scanner.lookAhead2Char();
       if ( isIdentifierChar( ch2 ) ) {
         this._scanner.advanceSameLine( 2 );
         this._scanner.advanceWhile( isIdentifierBodyChar );
@@ -1523,7 +1523,7 @@ export class BarlomLexer {
       }
 
       // unicode by number
-      for ( var i = 0 ; i < 4 ; i += 1 ) {
+      for ( let i = 0 ; i < 4 ; i += 1 ) {
         if ( !this._scanner.advanceIf( isHexDigit ) ) {
           return false;
         }

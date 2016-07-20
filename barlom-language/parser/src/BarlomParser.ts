@@ -1,5 +1,8 @@
-import { BarlomToken } from '../../lexer/src/BarlomToken';
-import { BarlomLexer } from '../../lexer/src/BarlomLexer';
+import { BarlomTokenStream } from './BarlomTokenStream';
+import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
+import { AstCompilationUnit } from '../../ast/src/AstCompilationUnit';
+import { AstUseDeclaration } from '../../ast/src/AstUseDeclaration';
+import { AstPath } from '../../ast/src/AstPath';
 
 
 /**
@@ -16,16 +19,65 @@ export class BarlomParser {
       code : string,
       fileName : string
   ) {
-    this._lexer = new BarlomLexer( code, fileName );
+    this._tokenStream = new BarlomTokenStream( code, fileName );
   }
 
   /**
-   * Parses an entire Barlom file.
+   * Parses an entire Barlom source file.
    */
-  public compilationUnit() : void {
-    this._lexer.readAllTokens();
+  public parseCompilationUnit() : AstCompilationUnit {
+
+    let result = new AstCompilationUnit( this._tokenStream.lookAhead1Token() );
+
+    // use declarations
+    while ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.USE ) ) {
+      result.childNodes.push( this._parseUseDeclaration() );
+    }
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.EOF );
+
+    return result;
+
   }
 
-  private _lexer : BarlomLexer;
+  /**
+   * Parses the namespace, name, and arguments of a module path.
+   * @private
+   */
+  private _parsePath() : AstPath {
+
+    let result = new AstPath( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
+
+    while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.DOT ) ) {
+
+      result.pathEntries.push( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
+
+      // TODO: arguments in the path
+
+    }
+
+    return result;
+
+  }
+
+  /**
+   * Parses a use declaration after the "use" keyword has been seen but not yet consumed.
+   */
+  private _parseUseDeclaration() : AstUseDeclaration {
+
+    let result = new AstUseDeclaration(
+        this._tokenStream.consumeBufferedToken(),
+        this._parsePath()
+    );
+
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.AS ) ) {
+      result.synonym = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+    }
+
+    return result;
+
+  }
+
+  private _tokenStream : BarlomTokenStream;
 
 }
