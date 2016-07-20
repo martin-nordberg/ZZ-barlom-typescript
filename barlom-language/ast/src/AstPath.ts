@@ -7,15 +7,22 @@ import { BarlomToken } from '../../lexer/src/BarlomToken';
 export class AstPath extends AstNode {
 
   constructor(
-      firstToken : BarlomToken
+      keyToken : BarlomToken
   ) {
-    super( firstToken );
+    super( keyToken );
 
-    this.pathEntries = [ firstToken ];
+    this._entries = [ keyToken ];
   }
 
-  public pathEntries : BarlomToken[];
+  get entries() {
+    return this._entries;
+  }
 
-  // TOD: version argument
+  public extendPath( identifierToken : BarlomToken ) {
+    this._entries.push( identifierToken );
+    this.keyToken = identifierToken;
+  }
+
+  public _entries : BarlomToken[];
 
 }

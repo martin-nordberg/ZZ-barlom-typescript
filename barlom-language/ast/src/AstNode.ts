@@ -1,16 +1,14 @@
 import { BarlomToken } from '../../lexer/src/BarlomToken';
+
 /**
  * Base class for AST nodes.
  */
-export class AstNode {
+export abstract class AstNode {
 
-  constructor( firstToken : BarlomToken ) {
-    this.childNodes = [];
-    this.firstToken = firstToken;
+  constructor( keyToken : BarlomToken ) {
+    this.keyToken = keyToken;
   }
 
-  public childNodes: AstNode[];
-
-  public firstToken : BarlomToken;
+  public keyToken : BarlomToken;
 
 }
