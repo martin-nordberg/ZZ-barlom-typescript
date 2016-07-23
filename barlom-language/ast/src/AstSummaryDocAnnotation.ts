@@ -10,7 +10,8 @@ export class AstSummaryDocAnnotation extends AstAnnotation {
       documentation : BarlomToken
   ) {
     super( documentation );
-    this.documentation = documentation;
+    this.documentation = Object.freeze( documentation );
+    Object.freeze( this );
   }
 
   public documentation : BarlomToken;

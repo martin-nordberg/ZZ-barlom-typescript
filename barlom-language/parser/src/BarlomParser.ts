@@ -7,7 +7,8 @@ import { AstAnnotation } from '../../ast/src/AstAnnotation';
 import { AstNamedAnnotation } from '../../ast/src/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
 import { AstCodeElement } from '../../ast/src/AstCodeElement';
-import { AstNamespacedEnumerationType } from '../../ast/src/AstNamespacedEnumeration';
+import { AstEnumerationType } from '../../ast/src/AstEnumerationType';
+import { AstContext } from '../../ast/src/AstContext';
 
 
 /**
@@ -32,32 +33,70 @@ export class BarlomParser {
    */
   public parseCompilationUnit() : AstCompilationUnit {
 
-    let result = new AstCompilationUnit( this._tokenStream.lookAhead1Token() );
+    let firstToken = this._tokenStream.lookAhead1Token();
 
     // use declarations
-    while ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.USE ) ) {
-      result.useDeclarations.push( this._parseUseDeclaration() );
-    }
+    let useDeclarations = this._parseUseDeclarations();
 
-    // namespaced element definition
-    let leadingAnnotations = this._parseLeadingAnnotations();
+    // context
+    let context = this._parseContext();
 
-    result.definition = this._parseNamespacedDefinition( leadingAnnotations );
+    // code element
+    let codeElement = this._parseCodeElement();   // TODO
 
     // end of file
     this._tokenStream.consumeExpectedToken( BarlomTokenType.EOF );
 
-    return result;
+    return new AstCompilationUnit( firstToken, useDeclarations, context, codeElement );
+
+  }
+
+  private _parseCodeElement() : AstCodeElement {
+
+    let leadingAnnotations = this._parseLeadingAnnotations();
+
+    let identifier = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+
+    let trailingAnnotations = this._parseTrailingAnnotations();
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.EQUALS );
+
+    // TODO: consume an expression of varying kind depending on the look-ahead
+    // let enumerationType = this._parseEnumerationType();
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.ENUMERATION );
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.TYPE );
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.END );
+
+    return new AstEnumerationType( identifier, leadingAnnotations, trailingAnnotations );
+
+  }
+
+  /**
+   * Parses a optional context declaration.
+   */
+  private _parseContext() : AstContext {
+
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.CONTEXT ) ) {
+
+      let contextToken = this._tokenStream.consumeBufferedToken();
+      let path = this._parsePath();
+
+      return new AstContext( contextToken, path);
+
+    }
+
+    return null;
 
   }
 
   /**
    * Parses the contents of an enumeration type.
    * @param enumerationType the enumeration type whose contents are to be parsed.
-   * @returns {AstNamespacedEnumerationType} the input enumeration type with contents filled in.
+   * @returns {AstEnumerationType} the input enumeration type with contents filled in.
    * @private
    */
-  private _parseEnumerationTypeContentsInto( enumerationType : AstNamespacedEnumerationType ) {
+  private _parseEnumerationTypeContentsInto( enumerationType : AstEnumerationType ) {
 
     // TODO ...
 
@@ -79,56 +118,38 @@ export class BarlomParser {
       switch ( token.tokenType ) {
 
         case BarlomTokenType.Documentation:
+
           // TODO: decide how to distinguish one-line summary from multi-line details
           result.push( new AstSummaryDocAnnotation( this._tokenStream.consumeBufferedToken() ) );
           break;
 
         case BarlomTokenType.Identifier:
+
+          let followingToken = this._tokenStream.lookAhead2Token();
+
+          switch ( followingToken.tokenType ) {
+            case BarlomTokenType.COLON:
+            case BarlomTokenType.COMMA:
+            case BarlomTokenType.EQUALS:
+              return result;
+            default:
+              break;
+          }
+
           result.push( new AstNamedAnnotation( this._tokenStream.consumeBufferedToken() ) );
+
+          // TODO: optional arguments
+
           break;
 
         default:
+
           return result;
 
       }
 
     }
 
-  }
-
-  /**
-   * Parses a code element definition that is at compilation unit scope.
-   * @param leadingAnnotations the leading annotations that have already been parsed for the code element.
-   * @private
-   */
-  private _parseNamespacedDefinition( leadingAnnotations : AstAnnotation[] ) : AstCodeElement {
-
-    let keyToken = this._tokenStream.lookAhead1Token();
-
-    switch ( keyToken.tokenType ) {
-      case BarlomTokenType.ENUMERATION:
-        return this._parseNamespacedEnumerationType( leadingAnnotations );
-
-    }
-
-    return null;
-  }
-
-  private _parseNamespacedEnumerationType( leadingAnnotations : AstAnnotation[] ) : AstNamespacedEnumerationType {
-
-    let result = new AstNamespacedEnumerationType( this._tokenStream.consumeBufferedToken(), leadingAnnotations );
-
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.TYPE );
-
-    result.path = this._parsePath();
-
-    result.trailingAnnotations = this._parseTrailingAnnotations();
-
-    this._parseEnumerationTypeContentsInto( result );
-
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.END );
-
-    return result;
   }
 
   /**
@@ -192,13 +213,27 @@ export class BarlomParser {
    */
   private _parseUseDeclaration() : AstUseDeclaration {
 
-    let result = new AstUseDeclaration(
-        this._tokenStream.consumeBufferedToken(),
-        this._parsePath()
-    );
+    let useToken = this._tokenStream.consumeBufferedToken();
+    let path = this._parsePath();
+    let synonym = null;
 
     if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.AS ) ) {
-      result.synonym = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+      synonym = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+    }
+
+    return new AstUseDeclaration( useToken, path, synonym );
+
+  }
+
+  /**
+   * Parses zero or more use declarations.
+   */
+  private _parseUseDeclarations() : AstUseDeclaration[] {
+
+    let result : AstUseDeclaration[] = [];
+
+    while ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.USE ) ) {
+      result.push( this._parseUseDeclaration() );
     }
 
     return result;

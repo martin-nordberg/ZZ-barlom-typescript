@@ -9,10 +9,13 @@ export class AstUseDeclaration extends AstNode {
 
   constructor(
       useToken : BarlomToken,
-      path : AstPath
+      path : AstPath,
+      synonym: BarlomToken
   ) {
     super( useToken );
-    this.path = path;
+    this.path = Object.freeze( path );
+    this.synonym = Object.freeze( synonym );
+    Object.freeze( this );
   }
 
   public path : AstPath;

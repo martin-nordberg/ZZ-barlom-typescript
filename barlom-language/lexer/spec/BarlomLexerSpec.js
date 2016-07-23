@@ -427,14 +427,14 @@ describe(
 
     it(
       "should scan user-defined keywords", function () {
-        var lexer = new BarlomLexer( "#abc #xyz1 #_abc", "example.barlom" );
+        var lexer = new BarlomLexer( "#abc #x_z1 #_abc", "example.barlom" );
 
         var tokens = lexer.readAllTokens();
 
         expect( tokens ).toHaveTokenTypes(
           [
-            BarlomTokenType.UserDefinedKeyWord, "#abc", 1, 1,
-            BarlomTokenType.UserDefinedKeyWord, "#xyz", 1, 6,
+            BarlomTokenType.Tag, "#abc", 1, 1,
+            BarlomTokenType.Tag, "#x_z", 1, 6,
             BarlomTokenType.IntegerLiteral_Decimal, "1", 1, 10,
             BarlomTokenType.ErrorUnexpectedCharacter, "#", 1, 12,
             BarlomTokenType.Identifier, "_abc", 1, 13,

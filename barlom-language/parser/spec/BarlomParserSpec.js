@@ -8,7 +8,25 @@ describe(
 
     it(
       "should parse use declarations and an enumeration type", function () {
-        var code = "use x.y\nuse a.b.c\nuse p.q.r.z\n/* a good one */\nenumeration type x.MyEnumeration : exported end";
+
+        var code = [
+          "use x.y                          ",
+          "use a.b.c as q                   ",
+          "use p.q.r.z                      ",
+          "                                 ",
+          "context g.h.j                    ",
+          "                                 ",
+          "/* a good one */                 ",
+          "MyEnumeration                    ",
+          " : exported                      ",
+          " = enumeration type              ",
+          // "     A : /* First Letter */,     ",
+          // "     B : /* Second Letter */,    ",
+          // "     C : /* Third Letter */      ",
+          "   end                           ",
+          "                                 "
+        ].join( '\n' );
+
         var parser = new BarlomParser( code, "example.barlom" );
 
         var cmpUnit = parser.parseCompilationUnit();
@@ -18,9 +36,9 @@ describe(
         expect( cmpUnit.useDeclarations[1].path.entries.length ).toBe( 3 );
         expect( cmpUnit.useDeclarations[2].path.entries.length ).toBe( 4 );
 
-        expect( cmpUnit.definition ).not.toBeNull();
-        expect( cmpUnit.definition.leadingAnnotations.length ).toBe(1);
-        expect( cmpUnit.definition.trailingAnnotations.length ).toBe(1);
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 1 );
 
       }
     );

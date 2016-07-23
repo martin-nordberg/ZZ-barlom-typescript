@@ -9,10 +9,12 @@ export abstract class AstCodeElement extends AstNode {
 
   constructor(
       keyToken : BarlomToken,
-      leadingAnnotations : AstAnnotation[]
+      leadingAnnotations : AstAnnotation[],
+      trailingAnnotations : AstAnnotation[]
   ) {
     super( keyToken );
-    this.leadingAnnotations = leadingAnnotations;
+    this.leadingAnnotations = Object.freeze( leadingAnnotations );
+    this.trailingAnnotations = Object.freeze( trailingAnnotations );
   }
 
   public leadingAnnotations : AstAnnotation[];

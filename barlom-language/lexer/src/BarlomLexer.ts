@@ -8,7 +8,7 @@ import {
     isHexDigitOrUnderscore,
     isIdentifierBodyChar,
     isIdentifierChar,
-    isUnicodeNameChar
+    isUnicodeNameChar, isTagBodyChar
 } from './LexerPredicates';
 import { Scanner } from './Scanner';
 
@@ -23,6 +23,7 @@ keywords['call'] = BarlomTokenType.CALL;
 keywords['check'] = BarlomTokenType.CHECK;
 keywords['cleanup'] = BarlomTokenType.CLEANUP;
 keywords['constant'] = BarlomTokenType.CONSTANT;
+keywords['context'] = BarlomTokenType.CONTEXT;
 keywords['detect'] = BarlomTokenType.DETECT;
 keywords['div'] = BarlomTokenType.DIV;
 keywords['edge'] = BarlomTokenType.EDGE;
@@ -696,9 +697,9 @@ export class BarlomLexer {
       return this._makeToken( BarlomTokenType.ErrorUnexpectedCharacter );
     }
 
-    this._scanner.advanceWhile( isIdentifierChar );
+    this._scanner.advanceWhile( isTagBodyChar );
 
-    return this._makeToken( BarlomTokenType.UserDefinedKeyWord );
+    return this._makeToken( BarlomTokenType.Tag );
 
   }
 

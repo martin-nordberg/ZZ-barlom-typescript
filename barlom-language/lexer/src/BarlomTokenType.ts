@@ -83,6 +83,7 @@ export enum BarlomTokenType {
   CONCAT_EQUALS,    // Operator `&=`
   CONCATENATE,    // Operator `&`
   CONSTANT,    // Keyword `constant`
+  CONTEXT,    // Keyword `context`
   DATA,    // Keyword `data`
   DateTimeLiteral,    // Literal `$2016-12-31T12:01:14.001-05:00$`
   DEFAULT,    // Keyword `default`
@@ -187,6 +188,7 @@ export enum BarlomTokenType {
   SPECIFICATION,    // Keyword `specification`
   STRUCTURE,    // Keyword `structure`
   SYMBOL,    // Keyword `symbol`
+  Tag,    // Tag `#abc_def`
   TemplateLiteral,    // Literal `{{{...}}}`
   TEST,    // Keyword `test`
   TextLiteral_DoubleQuoted,    // Literal `"..."`
@@ -209,7 +211,6 @@ export enum BarlomTokenType {
   UNTIL,    // Keyword `until`
   UPDATE,    // Keyword `update`
   USE,    // Keyword `use`
-  UserDefinedKeyWord,    // Keyword `#abc`
   UserDefinedLiteral_Braces,    // Literal `#{...}`    User-defined literal B
   UserDefinedLiteral_Brackets,    // Literal `#[...]`    User-defined literal A
   UserDefinedLiteral_Slashes,    // Literal `#/.../`    User-defined literal C

@@ -67,6 +67,15 @@ export function isIdentifierBodyChar( ch : string ) : boolean {
 }
 
 /**
+ * Determines whether the given character can be part of a tag.
+ * @param ch the character to check (assumed single character).
+ * @returns {boolean} true if the character can be part of a tag.
+ */
+export function isTagBodyChar( ch : string ) : boolean {
+  return isIdentifierChar( ch ) || ch === '_';
+}
+
+/**
  * Returns a character allowed to appear in a Unicode escape sequence, e.g. \u{TEARDROP-SPOKED ASTERISK}.
  * See http://unicode.org/charts/charindex.html#T.
  * @param ch the character to check.

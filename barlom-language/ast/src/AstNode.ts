@@ -6,7 +6,7 @@ import { BarlomToken } from '../../lexer/src/BarlomToken';
 export abstract class AstNode {
 
   constructor( keyToken : BarlomToken ) {
-    this.keyToken = keyToken;
+    this.keyToken = Object.freeze( keyToken );
   }
 
   public keyToken : BarlomToken;
