@@ -4,25 +4,21 @@ import { AstCodeElement } from './AstCodeElement';
 import { AstPath } from './AstPath';
 
 /**
- * AST Node representing an enumeration type.
+ * AST Node representing a symbol within an enumeration type.
  */
-export class AstEnumerationType extends AstCodeElement {
+export class AstSymbol extends AstCodeElement {
 
   constructor(
-      enumerationTypeToken : BarlomToken,
+      symbolToken : BarlomToken,
       identifier : BarlomToken,
       leadingAnnotations : AstAnnotation[],
-      trailingAnnotations : AstAnnotation[],
-      codeElements : AstCodeElement[]
+      trailingAnnotations : AstAnnotation[]
   ) {
-    super( enumerationTypeToken, leadingAnnotations, trailingAnnotations );
+    super( symbolToken, leadingAnnotations, trailingAnnotations );
     this.identifier = Object.freeze( identifier );
-    this.codeElements = Object.freeze( codeElements );
     Object.freeze( this );
   }
 
   public identifier : BarlomToken;
-
-  public codeElements : AstCodeElement[];
 
 }

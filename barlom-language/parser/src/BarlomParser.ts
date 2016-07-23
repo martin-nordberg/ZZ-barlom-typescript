@@ -9,6 +9,7 @@ import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
 import { AstCodeElement } from '../../ast/src/AstCodeElement';
 import { AstEnumerationType } from '../../ast/src/AstEnumerationType';
 import { AstContext } from '../../ast/src/AstContext';
+import { AstSymbol } from '../../ast/src/AstSymbol';
 
 
 /**
@@ -55,21 +56,32 @@ export class BarlomParser {
 
     let leadingAnnotations = this._parseLeadingAnnotations();
 
+    // TODO: consume an expression of varying kind depending on the look-ahead
+    // let enumerationType = this._parseEnumerationType();
+    let enumTypeToken = this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#enumeration_type' );
+
     let identifier = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
 
     let trailingAnnotations = this._parseTrailingAnnotations();
 
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.EQUALS );
+    let codeElements = this._parseCodeElements();
 
-    // TODO: consume an expression of varying kind depending on the look-ahead
-    // let enumerationType = this._parseEnumerationType();
+    this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#end' );
 
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.ENUMERATION );
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.TYPE );
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.END );
+    return new AstEnumerationType( enumTypeToken, identifier, leadingAnnotations, trailingAnnotations, codeElements );
 
-    return new AstEnumerationType( identifier, leadingAnnotations, trailingAnnotations );
+  }
 
+  private _parseCodeElements() : AstCodeElement[] {
+
+    let result : AstCodeElement[] = [];
+
+    while ( !this._tokenStream.hasLookAhead1TokenValue( BarlomTokenType.Tag, '#end' ) ) {
+      // TODO: switch on look ahead token
+      result.push( this._parseSymbol() );
+    }
+
+    return result;
   }
 
   /**
@@ -87,18 +99,6 @@ export class BarlomParser {
     }
 
     return null;
-
-  }
-
-  /**
-   * Parses the contents of an enumeration type.
-   * @param enumerationType the enumeration type whose contents are to be parsed.
-   * @returns {AstEnumerationType} the input enumeration type with contents filled in.
-   * @private
-   */
-  private _parseEnumerationTypeContentsInto( enumerationType : AstEnumerationType ) {
-
-    // TODO ...
 
   }
 
@@ -124,17 +124,6 @@ export class BarlomParser {
           break;
 
         case BarlomTokenType.Identifier:
-
-          let followingToken = this._tokenStream.lookAhead2Token();
-
-          switch ( followingToken.tokenType ) {
-            case BarlomTokenType.COLON:
-            case BarlomTokenType.COMMA:
-            case BarlomTokenType.EQUALS:
-              return result;
-            default:
-              break;
-          }
 
           result.push( new AstNamedAnnotation( this._tokenStream.consumeBufferedToken() ) );
 
@@ -170,6 +159,19 @@ export class BarlomParser {
 
     return result;
 
+  }
+
+  private _parseSymbol() : AstSymbol {
+
+    let leadingAnnotations = this._parseLeadingAnnotations();
+
+    let symbolToken = this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#symbol' );
+
+    let identifier = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+
+    let trailingAnnotations = this._parseTrailingAnnotations();
+
+    return new AstSymbol( symbolToken, identifier, leadingAnnotations, trailingAnnotations );
   }
 
   /**

@@ -84,8 +84,41 @@ export class BarlomTokenStream {
     if ( this._tokenBuffer[this._next].tokenType !== tokenType ) {
       throw new Error(
           "Expected " + BarlomTokenType[tokenType] +
-          "; found '" + this._tokenBuffer[this._next].text + "' " +
-          BarlomTokenType[this._tokenBuffer[this._next].tokenType] + " at (" +
+          "; found " + BarlomTokenType[this._tokenBuffer[this._next].tokenType] +
+          " '" + this._tokenBuffer[this._next].text + "' at (" +
+          this._tokenBuffer[this._next].line + "," +
+          this._tokenBuffer[this._next].column + ")."
+      );
+    }
+
+    const result = this._tokenBuffer[this._next];
+
+    this._next = ( this._next + 1 ) % BUFFER_SIZE;
+
+    return result;
+
+  }
+
+  /**
+   * Determines whether the next token in the input has the given token type and value. If so, consumes it.
+   * @param tokenType the token type to look for.
+   * @param tokenText the text value of the token to look for.
+   * @returns {boolean}
+   */
+  public consumeExpectedTokenValue( tokenType : BarlomTokenType, tokenText : string ) : BarlomToken {
+
+    // read the next token if not already buffered
+    if ( this._last === this._next ) {
+      this._tokenBuffer[this._last] = this._lexer.readToken();
+      this._last = ( this._last + 1 ) % BUFFER_SIZE;
+    }
+
+    // check the token type
+    if ( this._tokenBuffer[this._next].tokenType !== tokenType || this._tokenBuffer[this._next].text !== tokenText ) {
+      throw new Error(
+          "Expected " + BarlomTokenType[tokenType] + " '" + tokenText +
+          "'; found " + BarlomTokenType[this._tokenBuffer[this._next].tokenType] +
+          " '" + this._tokenBuffer[this._next].text + "' at (" +
           this._tokenBuffer[this._next].line + "," +
           this._tokenBuffer[this._next].column + ")."
       );
@@ -138,6 +171,26 @@ export class BarlomTokenStream {
   }
 
   /**
+   * Determines whether the next token in the input has the given token type and text value.
+   * @param tokenType the token type to look for.
+   * @param tokenText the text value of the expected token.
+   * @returns {boolean}
+   */
+  public hasLookAhead1TokenValue( tokenType : BarlomTokenType, tokenText : string ) : boolean {
+
+    // read the next token if not already buffered
+    if ( this._last === this._next ) {
+      this._tokenBuffer[this._last] = this._lexer.readToken();
+      this._last = ( this._last + 1 ) % BUFFER_SIZE;
+    }
+
+    // check the token type
+    return this._tokenBuffer[this._next].tokenType === tokenType &&
+        this._tokenBuffer[this._next].text === tokenText;
+
+  }
+
+  /**
    * Returns the next token in the input without consuming it.
    * @returns {boolean}
    */
@@ -165,7 +218,7 @@ export class BarlomTokenStream {
       this._last = ( this._last + 1 ) % BUFFER_SIZE;
     }
 
-    return this._tokenBuffer[this._next+1];
+    return this._tokenBuffer[this._next + 1];
 
   }
 
