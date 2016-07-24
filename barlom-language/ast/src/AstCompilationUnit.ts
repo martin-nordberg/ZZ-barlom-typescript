@@ -13,16 +13,16 @@ export class AstCompilationUnit extends AstNode {
       firstToken : BarlomToken,
       useDeclarations : AstUseDeclaration[],
       context : AstContext,
-      codeElement : AstCodeElement
+      codeElements : AstCodeElement[]
   ) {
     super( firstToken );
     this.useDeclarations = Object.freeze( useDeclarations );
     this.context = Object.freeze( context );
-    this.codeElement = Object.freeze( codeElement );
+    this.codeElements = Object.freeze( codeElements );
     Object.freeze( this );
   }
 
-  public codeElement : AstCodeElement;
+  public codeElements : AstCodeElement[];
 
   public context : AstContext;
 

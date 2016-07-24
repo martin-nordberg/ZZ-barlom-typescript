@@ -35,9 +35,11 @@ describe(
         expect( cmpUnit.useDeclarations[1].path.entries.length ).toBe( 3 );
         expect( cmpUnit.useDeclarations[2].path.entries.length ).toBe( 4 );
 
-        expect( cmpUnit.codeElement ).not.toBeNull();
-        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
-        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElements.length ).toBe( 1 );
+        expect( cmpUnit.codeElements[0] ).not.toBeNull();
+        expect( cmpUnit.codeElements[0].leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElements[0].trailingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElements[0].codeElements.length ).toBe( 3 );
 
       }
     );

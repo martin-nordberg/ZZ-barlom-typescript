@@ -43,12 +43,12 @@ export class BarlomParser {
     let context = this._parseContext();
 
     // code element
-    let codeElement = this._parseCodeElement();   // TODO
+    let codeElements = this._parseCodeElements();
 
     // end of file
     this._tokenStream.consumeExpectedToken( BarlomTokenType.EOF );
 
-    return new AstCompilationUnit( firstToken, useDeclarations, context, codeElement );
+    return new AstCompilationUnit( firstToken, useDeclarations, context, codeElements );
 
   }
 
@@ -56,29 +56,22 @@ export class BarlomParser {
 
     let leadingAnnotations = this._parseLeadingAnnotations();
 
-    // TODO: consume an expression of varying kind depending on the look-ahead
-    // let enumerationType = this._parseEnumerationType();
-    let enumTypeToken = this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#enumeration_type' );
-
-    let identifier = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
-
-    let trailingAnnotations = this._parseTrailingAnnotations();
-
-    let codeElements = this._parseCodeElements();
-
-    this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#end' );
-
-    return new AstEnumerationType( enumTypeToken, identifier, leadingAnnotations, trailingAnnotations, codeElements );
-
+    // TODO: dictionary of code elements
+    if ( this._tokenStream.hasLookAhead1TokenValue( BarlomTokenType.Tag, '#symbol' ) ) {
+      return this._parseSymbol( leadingAnnotations );
+    }
+    else {
+      return this._parseEnumerationType( leadingAnnotations );
+    }
   }
 
   private _parseCodeElements() : AstCodeElement[] {
 
     let result : AstCodeElement[] = [];
 
-    while ( !this._tokenStream.hasLookAhead1TokenValue( BarlomTokenType.Tag, '#end' ) ) {
-      // TODO: switch on look ahead token
-      result.push( this._parseSymbol() );
+    while ( !this._tokenStream.hasLookAhead1TokenValue( BarlomTokenType.Tag, '#end' ) &&
+            !this._tokenStream.hasLookAhead1Token( BarlomTokenType.EOF ) ) {
+      result.push( this._parseCodeElement() );
     }
 
     return result;
@@ -99,6 +92,22 @@ export class BarlomParser {
     }
 
     return null;
+
+  }
+
+  private _parseEnumerationType( leadingAnnotations : AstAnnotation[] ) {
+
+    let enumTypeToken = this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#enumeration_type' );
+
+    let identifier = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+
+    let trailingAnnotations = this._parseTrailingAnnotations();
+
+    let codeElements = this._parseCodeElements();
+
+    this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#end' );
+
+    return new AstEnumerationType( enumTypeToken, identifier, leadingAnnotations, trailingAnnotations, codeElements );
 
   }
 
@@ -161,9 +170,7 @@ export class BarlomParser {
 
   }
 
-  private _parseSymbol() : AstSymbol {
-
-    let leadingAnnotations = this._parseLeadingAnnotations();
+  private _parseSymbol( leadingAnnotations : AstAnnotation[] ) : AstSymbol {
 
     let symbolToken = this._tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#symbol' );
 
