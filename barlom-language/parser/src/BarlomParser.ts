@@ -1,8 +1,7 @@
 import { AstAnnotation } from '../../ast/src/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/AstCodeElement';
 import { AstCompilationUnit } from '../../ast/src/AstCompilationUnit';
-import { AstContext } from '../../ast/src/AstContext';
-import { AstPath } from '../../ast/src/AstPath';
+import { AstCodeElementName } from '../../ast/src/AstCodeElementName';
 import { AstNamedAnnotation } from '../../ast/src/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
 import { AstUseDeclaration } from '../../ast/src/AstUseDeclaration';
@@ -31,7 +30,9 @@ export class BarlomParser implements ICoreParser {
     this._tokenStream = new BarlomTokenStream( code, fileName );
 
     this._codeElementParsers = {};
+    this._isParsingCodeElements = false;
 
+    // TODO: specify the allowed child elements per code element
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
   }
@@ -54,6 +55,25 @@ export class BarlomParser implements ICoreParser {
   }
 
   /**
+   * Parses the namespace, name, and arguments of a code element path, or just the identifier for its name.
+   */
+  public parseCodeElementName() : AstCodeElementName {
+
+    let result = new AstCodeElementName( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
+
+    while ( !this._isParsingCodeElements && this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.DOT ) ) {
+
+      result.extendPath( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
+
+      // TODO: arguments in the path
+
+    }
+
+    return result;
+
+  }
+
+  /**
    * Parses a sequence of code elements terminated by 'end' or EOF.
    * @returns {AstCodeElement[]} the code elements parsed.
    */
@@ -61,9 +81,19 @@ export class BarlomParser implements ICoreParser {
 
     let result : AstCodeElement[] = [];
 
-    while ( !this._tokenStream.hasLookAhead1Token( BarlomTokenType.END ) &&
-            !this._tokenStream.hasLookAhead1Token( BarlomTokenType.EOF ) ) {
-      result.push( this.parseCodeElement() );
+    try {
+
+      // TODO: this is a rather clunky way of making nested code element names not be qualified
+      this._isParsingCodeElements = true;
+
+      while ( !this._tokenStream.hasLookAhead1Token( BarlomTokenType.END ) &&
+              !this._tokenStream.hasLookAhead1Token( BarlomTokenType.EOF ) ) {
+        result.push( this.parseCodeElement() );
+      }
+
+    }
+    finally {
+      this._isParsingCodeElements = false;
     }
 
     return result;
@@ -79,16 +109,13 @@ export class BarlomParser implements ICoreParser {
     // use declarations
     let useDeclarations = this._parseUseDeclarations();
 
-    // context
-    let context = this._parseContext();
-
     // code element
-    let codeElements = this.parseCodeElements();
+    let codeElement = this.parseCodeElement();
 
     // end of file
     this._tokenStream.consumeExpectedToken( BarlomTokenType.EOF );
 
-    return new AstCompilationUnit( firstToken, useDeclarations, context, codeElements );
+    return new AstCompilationUnit( firstToken, useDeclarations, codeElement );
 
   }
 
@@ -169,57 +196,19 @@ export class BarlomParser implements ICoreParser {
   }
 
   /**
-   * Parses an optional context declaration.
-   */
-  private _parseContext() : AstContext {
-
-    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.CONTEXT ) ) {
-
-      let contextToken = this._tokenStream.consumeBufferedToken();
-      let path = this._parsePath();
-
-      return new AstContext( contextToken, path );
-
-    }
-
-    return null;
-
-  }
-
-  /**
-   * Parses the namespace, name, and arguments of a module path.
-   * @private
-   */
-  private _parsePath() : AstPath {
-
-    let result = new AstPath( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
-
-    while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.DOT ) ) {
-
-      result.extendPath( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
-
-      // TODO: arguments in the path
-
-    }
-
-    return result;
-
-  }
-
-  /**
    * Parses a use declaration after the "use" keyword has been seen but not yet consumed.
    */
   private _parseUseDeclaration() : AstUseDeclaration {
 
     let useToken = this._tokenStream.consumeBufferedToken();
-    let path = this._parsePath();
+    let codeElementName = this.parseCodeElementName();
     let synonym = null;
 
     if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.AS ) ) {
       synonym = this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
     }
 
-    return new AstUseDeclaration( useToken, path, synonym );
+    return new AstUseDeclaration( useToken, codeElementName, synonym );
 
   }
 
@@ -254,6 +243,8 @@ export class BarlomParser implements ICoreParser {
   }
 
   private _codeElementParsers : Object;
+
+  private _isParsingCodeElements : boolean;
 
   private _tokenStream : BarlomTokenStream;
 

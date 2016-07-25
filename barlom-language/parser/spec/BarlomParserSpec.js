@@ -1,5 +1,5 @@
 /**
- * Specification for BarlomParser
+ * Specification for BarlomParser.
  */
 describe(
   "BarlomParser", function () {
@@ -10,25 +10,24 @@ describe(
       "should parse use declarations and an enumeration type", function () {
 
         var code = [
-          "use x.y                           ",
-          "use a.b.c as q                    ",
-          "use p.q.r.z                       ",
-          "                                  ",
-          "context g.h.j                     ",
-          "                                  ",
-          "/* a good one */                  ",
-          "enumeration_type MyEnumeration    ",
-          "  : exported                      ",
-          "                                  ",
-          "  symbol A : /* First Letter */   ",
-          "                                  ",
-          "  symbol B : /* Second Letter */  ",
-          "                                  ",
-          "  /* Third Letter */              ",
-          "  symbol C                        ",
-          "                                  ",
-          "end                               ",
-          "                                  "
+          "use x.y                                 ",
+          "use a.b.c as q                          ",
+          "use p.q.r.z                             ",
+          "                                        ",
+          "/* a good one */                        ",
+          "enumeration_type a.b.c.MyEnumeration    ",
+          "  : exported                            ",
+          "                                        ",
+          "  symbol A : /* First Letter */         ",
+          "                                        ",
+          "  an_annotation                         ",
+          "  symbol B : /* Second Letter */        ",
+          "                                        ",
+          "  /* Third Letter */                    ",
+          "  symbol C                              ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
         ].join( '\n' );
 
         var parser = new BarlomParser( code, "example.barlom" );
@@ -36,15 +35,14 @@ describe(
         var cmpUnit = parser.parseCompilationUnit();
 
         expect( cmpUnit.useDeclarations.length ).toBe( 3 );
-        expect( cmpUnit.useDeclarations[0].path.entries.length ).toBe( 2 );
-        expect( cmpUnit.useDeclarations[1].path.entries.length ).toBe( 3 );
-        expect( cmpUnit.useDeclarations[2].path.entries.length ).toBe( 4 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+        expect( cmpUnit.useDeclarations[1].codeElementName.entries.length ).toBe( 3 );
+        expect( cmpUnit.useDeclarations[2].codeElementName.entries.length ).toBe( 4 );
 
-        expect( cmpUnit.codeElements.length ).toBe( 1 );
-        expect( cmpUnit.codeElements[0] ).not.toBeNull();
-        expect( cmpUnit.codeElements[0].leadingAnnotations.length ).toBe( 1 );
-        expect( cmpUnit.codeElements[0].trailingAnnotations.length ).toBe( 1 );
-        expect( cmpUnit.codeElements[0].codeElements.length ).toBe( 3 );
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 3 );
 
       }
     );

@@ -1,7 +1,6 @@
 import { AstAnnotation } from '../../../ast/src/AstAnnotation';
 import { AstSymbol } from './AstSymbol';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
-import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
 import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../parserspi/src/ITokenStream';
@@ -28,11 +27,11 @@ export class SymbolParserPlugin
       symbolToken : BarlomToken
   ) : AstSymbol {
 
-    let identifier = tokenStream.consumeExpectedToken( BarlomTokenType.Identifier );
+    let path = coreParser.parseCodeElementName();
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstSymbol( symbolToken, identifier, leadingAnnotations, trailingAnnotations );
+    return new AstSymbol( symbolToken, path, leadingAnnotations, trailingAnnotations );
 
   }
 

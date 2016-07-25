@@ -1,6 +1,6 @@
+import { AstCodeElementName } from './AstCodeElementName';
 import { AstNode } from './AstNode';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
-import { AstPath } from './AstPath';
 
 /**
  * AST Node representing a use declaration.
@@ -9,16 +9,16 @@ export class AstUseDeclaration extends AstNode {
 
   constructor(
       useToken : BarlomToken,
-      path : AstPath,
+      codeElementName : AstCodeElementName,
       synonym: BarlomToken
   ) {
     super( useToken );
-    this.path = Object.freeze( path );
+    this.codeElementName = Object.freeze( codeElementName );
     this.synonym = Object.freeze( synonym );
     Object.freeze( this );
   }
 
-  public path : AstPath;
+  public codeElementName : AstCodeElementName;
 
   public synonym : BarlomToken;
 

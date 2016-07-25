@@ -2,16 +2,16 @@ import { AstNode } from './AstNode';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 
 /**
- * AST Node representing the path of a module.
+ * AST Node representing the name (possibly qualified) of a code element.
  */
-export class AstPath extends AstNode {
+export class AstCodeElementName extends AstNode {
 
   constructor(
-      keyToken : BarlomToken
+      firstIdentifier : BarlomToken
   ) {
-    super( keyToken );
+    super( firstIdentifier );
 
-    this._entries = [ keyToken ];
+    this._entries = [ firstIdentifier ];
   }
 
   get entries() {

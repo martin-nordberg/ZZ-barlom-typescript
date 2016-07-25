@@ -1,6 +1,6 @@
-import { AstNode } from './AstNode';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { AstAnnotation } from './AstAnnotation';
+import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { AstNode } from './AstNode';
 
 /**
  * AST Node representing an element of code.
@@ -8,11 +8,11 @@ import { AstAnnotation } from './AstAnnotation';
 export abstract class AstCodeElement extends AstNode {
 
   constructor(
-      keyToken : BarlomToken,
+      tagToken : BarlomToken,
       leadingAnnotations : AstAnnotation[],
       trailingAnnotations : AstAnnotation[]
   ) {
-    super( keyToken );
+    super( tagToken );
     this.leadingAnnotations = Object.freeze( leadingAnnotations );
     this.trailingAnnotations = Object.freeze( trailingAnnotations );
   }

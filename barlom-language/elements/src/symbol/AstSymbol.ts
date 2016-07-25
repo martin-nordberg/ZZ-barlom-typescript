@@ -1,23 +1,22 @@
 import { AstAnnotation } from '../../../ast/src/AstAnnotation';
-import { AstCodeElement } from '../../../ast/src/AstCodeElement';
+import { AstCodeElementName } from '../../../ast/src/AstCodeElementName';
+import { AstNamedCodeElement } from '../../../ast/src/AstNamedCodeElement';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
  * AST Node representing a symbol within an enumeration type.
  */
-export class AstSymbol extends AstCodeElement {
+export class AstSymbol
+  extends AstNamedCodeElement {
 
   constructor(
       symbolToken : BarlomToken,
-      identifier : BarlomToken,
+      codeElementName : AstCodeElementName,
       leadingAnnotations : AstAnnotation[],
       trailingAnnotations : AstAnnotation[]
   ) {
-    super( symbolToken, leadingAnnotations, trailingAnnotations );
-    this.identifier = Object.freeze( identifier );
+    super( symbolToken, codeElementName, leadingAnnotations, trailingAnnotations );
     Object.freeze( this );
   }
-
-  public identifier : BarlomToken;
 
 }
