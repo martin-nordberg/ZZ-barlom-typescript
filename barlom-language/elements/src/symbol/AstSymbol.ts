@@ -1,7 +1,6 @@
-import { BarlomToken } from '../../lexer/src/BarlomToken';
-import { AstAnnotation } from './AstAnnotation';
-import { AstCodeElement } from './AstCodeElement';
-import { AstPath } from './AstPath';
+import { AstAnnotation } from '../../../ast/src/AstAnnotation';
+import { AstCodeElement } from '../../../ast/src/AstCodeElement';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
  * AST Node representing a symbol within an enumeration type.

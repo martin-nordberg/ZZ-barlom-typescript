@@ -1,10 +1,10 @@
-import { ICodeElementParserPlugin } from './ICodeElementParserPlugin';
-import { AstAnnotation } from '../../ast/src/AstAnnotation';
-import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
-import { BarlomTokenStream } from './BarlomTokenStream';
-import { AstSymbol } from '../../ast/src/AstSymbol';
-import { ICoreParser } from './ICoreParser';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
+import { AstAnnotation } from '../../../ast/src/AstAnnotation';
+import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
+import { AstSymbol } from './AstSymbol';
+import { ICoreParser } from '../../../parserspi/src/ICoreParser';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { ITokenStream } from '../../../parserspi/src/ITokenStream';
 
 /**
  * Parser plugin that recognizes a symbol.
@@ -22,7 +22,7 @@ export class SymbolParserPlugin
    * @returns {AstSymbol} the parsed symbol.
    */
   parseCodeElement(
-      tokenStream : BarlomTokenStream,
+      tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
       symbolToken : BarlomToken

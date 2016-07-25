@@ -8,10 +8,10 @@ import { AstNamedAnnotation } from '../../ast/src/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
 import { AstCodeElement } from '../../ast/src/AstCodeElement';
 import { AstContext } from '../../ast/src/AstContext';
-import { ICoreParser } from './ICoreParser';
-import { SymbolParserPlugin } from './SymbolParserPlugin';
-import { ICodeElementParserPlugin } from './ICodeElementParserPlugin';
-import { EnumerationTypeParserPlugin } from './EnumerationTypeParserPlugin';
+import { ICoreParser } from '../../parserspi/src/ICoreParser';
+import { SymbolParserPlugin } from '../../elements/src/symbol/SymbolParserPlugin';
+import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
+import { EnumerationTypeParserPlugin } from '../../elements/src/enumerationtype/EnumerationTypeParserPlugin';
 
 
 /**

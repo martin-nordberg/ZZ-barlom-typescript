@@ -1,6 +1,7 @@
 import { BarlomLexer } from '../../lexer/src/BarlomLexer';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
+import { ITokenStream } from '../../parserspi/src/ITokenStream';
 
 
 const BUFFER_SIZE : number = 5;
@@ -8,7 +9,8 @@ const BUFFER_SIZE : number = 5;
 /**
  * Buffered token stream for Barlom tokens from the Barlom lexer.
  */
-export class BarlomTokenStream {
+export class BarlomTokenStream
+  implements ITokenStream {
 
   /**
    * Constructs a new token stream for the given code that came from the given file.

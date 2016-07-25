@@ -1,10 +1,10 @@
-import { ICodeElementParserPlugin } from './ICodeElementParserPlugin';
-import { AstAnnotation } from '../../ast/src/AstAnnotation';
-import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
-import { BarlomTokenStream } from './BarlomTokenStream';
-import { ICoreParser } from './ICoreParser';
-import { AstEnumerationType } from '../../ast/src/AstEnumerationType';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
+import { AstAnnotation } from '../../../ast/src/AstAnnotation';
+import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
+import { ICoreParser } from '../../../parserspi/src/ICoreParser';
+import { AstEnumerationType } from './AstEnumerationType';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { ITokenStream } from '../../../parserspi/src/ITokenStream';
 
 /**
  * Parser plugin that recognizes an enumeration type.
@@ -21,7 +21,7 @@ export class EnumerationTypeParserPlugin
    * @returns {AstEnumerationType} the parsed enumeration type.
    */
   parseCodeElement(
-      tokenStream : BarlomTokenStream,
+      tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
       enumTypeToken : BarlomToken
