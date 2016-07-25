@@ -1,9 +1,9 @@
-import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
 import { AstAnnotation } from '../../../ast/src/AstAnnotation';
-import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
 import { AstSymbol } from './AstSymbol';
-import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
+import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
+import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../parserspi/src/ITokenStream';
 
 /**
@@ -13,7 +13,7 @@ export class SymbolParserPlugin
   implements ICodeElementParserPlugin {
 
   getTagText() : string {
-    return '#symbol';
+    return 'symbol';
   }
 
   /**

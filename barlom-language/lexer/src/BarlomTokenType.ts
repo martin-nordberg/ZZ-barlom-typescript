@@ -187,7 +187,6 @@ export enum BarlomTokenType {
   SETUP,    // Keyword `setup`
   SPECIFICATION,    // Keyword `specification`
   STRUCTURE,    // Keyword `structure`
-  SYMBOL,    // Keyword `symbol`
   Tag,    // Tag `#abc_def`
   TemplateLiteral,    // Literal `{{{...}}}`
   TEST,    // Keyword `test`

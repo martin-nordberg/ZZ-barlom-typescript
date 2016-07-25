@@ -1,17 +1,17 @@
-import { BarlomTokenStream } from './BarlomTokenStream';
-import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
-import { AstCompilationUnit } from '../../ast/src/AstCompilationUnit';
-import { AstUseDeclaration } from '../../ast/src/AstUseDeclaration';
-import { AstPath } from '../../ast/src/AstPath';
 import { AstAnnotation } from '../../ast/src/AstAnnotation';
+import { AstCodeElement } from '../../ast/src/AstCodeElement';
+import { AstCompilationUnit } from '../../ast/src/AstCompilationUnit';
+import { AstContext } from '../../ast/src/AstContext';
+import { AstPath } from '../../ast/src/AstPath';
 import { AstNamedAnnotation } from '../../ast/src/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
-import { AstCodeElement } from '../../ast/src/AstCodeElement';
-import { AstContext } from '../../ast/src/AstContext';
+import { AstUseDeclaration } from '../../ast/src/AstUseDeclaration';
+import { BarlomTokenStream } from './BarlomTokenStream';
+import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
+import { EnumerationTypeParserPlugin } from '../../elements/src/enumerationtype/EnumerationTypeParserPlugin';
+import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { SymbolParserPlugin } from '../../elements/src/symbol/SymbolParserPlugin';
-import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
-import { EnumerationTypeParserPlugin } from '../../elements/src/enumerationtype/EnumerationTypeParserPlugin';
 
 
 /**
@@ -36,6 +36,11 @@ export class BarlomParser implements ICoreParser {
     this._registerCodeElementParser( new SymbolParserPlugin() );
   }
 
+  /**
+   * Parses one code element. After parsing the leading annotations, chooses the right plugin according to the
+   * code element's tag token.
+   * @returns {AstCodeElement} the parsed code element.
+   */
   public parseCodeElement() : AstCodeElement {
 
     let leadingAnnotations = this.parseLeadingAnnotations();
@@ -48,11 +53,15 @@ export class BarlomParser implements ICoreParser {
 
   }
 
+  /**
+   * Parses a sequence of code elements terminated by 'end' or EOF.
+   * @returns {AstCodeElement[]} the code elements parsed.
+   */
   public parseCodeElements() : AstCodeElement[] {
 
     let result : AstCodeElement[] = [];
 
-    while ( !this._tokenStream.hasLookAhead1TokenValue( BarlomTokenType.Tag, '#end' ) &&
+    while ( !this._tokenStream.hasLookAhead1Token( BarlomTokenType.END ) &&
             !this._tokenStream.hasLookAhead1Token( BarlomTokenType.EOF ) ) {
       result.push( this.parseCodeElement() );
     }
@@ -124,7 +133,7 @@ export class BarlomParser implements ICoreParser {
 
   /**
    * Parses annotations coming after the keyword of a code element.
-   * @returns {Array<AstAnnotation>}
+   * @returns {Array<AstAnnotation>} the annotations parsed.
    * @private
    */
   public parseTrailingAnnotations() : AstAnnotation[] {
@@ -144,6 +153,7 @@ export class BarlomParser implements ICoreParser {
 
         case BarlomTokenType.Identifier:
           result.push( new AstNamedAnnotation( token ) );
+          // TODO: handle arguments
           break;
 
         default:
@@ -159,7 +169,7 @@ export class BarlomParser implements ICoreParser {
   }
 
   /**
-   * Parses a optional context declaration.
+   * Parses an optional context declaration.
    */
   private _parseContext() : AstContext {
 
@@ -228,11 +238,16 @@ export class BarlomParser implements ICoreParser {
 
   }
 
+  /**
+   * Adds the given plugin to this parser. Registers the plugin's tag for token conversion and plugin activation.
+   * @param parserPlugin the plugin to register.
+   * @private
+   */
   private _registerCodeElementParser( parserPlugin : ICodeElementParserPlugin ) {
 
     let tagText = parserPlugin.getTagText();
 
-    // TODO: register the tag in the lexer (get rid of leading '#')
+    this._tokenStream.registerTag( tagText );
 
     this._codeElementParsers[tagText] = parserPlugin;
 

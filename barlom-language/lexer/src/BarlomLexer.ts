@@ -8,13 +8,13 @@ import {
     isHexDigitOrUnderscore,
     isIdentifierBodyChar,
     isIdentifierChar,
-    isUnicodeNameChar, isTagBodyChar
+    isTagBodyChar,
+    isUnicodeNameChar
 } from './LexerPredicates';
 import { Scanner } from './Scanner';
 
 let keywords = {};
 keywords['and'] = BarlomTokenType.AND;
-keywords['annotation'] = BarlomTokenType.ANNOTATION;
 keywords['as'] = BarlomTokenType.AS;
 keywords['assert'] = BarlomTokenType.ASSERT;
 keywords['begin'] = BarlomTokenType.BEGIN;
@@ -62,7 +62,6 @@ keywords['self'] = BarlomTokenType.SELF;
 keywords['setup'] = BarlomTokenType.SETUP;
 keywords['specification'] = BarlomTokenType.SPECIFICATION;
 keywords['structure'] = BarlomTokenType.STRUCTURE;
-keywords['symbol'] = BarlomTokenType.SYMBOL;
 keywords['test'] = BarlomTokenType.TEST;
 keywords['then'] = BarlomTokenType.THEN;
 keywords['true'] = BarlomTokenType.TRUE;
@@ -1539,6 +1538,7 @@ export class BarlomLexer {
   }
 
   private _fileName : string;
+
   private _scanner;
 
 }

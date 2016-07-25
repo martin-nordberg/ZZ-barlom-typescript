@@ -17,12 +17,17 @@ describe(
           "context g.h.j                     ",
           "                                  ",
           "/* a good one */                  ",
-          "#enumeration_type MyEnumeration   ",
+          "enumeration_type MyEnumeration    ",
           "  : exported                      ",
-          "  #symbol A : /* First Letter */  ",
-          "  #symbol B : /* Second Letter */ ",
-          "  #symbol C : /* Third Letter */  ",
-          "#end                              ",
+          "                                  ",
+          "  symbol A : /* First Letter */   ",
+          "                                  ",
+          "  symbol B : /* Second Letter */  ",
+          "                                  ",
+          "  /* Third Letter */              ",
+          "  symbol C                        ",
+          "                                  ",
+          "end                               ",
           "                                  "
         ].join( '\n' );
 

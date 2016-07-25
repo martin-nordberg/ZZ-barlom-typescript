@@ -1,9 +1,9 @@
-import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
 import { AstAnnotation } from '../../../ast/src/AstAnnotation';
-import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
-import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { AstEnumerationType } from './AstEnumerationType';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
+import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
+import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../parserspi/src/ITokenStream';
 
 /**
@@ -13,7 +13,7 @@ export class EnumerationTypeParserPlugin
   implements ICodeElementParserPlugin {
 
   getTagText() : string {
-    return '#enumeration_type';
+    return 'enumeration_type';
   }
 
   /**
@@ -33,7 +33,7 @@ export class EnumerationTypeParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    tokenStream.consumeExpectedTokenValue( BarlomTokenType.Tag, '#end' );
+    tokenStream.consumeExpectedToken( BarlomTokenType.END );
 
     return new AstEnumerationType( enumTypeToken, identifier, leadingAnnotations, trailingAnnotations, codeElements );
 

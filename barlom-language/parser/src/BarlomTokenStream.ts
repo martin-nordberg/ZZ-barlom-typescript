@@ -1,4 +1,4 @@
-import { BarlomLexer } from '../../lexer/src/BarlomLexer';
+import { BarlomTaggingLexer } from './BarlomTaggingLexer';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { ITokenStream } from '../../parserspi/src/ITokenStream';
@@ -22,7 +22,7 @@ export class BarlomTokenStream
       fileName : string
   ) {
 
-    this._lexer = new BarlomLexer( code, fileName );
+    this._lexer = new BarlomTaggingLexer( code, fileName );
 
     this._tokenBuffer = [];
 
@@ -224,7 +224,15 @@ export class BarlomTokenStream
 
   }
 
-  private _lexer : BarlomLexer;
+  /**
+   * Registers the given identifier as a language tag.
+   * @param tagText the tag text to map.
+   */
+  public registerTag( tagText : string ) {
+    this._lexer.registerTag( tagText );
+  }
+
+  private _lexer : BarlomTaggingLexer;
 
   private _tokenBuffer : BarlomToken[];
 
