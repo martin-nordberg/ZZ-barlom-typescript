@@ -7,6 +7,34 @@ describe(
     var BarlomParser = require( '../../js/parser/src/BarlomParser' ).BarlomParser;
 
     it(
+      "should parse a simple module definition", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my empty module */                   ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 0 );
+
+      }
+    );
+
+    it(
       "should parse use declarations and an enumeration type", function () {
 
         var code = [

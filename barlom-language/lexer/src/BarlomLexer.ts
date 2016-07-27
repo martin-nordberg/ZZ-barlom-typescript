@@ -46,7 +46,6 @@ keywords['isnot'] = BarlomTokenType.ISNOT;
 keywords['let'] = BarlomTokenType.LET;
 keywords['match'] = BarlomTokenType.MATCH;
 keywords['mod'] = BarlomTokenType.MOD;
-keywords['module'] = BarlomTokenType.MODULE;
 keywords['not'] = BarlomTokenType.NOT;
 keywords['notin'] = BarlomTokenType.NOTIN;
 keywords['object'] = BarlomTokenType.OBJECT;

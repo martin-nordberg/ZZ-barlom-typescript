@@ -10,6 +10,7 @@ import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { EnumerationTypeParserPlugin } from '../../elements/src/enumerationtype/EnumerationTypeParserPlugin';
 import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
+import { ModuleParserPlugin } from '../../elements/src/module/ModuleParserPlugin';
 import { SymbolParserPlugin } from '../../elements/src/symbol/SymbolParserPlugin';
 
 
@@ -34,6 +35,7 @@ export class BarlomParser implements ICoreParser {
 
     // TODO: specify the allowed child elements per code element
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
+    this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
   }
 
