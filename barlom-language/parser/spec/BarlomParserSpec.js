@@ -75,5 +75,36 @@ describe(
       }
     );
 
+    it(
+      "should parse a variant type", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my empty module */                   ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "  variant_type v1                       ",
+          "  end                                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 1 );
+
+      }
+    );
+
   }
 );

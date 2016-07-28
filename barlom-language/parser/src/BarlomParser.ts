@@ -12,6 +12,7 @@ import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParser
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { ModuleParserPlugin } from '../../elements/src/module/ModuleParserPlugin';
 import { SymbolParserPlugin } from '../../elements/src/symbol/SymbolParserPlugin';
+import { VariantTypeParserPlugin } from '../../elements/src/varianttype/VariantTypeParserPlugin';
 
 
 /**
@@ -37,6 +38,7 @@ export class BarlomParser implements ICoreParser {
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
+    this._registerCodeElementParser( new VariantTypeParserPlugin() );
   }
 
   /**

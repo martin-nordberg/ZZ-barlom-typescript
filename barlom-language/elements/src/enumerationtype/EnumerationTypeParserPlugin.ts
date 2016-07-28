@@ -5,7 +5,6 @@ import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
 import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../parserspi/src/ITokenStream';
-import { AstCodeElementName } from '../../../ast/src/AstCodeElementName';
 
 /**
  * Parser plugin that recognizes an enumeration type.
@@ -28,7 +27,7 @@ export class EnumerationTypeParserPlugin
       enumTypeToken : BarlomToken
   ) : AstEnumerationType {
 
-    let path = coreParser.parseCodeElementName();
+    let codeElementName = coreParser.parseCodeElementName();
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
@@ -36,7 +35,7 @@ export class EnumerationTypeParserPlugin
 
     tokenStream.consumeExpectedToken( BarlomTokenType.END );
 
-    return new AstEnumerationType( enumTypeToken, path, leadingAnnotations, trailingAnnotations, codeElements );
+    return new AstEnumerationType( enumTypeToken, codeElementName, leadingAnnotations, trailingAnnotations, codeElements );
 
   }
 

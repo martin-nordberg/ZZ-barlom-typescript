@@ -1,37 +1,41 @@
 import { AstAnnotation } from '../../../ast/src/AstAnnotation';
-import { AstSymbol } from './AstSymbol';
+import { AstVariantType } from './AstVariantType';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
 import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../parserspi/src/ITokenStream';
 
 /**
- * Parser plugin that recognizes a symbol.
+ * Parser plugin that recognizes an variant type.
  */
-export class SymbolParserPlugin
+export class VariantTypeParserPlugin
   implements ICodeElementParserPlugin {
 
   getTagText() : string {
-    return 'symbol';
+    return 'variant_type';
   }
 
   /**
-   * Parses a symbol within an enumeration type, starting after its leading annotations and symbol tag have been
-   * consumed.
-   * @returns {AstSymbol} the parsed symbol.
+   * Parses an enumeration type after its leading annotations and tag have been consumed.
+   * @returns {AstEnumerationType} the parsed enumeration type.
    */
   parseCodeElement(
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      symbolToken : BarlomToken
-  ) : AstSymbol {
+      variantTypeToken : BarlomToken
+  ) : AstVariantType {
 
     let codeElementName = coreParser.parseCodeElementName();
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstSymbol( symbolToken, codeElementName, leadingAnnotations, trailingAnnotations );
+    let codeElements = coreParser.parseCodeElements();
+
+    tokenStream.consumeExpectedToken( BarlomTokenType.END );
+
+    return new AstVariantType( variantTypeToken, codeElementName, leadingAnnotations, trailingAnnotations, codeElements );
 
   }
 
