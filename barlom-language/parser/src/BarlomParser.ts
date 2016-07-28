@@ -2,6 +2,7 @@ import { AstAnnotation } from '../../ast/src/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/AstCodeElement';
 import { AstCompilationUnit } from '../../ast/src/AstCompilationUnit';
 import { AstCodeElementName } from '../../ast/src/AstCodeElementName';
+import { AstParameter } from '../../ast/src/AstParameter';
 import { AstNamedAnnotation } from '../../ast/src/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
 import { AstUseDeclaration } from '../../ast/src/AstUseDeclaration';
@@ -11,7 +12,8 @@ import { EnumerationTypeParserPlugin } from '../../elements/src/enumerationtype/
 import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { ModuleParserPlugin } from '../../elements/src/module/ModuleParserPlugin';
-import { SymbolParserPlugin } from '../../elements/src/symbol/SymbolParserPlugin';
+import { SymbolParserPlugin } from '../../elements/src/enumerationtype/SymbolParserPlugin';
+import { VariantParserPlugin } from '../../elements/src/varianttype/VariantParserPlugin';
 import { VariantTypeParserPlugin } from '../../elements/src/varianttype/VariantTypeParserPlugin';
 
 
@@ -38,6 +40,7 @@ export class BarlomParser implements ICoreParser {
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
+    this._registerCodeElementParser( new VariantParserPlugin() );
     this._registerCodeElementParser( new VariantTypeParserPlugin() );
   }
 
@@ -159,6 +162,49 @@ export class BarlomParser implements ICoreParser {
       }
 
     }
+
+  }
+
+  /**
+   * Parses a sequence of parameters within parentheses.
+   * @returns {AstParameter[]} the parameters parsed.
+   */
+  public parseParameters() : AstParameter[] {
+
+    let result : AstParameter[] = [];
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.LEFT_PARENTHESIS );
+
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.RIGHT_PARENTHESIS ) ) {
+      return result;
+    }
+
+    try {
+
+      // TODO: this is a rather clunky way of making nested code element names not be qualified
+      this._isParsingCodeElements = true;
+
+      while ( true ) {
+
+        let name = this.parseCodeElementName();
+        let trailingAnnotations = this.parseTrailingAnnotations();
+        // TODO: default value
+        result.push( new AstParameter( name, trailingAnnotations ) );
+
+        if ( !this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+          break;
+        }
+
+      }
+
+    }
+    finally {
+      this._isParsingCodeElements = false;
+    }
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
+
+    return result;
 
   }
 

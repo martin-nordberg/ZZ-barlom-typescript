@@ -8,8 +8,8 @@ import { AstNode } from './AstNode';
 export abstract class AstCodeElement extends AstNode {
 
   constructor(
-      tagToken : BarlomToken,
       leadingAnnotations : AstAnnotation[],
+      tagToken : BarlomToken,
       trailingAnnotations : AstAnnotation[]
   ) {
     super( tagToken );

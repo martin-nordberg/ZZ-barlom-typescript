@@ -1,6 +1,7 @@
 import { AstAnnotation } from '../../ast/src/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/AstCodeElement';
 import { AstCodeElementName } from '../../ast/src/AstCodeElementName';
+import { AstParameter } from '../../ast/src/AstParameter';
 
 /**
  * Central parsing capability for the Barlom language.
@@ -30,6 +31,11 @@ export interface ICoreParser {
    * @private
    */
   parseLeadingAnnotations() : AstAnnotation[];
+
+  /**
+   * Parses a series of parameters within parentheses.
+   */
+  parseParameters() : AstParameter[];
 
   /**
    * Parses annotations coming after the keyword of a code element.

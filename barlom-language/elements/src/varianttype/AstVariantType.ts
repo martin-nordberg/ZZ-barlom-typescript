@@ -11,13 +11,13 @@ export class AstVariantType
   extends AstNamedCodeElement {
 
   constructor(
+      leadingAnnotations : AstAnnotation[],
       variantTypeToken : BarlomToken,
       codeElementName : AstCodeElementName,
-      leadingAnnotations : AstAnnotation[],
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
-    super( variantTypeToken, codeElementName, leadingAnnotations, trailingAnnotations );
+    super( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations );
     this.codeElements = Object.freeze( codeElements );
     Object.freeze( this );
   }

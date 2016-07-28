@@ -71,7 +71,6 @@ keywords['until'] = BarlomTokenType.UNTIL;
 keywords['use'] = BarlomTokenType.USE;
 keywords['value'] = BarlomTokenType.VALUE;
 keywords['variable'] = BarlomTokenType.VARIABLE;
-keywords['variant'] = BarlomTokenType.VARIANT;
 keywords['vertex'] = BarlomTokenType.VERTEX;
 keywords['when'] = BarlomTokenType.WHEN;
 keywords['where'] = BarlomTokenType.WHERE;

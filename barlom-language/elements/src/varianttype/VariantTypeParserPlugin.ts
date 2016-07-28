@@ -7,7 +7,7 @@ import { ICoreParser } from '../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../parserspi/src/ITokenStream';
 
 /**
- * Parser plugin that recognizes an variant type.
+ * Parser plugin that recognizes a variant type.
  */
 export class VariantTypeParserPlugin
   implements ICodeElementParserPlugin {
@@ -17,8 +17,8 @@ export class VariantTypeParserPlugin
   }
 
   /**
-   * Parses an enumeration type after its leading annotations and tag have been consumed.
-   * @returns {AstEnumerationType} the parsed enumeration type.
+   * Parses a variant type after its leading annotations and tag have been consumed.
+   * @returns {AstVariantType} the parsed variant type.
    */
   parseCodeElement(
       tokenStream : ITokenStream,
@@ -35,7 +35,7 @@ export class VariantTypeParserPlugin
 
     tokenStream.consumeExpectedToken( BarlomTokenType.END );
 
-    return new AstVariantType( variantTypeToken, codeElementName, leadingAnnotations, trailingAnnotations, codeElements );
+    return new AstVariantType( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations, codeElements );
 
   }
 

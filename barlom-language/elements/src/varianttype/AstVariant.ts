@@ -1,22 +1,27 @@
 import { AstAnnotation } from '../../../ast/src/AstAnnotation';
 import { AstCodeElementName } from '../../../ast/src/AstCodeElementName';
 import { AstNamedCodeElement } from '../../../ast/src/AstNamedCodeElement';
+import { AstParameter } from '../../../ast/src/AstParameter';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
- * AST Node representing a symbol within an enumeration type.
+ * AST Node representing a variant type (aka ADT, union type, sum type).
  */
-export class AstSymbol
+export class AstVariant
   extends AstNamedCodeElement {
 
   constructor(
-      symbolToken : BarlomToken,
-      codeElementName : AstCodeElementName,
       leadingAnnotations : AstAnnotation[],
+      variantToken : BarlomToken,
+      codeElementName : AstCodeElementName,
+      parameters : AstParameter[],
       trailingAnnotations : AstAnnotation[]
   ) {
-    super( symbolToken, codeElementName, leadingAnnotations, trailingAnnotations );
+    super( leadingAnnotations, variantToken, codeElementName, trailingAnnotations );
+    this.parameters = Object.freeze( parameters );
     Object.freeze( this );
   }
+
+  public parameters : AstParameter[];
 
 }

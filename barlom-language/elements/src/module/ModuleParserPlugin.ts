@@ -35,7 +35,7 @@ export class ModuleParserPlugin
 
     tokenStream.consumeExpectedToken( BarlomTokenType.END );
 
-    return new AstModule( enumTypeToken, path, leadingAnnotations, trailingAnnotations, codeElements );
+    return new AstModule( leadingAnnotations, enumTypeToken, path, trailingAnnotations, codeElements );
 
   }
 

@@ -10,12 +10,12 @@ export abstract class AstNamedCodeElement
   extends AstCodeElement {
 
   constructor(
+      leadingAnnotations : AstAnnotation[],
       tagToken : BarlomToken,
       codeElementName : AstCodeElementName,
-      leadingAnnotations : AstAnnotation[],
       trailingAnnotations : AstAnnotation[]
   ) {
-    super( tagToken, leadingAnnotations, trailingAnnotations );
+    super( leadingAnnotations, tagToken, trailingAnnotations );
     this.codeElementName = Object.freeze( codeElementName );
   }
 
