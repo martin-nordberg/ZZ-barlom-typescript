@@ -38,13 +38,9 @@ export class BarlomTokenStream
    */
   public advanceOverLookAhead1Token( tokenType : BarlomTokenType ) : boolean {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
-    // check the token type
+    // Check the token type.
     if ( this._tokenBuffer[this._next].tokenType === tokenType ) {
       this._next = ( this._next + 1 ) % BUFFER_SIZE;
       return true;
@@ -61,8 +57,10 @@ export class BarlomTokenStream
    */
   public consumeBufferedToken() : BarlomToken {
 
+    // Read the token.
     const result = this._tokenBuffer[this._next];
 
+    // Advance the index.
     this._next = ( this._next + 1 ) % BUFFER_SIZE;
 
     return result;
@@ -76,13 +74,9 @@ export class BarlomTokenStream
    */
   public consumeExpectedToken( tokenType : BarlomTokenType ) : BarlomToken {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
-    // check the token type
+    // Check the token type.
     if ( this._tokenBuffer[this._next].tokenType !== tokenType ) {
       throw new Error(
           "Expected " + BarlomTokenType[tokenType] +
@@ -93,11 +87,7 @@ export class BarlomTokenStream
       );
     }
 
-    const result = this._tokenBuffer[this._next];
-
-    this._next = ( this._next + 1 ) % BUFFER_SIZE;
-
-    return result;
+    return this.consumeBufferedToken();
 
   }
 
@@ -109,13 +99,9 @@ export class BarlomTokenStream
    */
   public consumeExpectedTokenValue( tokenType : BarlomTokenType, tokenText : string ) : BarlomToken {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
-    // check the token type
+    // Check the token type.
     if ( this._tokenBuffer[this._next].tokenType !== tokenType || this._tokenBuffer[this._next].text !== tokenText ) {
       throw new Error(
           "Expected " + BarlomTokenType[tokenType] + " '" + tokenText +
@@ -126,11 +112,7 @@ export class BarlomTokenStream
       );
     }
 
-    const result = this._tokenBuffer[this._next];
-
-    this._next = ( this._next + 1 ) % BUFFER_SIZE;
-
-    return result;
+    return this.consumeBufferedToken();
 
   }
 
@@ -140,17 +122,9 @@ export class BarlomTokenStream
    */
   public consumeToken() : BarlomToken {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
-    const result = this._tokenBuffer[this._next];
-
-    this._next = ( this._next + 1 ) % BUFFER_SIZE;
-
-    return result;
+    return this.consumeBufferedToken();
 
   }
 
@@ -161,11 +135,7 @@ export class BarlomTokenStream
    */
   public hasLookAhead1Token( tokenType : BarlomTokenType ) : boolean {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
     // check the token type
     return this._tokenBuffer[this._next].tokenType === tokenType;
@@ -180,13 +150,9 @@ export class BarlomTokenStream
    */
   public hasLookAhead1TokenValue( tokenType : BarlomTokenType, tokenText : string ) : boolean {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
-    // check the token type
+    // Check the token type and text.
     return this._tokenBuffer[this._next].tokenType === tokenType &&
         this._tokenBuffer[this._next].text === tokenText;
 
@@ -198,11 +164,7 @@ export class BarlomTokenStream
    */
   public lookAhead1Token() : BarlomToken {
 
-    // read the next token if not already buffered
-    if ( this._last === this._next ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNextTokenIfNotBuffered();
 
     return this._tokenBuffer[this._next];
 
@@ -214,7 +176,7 @@ export class BarlomTokenStream
    */
   public lookAhead2Token() : BarlomToken {
 
-    // read the next token if not already buffered
+    // Read the next two tokens if not already buffered.
     while ( this._last <= this._next + 1 ) {
       this._tokenBuffer[this._last] = this._lexer.readToken();
       this._last = ( this._last + 1 ) % BUFFER_SIZE;
@@ -232,12 +194,25 @@ export class BarlomTokenStream
     this._lexer.registerTag( tagText );
   }
 
-  private _lexer : BarlomTaggingLexer;
+  /**
+   * Reads the next token into the buffer if not already there.
+   * @private
+   */
+  private _readNextTokenIfNotBuffered() {
 
-  private _tokenBuffer : BarlomToken[];
+    if ( this._last === this._next ) {
+      this._tokenBuffer[this._last] = this._lexer.readToken();
+      this._last = ( this._last + 1 ) % BUFFER_SIZE;
+    }
+
+  }
+
+  private _last : number;
+
+  private _lexer : BarlomTaggingLexer;
 
   private _next : number;
 
-  private _last : number;
+  private _tokenBuffer : BarlomToken[];
 
 }

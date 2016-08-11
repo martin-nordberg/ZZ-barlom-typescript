@@ -8,13 +8,14 @@ import { AstSummaryDocAnnotation } from '../../ast/src/AstSummaryDocAnnotation';
 import { AstUseDeclaration } from '../../ast/src/AstUseDeclaration';
 import { BarlomTokenStream } from './BarlomTokenStream';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
-import { EnumerationTypeParserPlugin } from '../../elements/src/enumerationtype/EnumerationTypeParserPlugin';
+import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
+import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
 import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
-import { ModuleParserPlugin } from '../../elements/src/module/ModuleParserPlugin';
-import { SymbolParserPlugin } from '../../elements/src/enumerationtype/SymbolParserPlugin';
-import { VariantParserPlugin } from '../../elements/src/varianttype/VariantParserPlugin';
-import { VariantTypeParserPlugin } from '../../elements/src/varianttype/VariantTypeParserPlugin';
+import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
+import { SymbolParserPlugin } from '../../elements/src/types/enumerationtype/SymbolParserPlugin';
+import { VariantParserPlugin } from '../../elements/src/types/varianttype/VariantParserPlugin';
+import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
 
 
 /**
@@ -38,6 +39,7 @@ export class BarlomParser implements ICoreParser {
 
     // TODO: specify the allowed child elements per code element
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
+    this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
     this._registerCodeElementParser( new VariantParserPlugin() );
@@ -88,6 +90,8 @@ export class BarlomParser implements ICoreParser {
 
     let result : AstCodeElement[] = [];
 
+    let wasParsingCodeElements = this._isParsingCodeElements;
+
     try {
 
       // TODO: this is a rather clunky way of making nested code element names not be qualified
@@ -100,7 +104,7 @@ export class BarlomParser implements ICoreParser {
 
     }
     finally {
-      this._isParsingCodeElements = false;
+      this._isParsingCodeElements = wasParsingCodeElements;
     }
 
     return result;
@@ -179,6 +183,8 @@ export class BarlomParser implements ICoreParser {
       return result;
     }
 
+    let wasParsingCodeElements = this._isParsingCodeElements;
+
     try {
 
       // TODO: this is a rather clunky way of making nested code element names not be qualified
@@ -199,7 +205,7 @@ export class BarlomParser implements ICoreParser {
 
     }
     finally {
-      this._isParsingCodeElements = false;
+      this._isParsingCodeElements = wasParsingCodeElements;
     }
 
     this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );

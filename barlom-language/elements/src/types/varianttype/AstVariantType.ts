@@ -1,11 +1,11 @@
-import { AstAnnotation } from '../../../ast/src/AstAnnotation';
-import { AstCodeElement } from '../../../ast/src/AstCodeElement';
-import { AstCodeElementName } from '../../../ast/src/AstCodeElementName';
-import { AstNamedCodeElement } from '../../../ast/src/AstNamedCodeElement';
-import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { AstAnnotation } from '../../../../ast/src/AstAnnotation';
+import { AstCodeElement } from '../../../../ast/src/AstCodeElement';
+import { AstCodeElementName } from '../../../../ast/src/AstCodeElementName';
+import { AstNamedCodeElement } from '../../../../ast/src/AstNamedCodeElement';
+import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 
 /**
- * AST Node representing a variant type (aka ADT, union type, sum type).
+ * AST node representing a variant type (aka ADT, union type, sum type).
  */
 export class AstVariantType
   extends AstNamedCodeElement {
@@ -18,7 +18,9 @@ export class AstVariantType
       codeElements : AstCodeElement[]
   ) {
     super( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations );
+
     this.codeElements = Object.freeze( codeElements );
+
     Object.freeze( this );
   }
 

@@ -1,10 +1,10 @@
-import { AstAnnotation } from '../../../ast/src/AstAnnotation';
+import { AstAnnotation } from '../../../../ast/src/AstAnnotation';
 import { AstEnumerationType } from './AstEnumerationType';
-import { BarlomToken } from '../../../lexer/src/BarlomToken';
-import { BarlomTokenType } from '../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../parserspi/src/ICodeElementParserPlugin';
-import { ICoreParser } from '../../../parserspi/src/ICoreParser';
-import { ITokenStream } from '../../../parserspi/src/ITokenStream';
+import { BarlomToken } from '../../../../lexer/src/BarlomToken';
+import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
+import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
+import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
 /**
  * Parser plugin that recognizes an enumeration type.

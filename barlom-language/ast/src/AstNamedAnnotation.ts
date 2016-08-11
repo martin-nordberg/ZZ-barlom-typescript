@@ -10,7 +10,9 @@ export class AstNamedAnnotation extends AstAnnotation {
       identifier : BarlomToken
   ) {
     super( identifier );
+
     this.identifier = Object.freeze( identifier );
+
     Object.freeze( this );
   }
 

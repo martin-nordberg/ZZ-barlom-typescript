@@ -2,7 +2,7 @@ import { AstNode } from './AstNode';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 
 /**
- * AST Node representing an annotation.
+ * AST node representing an annotation.
  */
 export abstract class AstAnnotation extends AstNode {
 

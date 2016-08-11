@@ -4,7 +4,7 @@ import { AstCodeElementName } from './AstCodeElementName';
 import { AstNamedCodeElement } from './AstNamedCodeElement';
 
 /**
- * AST Node representing a parameter.
+ * AST node representing a parameter.
  */
 export class AstParameter
   extends AstNamedCodeElement {
@@ -15,6 +15,7 @@ export class AstParameter
       // TODO: default value
   ) {
     super( [], name.entries[0], name, trailingAnnotations );
+
     Object.freeze( this );
   }
 

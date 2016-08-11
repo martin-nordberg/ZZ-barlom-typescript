@@ -3,7 +3,7 @@ import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 
 /**
- * Adapter to the Barlom lexer changes identifiers into tags according to registered language elements.
+ * Adapter to the Barlom lexer that changes identifiers into tags according to registered language elements.
  */
 export class BarlomTaggingLexer {
 

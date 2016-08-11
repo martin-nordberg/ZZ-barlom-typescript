@@ -4,7 +4,7 @@ import { AstUseDeclaration } from './AstUseDeclaration';
 import { AstCodeElement } from './AstCodeElement';
 
 /**
- * AST Node representing a compilation unit.
+ * AST node representing a compilation unit.
  */
 export class AstCompilationUnit extends AstNode {
 
@@ -14,8 +14,10 @@ export class AstCompilationUnit extends AstNode {
       codeElement : AstCodeElement
   ) {
     super( firstToken );
+
     this.useDeclarations = Object.freeze( useDeclarations );
     this.codeElement = Object.freeze( codeElement );
+
     Object.freeze( this );
   }
 

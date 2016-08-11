@@ -4,7 +4,7 @@ import { AstCodeElementName } from './AstCodeElementName';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 
 /**
- * AST Node representing a code element with a name.
+ * AST node representing a code element with a name.
  */
 export abstract class AstNamedCodeElement
   extends AstCodeElement {
@@ -16,6 +16,7 @@ export abstract class AstNamedCodeElement
       trailingAnnotations : AstAnnotation[]
   ) {
     super( leadingAnnotations, tagToken, trailingAnnotations );
+
     this.codeElementName = Object.freeze( codeElementName );
   }
 

@@ -3,7 +3,7 @@ import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { AstNode } from './AstNode';
 
 /**
- * AST Node representing an element of code.
+ * AST node representing an element of code.
  */
 export abstract class AstCodeElement extends AstNode {
 

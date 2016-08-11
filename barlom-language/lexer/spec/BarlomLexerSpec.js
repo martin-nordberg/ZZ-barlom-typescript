@@ -75,20 +75,6 @@ describe(
     );
 
     it(
-      "should read a keyword token", function () {
-        var lexer = new BarlomLexer( "module : extra", "example.barlom" );
-
-        var token = lexer.readToken();
-
-        expect( token.tokenType ).toBe( BarlomTokenType.MODULE );
-        expect( token.text ).toBe( "module" );
-        expect( token.fileName ).toBe( "example.barlom" );
-        expect( token.line ).toBe( 1 );
-        expect( token.column ).toBe( 1 );
-      }
-    );
-
-    it(
       "should ignore white space by default", function () {
         var lexer = new BarlomLexer( "  \n. ", "example.barlom" );
 

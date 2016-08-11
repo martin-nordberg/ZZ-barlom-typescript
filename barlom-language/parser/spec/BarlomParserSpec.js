@@ -7,7 +7,7 @@ describe(
     var BarlomParser = require( '../../js/parser/src/BarlomParser' ).BarlomParser;
 
     it(
-      "should parse a simple module definition", function () {
+      "should parse an empty module definition", function () {
 
         var code = [
           "use x.y                                 ",
@@ -81,7 +81,7 @@ describe(
         var code = [
           "use x.y                                 ",
           "                                        ",
-          "/* my empty module */                   ",
+          "/* my sample module */                  ",
           "module a.b.c.mymodule                   ",
           "                                        ",
           "  variant_type V1                       ",
@@ -104,6 +104,66 @@ describe(
         expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
         expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
         expect( cmpUnit.codeElement.codeElements.length ).toBe( 1 );
+
+      }
+    );
+
+    it(
+      "should parse an empty function", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my sample module */                  ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "  function f()                          ",
+          "  end                                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 1 );
+
+      }
+    );
+
+    it(
+      "should parse an empty function compilation unit", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my sample function */                ",
+          "function a.b.c.myfunction(p,q)          ",
+          "  : /* TODO */                          ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 0 );
 
       }
     );

@@ -3,7 +3,7 @@ import { AstNode } from './AstNode';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 
 /**
- * AST Node representing a use declaration.
+ * AST node representing a use declaration.
  */
 export class AstUseDeclaration extends AstNode {
 
@@ -13,8 +13,10 @@ export class AstUseDeclaration extends AstNode {
       synonym: BarlomToken
   ) {
     super( useToken );
+
     this.codeElementName = Object.freeze( codeElementName );
     this.synonym = Object.freeze( synonym );
+
     Object.freeze( this );
   }
 
