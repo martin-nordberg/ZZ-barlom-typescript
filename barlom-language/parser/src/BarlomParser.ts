@@ -2,6 +2,8 @@ import { AstAnnotation } from '../../ast/src/annotations/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
 import { AstCompilationUnit } from '../../ast/src/compilationunit/AstCompilationUnit';
 import { AstCodeElementName } from '../../ast/src/core/AstCodeElementName';
+import { AstExpression } from '../../ast/src/expressions/AstExpression';
+import { AstIntegerLiteral_Decimal } from '../../ast/src/literals/AstIntegerLiteral_Decimal';
 import { AstParameter } from '../../ast/src/parameters/AstParameter';
 import { AstNamedAnnotation } from '../../ast/src/annotations/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/annotations/AstSummaryDocAnnotation';
@@ -13,6 +15,7 @@ import { FunctionParserPlugin } from '../../elements/src/functions/function/Func
 import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
+import { ReturnStatementParserPlugin } from '../../elements/src/statements/returnstatement/ReturnStatementParserPlugin';
 import { SymbolParserPlugin } from '../../elements/src/types/enumerationtype/SymbolParserPlugin';
 import { VariantParserPlugin } from '../../elements/src/types/varianttype/VariantParserPlugin';
 import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
@@ -41,6 +44,7 @@ export class BarlomParser implements ICoreParser {
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
+    this._registerCodeElementParser( new ReturnStatementParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
     this._registerCodeElementParser( new VariantParserPlugin() );
     this._registerCodeElementParser( new VariantTypeParserPlugin() );
@@ -127,6 +131,22 @@ export class BarlomParser implements ICoreParser {
     this._tokenStream.consumeExpectedToken( BarlomTokenType.EOF );
 
     return new AstCompilationUnit( firstToken, useDeclarations, codeElement );
+
+  }
+
+  /**
+   * Parses a general expression
+   * @returns {AstExpression}
+   */
+  parseExpression() : AstExpression {
+
+    // TODO: pretty much everything
+
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.IntegerLiteral_Decimal ) ) {
+      return new AstIntegerLiteral_Decimal( this._tokenStream.consumeBufferedToken() );
+    }
+
+    return undefined;
 
   }
 

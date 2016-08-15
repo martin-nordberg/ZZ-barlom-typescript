@@ -140,7 +140,7 @@ describe(
     );
 
     it(
-      "should parse an empty function compilation unit", function () {
+      "should parse a function compilation unit", function () {
 
         var code = [
           "use x.y                                 ",
@@ -148,7 +148,8 @@ describe(
           "/* my sample function */                ",
           "function a.b.c.myfunction(p,q)          ",
           "  : /* TODO */                          ",
-          "                                        ",
+          "  /* just a constant */                 ",
+          "  return 100                            ",
           "end                                     ",
           "                                        "
         ].join( '\n' );
@@ -163,7 +164,7 @@ describe(
         expect( cmpUnit.codeElement ).not.toBeNull();
         expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
         expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 1 );
-        expect( cmpUnit.codeElement.codeElements.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 1 );
 
       }
     );

@@ -1,6 +1,7 @@
 import { AstAnnotation } from '../../ast/src/annotations/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
 import { AstCodeElementName } from '../../ast/src/core/AstCodeElementName';
+import { AstExpression } from '../../ast/src/expressions/AstExpression';
 import { AstParameter } from '../../ast/src/parameters/AstParameter';
 
 /**
@@ -24,6 +25,11 @@ export interface ICoreParser {
    * Parses a series of code elements end with either 'end' or EOF.
    */
   parseCodeElements() : AstCodeElement[];
+
+  /**
+   * Parses a general expression.
+   */
+  parseExpression() : AstExpression;
 
   /**
    * Parses annotations coming before the keyword of a code element.
