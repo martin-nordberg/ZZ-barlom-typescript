@@ -1,5 +1,5 @@
-import { AstAnnotation } from '../../ast/src/AstAnnotation';
-import { AstCodeElement } from '../../ast/src/AstCodeElement';
+import { AstAnnotation } from '../../ast/src/annotations/AstAnnotation';
+import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { ICoreParser } from './ICoreParser';
 import { ITokenStream } from './ITokenStream';

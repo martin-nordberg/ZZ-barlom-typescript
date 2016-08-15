@@ -1,7 +1,7 @@
-import { AstNode } from './AstNode';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { AstNode } from '../core/AstNode';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
 import { AstUseDeclaration } from './AstUseDeclaration';
-import { AstCodeElement } from './AstCodeElement';
+import { AstCodeElement } from '../core/AstCodeElement';
 
 /**
  * AST node representing a compilation unit.

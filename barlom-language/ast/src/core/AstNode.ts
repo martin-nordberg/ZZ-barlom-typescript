@@ -1,4 +1,4 @@
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
  * Base class for AST nodes.

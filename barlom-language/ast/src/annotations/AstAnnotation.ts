@@ -1,5 +1,5 @@
-import { AstNode } from './AstNode';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { AstNode } from '../core/AstNode';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
  * AST node representing an annotation.

@@ -1,7 +1,7 @@
 
-import { AstAnnotation } from './AstAnnotation';
-import { AstCodeElementName } from './AstCodeElementName';
-import { AstNamedCodeElement } from './AstNamedCodeElement';
+import { AstAnnotation } from '../annotations/AstAnnotation';
+import { AstCodeElementName } from '../core/AstCodeElementName';
+import { AstNamedCodeElement } from '../core/AstNamedCodeElement';
 
 /**
  * AST node representing a parameter.

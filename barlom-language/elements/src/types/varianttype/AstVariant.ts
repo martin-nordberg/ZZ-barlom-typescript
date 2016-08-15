@@ -1,7 +1,7 @@
-import { AstAnnotation } from '../../../../ast/src/AstAnnotation';
-import { AstCodeElementName } from '../../../../ast/src/AstCodeElementName';
-import { AstNamedCodeElement } from '../../../../ast/src/AstNamedCodeElement';
-import { AstParameter } from '../../../../ast/src/AstParameter';
+import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
+import { AstCodeElementName } from '../../../../ast/src/core/AstCodeElementName';
+import { AstNamedCodeElement } from '../../../../ast/src/core/AstNamedCodeElement';
+import { AstParameter } from '../../../../ast/src/parameters/AstParameter';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 
 /**

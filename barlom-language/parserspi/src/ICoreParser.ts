@@ -1,7 +1,7 @@
-import { AstAnnotation } from '../../ast/src/AstAnnotation';
-import { AstCodeElement } from '../../ast/src/AstCodeElement';
-import { AstCodeElementName } from '../../ast/src/AstCodeElementName';
-import { AstParameter } from '../../ast/src/AstParameter';
+import { AstAnnotation } from '../../ast/src/annotations/AstAnnotation';
+import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
+import { AstCodeElementName } from '../../ast/src/core/AstCodeElementName';
+import { AstParameter } from '../../ast/src/parameters/AstParameter';
 
 /**
  * Central parsing capability for the Barlom language.

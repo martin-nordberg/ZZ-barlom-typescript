@@ -1,7 +1,7 @@
-import { AstAnnotation } from './AstAnnotation';
+import { AstAnnotation } from '../annotations/AstAnnotation';
 import { AstCodeElement } from './AstCodeElement';
 import { AstCodeElementName } from './AstCodeElementName';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
  * AST node representing a code element with a name.

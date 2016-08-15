@@ -1,4 +1,4 @@
-import { AstAnnotation } from '../../../../ast/src/AstAnnotation';
+import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstModule } from './AstModule';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';

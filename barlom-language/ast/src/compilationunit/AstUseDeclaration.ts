@@ -1,6 +1,6 @@
-import { AstCodeElementName } from './AstCodeElementName';
-import { AstNode } from './AstNode';
-import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { AstCodeElementName } from '../core/AstCodeElementName';
+import { AstNode } from '../core/AstNode';
+import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
  * AST node representing a use declaration.

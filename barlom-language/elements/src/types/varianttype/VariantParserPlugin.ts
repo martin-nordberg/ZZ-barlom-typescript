@@ -1,4 +1,4 @@
-import { AstAnnotation } from '../../../../ast/src/AstAnnotation';
+import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstVariant } from './AstVariant';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';

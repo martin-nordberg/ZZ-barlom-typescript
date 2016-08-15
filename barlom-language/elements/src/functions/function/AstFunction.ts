@@ -1,9 +1,9 @@
-import { AstAnnotation } from '../../../../ast/src/AstAnnotation';
-import { AstCodeElement } from '../../../../ast/src/AstCodeElement';
-import { AstCodeElementName } from '../../../../ast/src/AstCodeElementName';
-import { AstNamedCodeElement } from '../../../../ast/src/AstNamedCodeElement';
+import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
+import { AstCodeElement } from '../../../../ast/src/core/AstCodeElement';
+import { AstCodeElementName } from '../../../../ast/src/core/AstCodeElementName';
+import { AstNamedCodeElement } from '../../../../ast/src/core/AstNamedCodeElement';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { AstParameter } from '../../../../ast/src/AstParameter';
+import { AstParameter } from '../../../../ast/src/parameters/AstParameter';
 
 /**
  * AST node representing a function.
