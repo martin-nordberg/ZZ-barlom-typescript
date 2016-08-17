@@ -3,11 +3,11 @@ import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
 import { AstCompilationUnit } from '../../ast/src/compilationunit/AstCompilationUnit';
 import { AstCodeElementName } from '../../ast/src/core/AstCodeElementName';
 import { AstExpression } from '../../ast/src/expressions/AstExpression';
-import { AstIntegerLiteral_Decimal } from '../../ast/src/literals/AstIntegerLiteral_Decimal';
 import { AstParameter } from '../../ast/src/parameters/AstParameter';
 import { AstNamedAnnotation } from '../../ast/src/annotations/AstNamedAnnotation';
 import { AstSummaryDocAnnotation } from '../../ast/src/annotations/AstSummaryDocAnnotation';
 import { AstUseDeclaration } from '../../ast/src/compilationunit/AstUseDeclaration';
+import { BarlomExpressionParser } from './BarlomExpressionParser';
 import { BarlomTokenStream } from './BarlomTokenStream';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
@@ -24,7 +24,8 @@ import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/Va
 /**
  * Parser for the Barlom language.
  */
-export class BarlomParser implements ICoreParser {
+export class BarlomParser
+  implements ICoreParser {
 
   /**
    * Constructs a new parser for the given code that came from the given file.
@@ -116,6 +117,7 @@ export class BarlomParser implements ICoreParser {
 
   /**
    * Parses an entire Barlom source file.
+   * @returns the abstract syntax tree for the parse.
    */
   public parseCompilationUnit() : AstCompilationUnit {
 
@@ -135,24 +137,16 @@ export class BarlomParser implements ICoreParser {
   }
 
   /**
-   * Parses a general expression
-   * @returns {AstExpression}
+   * Parses a general expression.
+   * @returns {AstExpression} the parsed expression.
    */
   parseExpression() : AstExpression {
-
-    // TODO: pretty much everything
-
-    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.IntegerLiteral_Decimal ) ) {
-      return new AstIntegerLiteral_Decimal( this._tokenStream.consumeBufferedToken() );
-    }
-
-    return undefined;
-
+    return new BarlomExpressionParser( this._tokenStream ).parseExpression();
   }
 
   /**
    * Parses annotations coming before the keyword of a code element.
-   * @returns {Array<AstAnnotation>}
+   * @returns {Array<AstAnnotation>} the parsed annotations.
    * @private
    */
   public parseLeadingAnnotations() : AstAnnotation[] {
