@@ -19,6 +19,7 @@ import { ReturnStatementParserPlugin } from '../../elements/src/statements/retur
 import { SymbolParserPlugin } from '../../elements/src/types/enumerationtype/SymbolParserPlugin';
 import { VariantParserPlugin } from '../../elements/src/types/varianttype/VariantParserPlugin';
 import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
+import { ValueParserPlugin } from '../../elements/src/data/value/ValueParserPlugin';
 
 
 /**
@@ -47,6 +48,7 @@ export class BarlomParser
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new ReturnStatementParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
+    this._registerCodeElementParser( new ValueParserPlugin() );
     this._registerCodeElementParser( new VariantParserPlugin() );
     this._registerCodeElementParser( new VariantTypeParserPlugin() );
   }

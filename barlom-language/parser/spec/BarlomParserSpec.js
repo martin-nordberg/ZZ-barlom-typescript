@@ -169,5 +169,25 @@ describe(
       }
     );
 
+    it(
+      "should parse values initialized by various expressions", function () {
+
+        var code = [
+          "function myfunction()                   ",
+          "  value v1 = ('example')                ",
+          "  return 0                              ",
+          "end                                     "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
   }
 );

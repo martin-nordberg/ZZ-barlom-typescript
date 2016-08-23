@@ -1,23 +1,26 @@
-import { AstExpression } from '../../ast/src/expressions/AstExpression';
-import { AstIntegerLiteral_Decimal } from '../../ast/src/literals/AstIntegerLiteral_Decimal';
-import { BarlomTokenStream } from './BarlomTokenStream';
-import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { AstAnonymousLiteral } from '../../ast/src/literals/AstAnonymousLiteral';
+import { AstBooleanLiteral } from '../../ast/src/literals/AstBooleanLiteral';
 import { AstCodeLiteral } from '../../ast/src/literals/AstCodeLiteral';
 import { AstDateTimeLiteral } from '../../ast/src/literals/AstDateTimeLiteral';
+import { AstExpression } from '../../ast/src/expressions/AstExpression';
 import { AstIntegerLiteral_Binary } from '../../ast/src/literals/AstIntegerLiteral_Binary';
+import { AstIntegerLiteral_Decimal } from '../../ast/src/literals/AstIntegerLiteral_Decimal';
 import { AstIntegerLiteral_Hexadecimal } from '../../ast/src/literals/AstIntegerLiteral_Hexadecimal';
 import { AstNumberLiteral } from '../../ast/src/literals/AstNumberLiteral';
+import { AstParenthesizedExpression } from '../../ast/src/expressions/AstParenthesizedExpression';
 import { AstRegularExpressionLiteral } from '../../ast/src/literals/AstRegularExpressionLiteral';
+import { AstSelfLiteral } from '../../ast/src/literals/AstSelfLiteral';
 import { AstTemplateLiteral } from '../../ast/src/literals/AstTemplateLiteral';
 import { AstTextLiteral_DoubleQuoted } from '../../ast/src/literals/AstTextLiteral_DoubleQuoted';
 import { AstTextLiteral_DoubleQuotedMultiline } from '../../ast/src/literals/AstTextLiteral_DoubleQuotedMultiline';
 import { AstTextLiteral_SingleQuoted } from '../../ast/src/literals/AstTextLiteral_SingleQuoted';
 import { AstTextLiteral_SingleQuotedMultiline } from '../../ast/src/literals/AstTextLiteral_SingleQuotedMultiline';
-import { AstVersionLiteral } from '../../ast/src/literals/AstVersionLiteral';
-import { AstSelfLiteral } from '../../ast/src/literals/AstSelfLiteral';
-import { AstBooleanLiteral } from '../../ast/src/literals/AstBooleanLiteral';
 import { AstUndefinedLiteral } from '../../ast/src/literals/AstUndefinedLiteral';
+import { AstVersionLiteral } from '../../ast/src/literals/AstVersionLiteral';
+import { BarlomToken } from '../../lexer/src/BarlomToken';
+import { BarlomTokenStream } from './BarlomTokenStream';
+import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
+
 
 
 /**
@@ -69,6 +72,9 @@ export class BarlomExpressionParser {
       case BarlomTokenType.IntegerLiteral_Hex:
         result = new AstIntegerLiteral_Hexadecimal( token );
         break;
+      case BarlomTokenType.LEFT_PARENTHESIS:
+        result = this._parseParenthesizedExpression( token );
+        break;
       case BarlomTokenType.NumberLiteral:
         result = new AstNumberLiteral( token );
         break;
@@ -109,6 +115,18 @@ export class BarlomExpressionParser {
     // TODO : operators, etc. etc.
 
     return result;
+
+  }
+
+  private _parseParenthesizedExpression( leftParenthesisToken : BarlomToken ) : AstExpression {
+
+    // TODO: tuples
+
+    let innerExpression = this.parseExpression();
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
+
+    return new AstParenthesizedExpression( leftParenthesisToken, innerExpression );
 
   }
 
