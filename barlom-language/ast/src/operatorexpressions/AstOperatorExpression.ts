@@ -2,20 +2,20 @@ import { AstExpression } from '../expressions/AstExpression';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
 
 /**
- * AST node representing an expression that is the result of an and operator.
+ * AST node representing an expression that is the result of a binary operator.
  */
-export class AstConditionalAndExpression
+export abstract class AstOperatorExpression
   extends AstExpression {
 
   constructor(
       leftHandSide : AstExpression,
-      andToken : BarlomToken,
+      operatorToken : BarlomToken,
       rightHandSide : AstExpression
   ) {
-    super( andToken );
+    super( operatorToken );
 
-    this.leftHandSide = leftHandSide;
-    this.rightHandSide = rightHandSide;
+    this.leftHandSide = Object.freeze( leftHandSide );
+    this.rightHandSide = Object.freeze( rightHandSide );
 
     Object.freeze( this );
   }

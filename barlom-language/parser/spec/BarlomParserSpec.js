@@ -253,5 +253,137 @@ describe(
       }
     );
 
+    it(
+      "should parse values initialized with xor expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = x xor y                    ",
+          "  value v02 = x or y xor z and p xor q   ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with equality expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = x = y                      ",
+          "  value v02 = x =/= y                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with additive expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = x + y                      ",
+          "  value v02 = x - y                      ",
+          "  value v02 = x - y + z - q              ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with arithmetic expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = x + y / 3                  ",
+          "  value v02 = x - y * z                  ",
+          "  value v03 = x div y div q              ",
+          "  value v04 = x div y mod q              ",
+          "  value v05 = x * y * z + a / b / c      ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with exponentiation expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = x ^ 2                      ",
+          "  value v02 = x ^ y ^ z                  ",
+          "  value v03 = x ^ 3 + x ^ 2 + x + 3      ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with unary expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = -y                         ",
+          "  value v02 = x * -y                     ",
+          "  value v03 = -(a*b+c)                   ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );
