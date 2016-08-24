@@ -170,21 +170,85 @@ describe(
     );
 
     it(
-      "should parse values initialized by various expressions", function () {
+      "should parse values initialized by various primary expressions", function () {
 
         var code = [
-          "function myfunction()                   ",
-          "  value v1 = ('example')                ",
-          "  return 0                              ",
-          "end                                     "
-        ].join( '\n' );
+          "function myfunction()                    ",
+          "  value v01 = ('example')                ",
+          "  value v02 = $2016-01-01$               ",
+          "  value v03 = 123_456                    ",
+          "  value v04 = 0b0101001100               ",
+          "  value v05 = true                       ",
+          "  value v06 = false                      ",
+          "  value v07 = 123.456                    ",
+          "  value v08 = 123E45                     ",
+          "  value v09 = self                       ",
+          "  value v10 = {{{ abc {{x}} def }}}      ",
+          "  value v11 = \"text\"                   ",
+          "  value v12 = ''' abc\ndef\nghi '''      ",
+          "  value v13 = undefined                  ",
+          "  value v14 = 1.2.3                      ",
+          "  value v15 = ~/[a-z1-2]+/ig             ",
+          "  value v16 = q                          ",
+          "  value v16 = (1,2,3)                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
 
-        var parser = new BarlomParser( code, "example.barlom" );
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
 
         var cmpUnit = parser.parseCompilationUnit();
 
         expect( cmpUnit.codeElement ).not.toBeNull();
-        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized by conditional expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = true                       ",
+          "  value v02 = false                      ",
+          "  value v03 = v01 or v02                 ",
+          "  value v04 = v01 or v03 or v03          ",
+          "  value v05 = v01 and v02                ",
+          "  value v06 = v01 and v02 and v03        ",
+          "  value v07 = v01 and v02 or v03         ",
+          "  value v08 = v01 or v02 and v03         ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized by concatenation expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = 'x' & 'y'                  ",
+          "  value v02 = 'x' & 'y' & 'z' & v01      ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
 
       }
     );

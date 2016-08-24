@@ -20,6 +20,11 @@ import { AstVersionLiteral } from '../../ast/src/literals/AstVersionLiteral';
 import { BarlomToken } from '../../lexer/src/BarlomToken';
 import { BarlomTokenStream } from './BarlomTokenStream';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
+import { AstIdentifierExpression } from '../../ast/src/expressions/AstIdentifierExpression';
+import { AstConditionalOrExpression } from '../../ast/src/expressions/AstConditionalOrExpression';
+import { AstConditionalAndExpression } from '../../ast/src/expressions/AstConditionalAndExpression';
+import { AstConcatenationExpression } from '../../ast/src/expressions/AstConcatenationExpression';
+import { AstTupleLiteral } from '../../ast/src/literals/AstTupleLiteral';
 
 
 
@@ -44,7 +49,106 @@ export class BarlomExpressionParser {
    */
   parseExpression() : AstExpression {
 
-    // TODO: pretty much everything
+    return this._parseConditionalOrExpression();
+
+  }
+
+  /**
+   * Parses an expression that is either an exclusive-or expression or multiple exclusive-or expressions joined by
+   * 'and' or '&'.
+   * @returns {AstExpression} the parsed expression.
+   * @private
+   */
+  private _parseConditionalAndExpression() : AstExpression {
+
+    var result = this._parseExclusiveOrExpression();
+
+    while ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.AND ) ) {
+      let andToken = this._tokenStream.consumeBufferedToken();
+      let rhs = this._parseExclusiveOrExpression();
+      result = new AstConditionalAndExpression( result, andToken, rhs );
+    }
+
+    while ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.CONCATENATE ) ) {
+      let concatenateToken = this._tokenStream.consumeBufferedToken();
+      let rhs = this._parseExclusiveOrExpression();
+      result = new AstConcatenationExpression( result, concatenateToken, rhs );
+    }
+
+    return result;
+
+  }
+
+  /**
+   * Parses an expression that is either a conditional-and expression or else multiple conditional-and expressions
+   * joined by 'or'.
+   * @returns {AstExpression}
+   * @private
+   */
+  private _parseConditionalOrExpression() : AstExpression {
+
+    var result = this._parseConditionalAndExpression();
+
+    while ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.OR ) ) {
+      let orToken = this._tokenStream.consumeBufferedToken();
+      let rhs = this._parseConditionalAndExpression();
+      result = new AstConditionalOrExpression( result, orToken, rhs );
+    }
+
+    return result;
+
+  }
+
+  private _parseExclusiveOrExpression() : AstExpression {
+
+    // TODO: xor operator
+
+    return this._parsePrimaryExpression();
+
+  }
+
+  /**
+   * Parses a parenthesized expression after the opening parenthesis has been consumed.
+   * @param leftParenthesisToken the opening parenthesis token.
+   * @returns {AstParenthesizedExpression}
+   * @private
+   */
+  private _parseParenthesizedExpression( leftParenthesisToken : BarlomToken ) : AstExpression {
+
+    let innerExpression = this.parseExpression();
+
+    var result : AstExpression;
+
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+
+      var tupleEntries = [innerExpression];
+
+      tupleEntries.push( this.parseExpression() );
+
+      while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+        tupleEntries.push( this.parseExpression() );
+      }
+
+      result = new AstTupleLiteral( leftParenthesisToken, tupleEntries )
+
+    }
+    else {
+
+      result = new AstParenthesizedExpression( leftParenthesisToken, innerExpression )
+
+    }
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
+
+    return result;
+
+  }
+
+  /**
+   * Parses a minimal (non-operator) expression.
+   * @returns {AstExpression}
+   */
+  private _parsePrimaryExpression() : AstExpression {
 
     let token = this._tokenStream.consumeToken();
 
@@ -62,6 +166,10 @@ export class BarlomExpressionParser {
         break;
       case BarlomTokenType.FALSE:
         result = new AstBooleanLiteral( token );
+        break;
+      case BarlomTokenType.Identifier:
+        // TODO: function call
+        result = new AstIdentifierExpression( token );
         break;
       case BarlomTokenType.IntegerLiteral_Binary:
         result = new AstIntegerLiteral_Binary( token );
@@ -112,21 +220,9 @@ export class BarlomExpressionParser {
         break;
     }
 
-    // TODO : operators, etc. etc.
+    // TODO: dot continues the expression
 
     return result;
-
-  }
-
-  private _parseParenthesizedExpression( leftParenthesisToken : BarlomToken ) : AstExpression {
-
-    // TODO: tuples
-
-    let innerExpression = this.parseExpression();
-
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
-
-    return new AstParenthesizedExpression( leftParenthesisToken, innerExpression );
 
   }
 
