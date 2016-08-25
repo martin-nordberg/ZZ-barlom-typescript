@@ -44,6 +44,10 @@ import { AstMultiplicationExpression } from '../../ast/src/operatorexpressions/A
 import { AstExponentiationExpression } from '../../ast/src/operatorexpressions/AstExponentiationExpression';
 import { AstUnaryNegationExpression } from '../../ast/src/operatorexpressions/AstUnaryNegationExpression';
 import { AstUnaryPositiveExpression } from '../../ast/src/operatorexpressions/AstUnaryPositiveExpression';
+import { AstExclusiveRangeExpression } from '../../ast/src/operatorexpressions/AstExclusiveRangeExpression';
+import { AstInclusiveRangeExpression } from '../../ast/src/operatorexpressions/AstInclusiveRangeExpression';
+import { AstArrayLiteral } from '../../ast/src/literals/AstArrayLiteral';
+import { AstListLiteral } from '../../ast/src/literals/AstListLiteral';
 
 
 
@@ -101,6 +105,75 @@ export class BarlomExpressionParser {
     }
 
     return result;
+
+  }
+
+  /**
+   * Parses a bracket expression after the opening bracket has been consumed.
+   * @param leftBracketToken the opening bracket token.
+   * @returns {AstExpression}
+   * @private
+   */
+  private _parseBracketedExpression( leftBracketToken : BarlomToken ) : AstExpression {
+
+    // empty array '[]'
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACKET ) ) {
+      return new AstArrayLiteral( leftBracketToken, [], this._tokenStream.consumeBufferedToken() );
+    }
+
+    // empty list '[;]'
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.SEMICOLON ) ) {
+      return new AstListLiteral(
+          leftBracketToken,
+          [],
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_BRACKET )
+      );
+    }
+
+    // first entry
+    let entries = [ this.parseExpression() ];
+
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+
+      entries.push( this.parseExpression() );
+
+      while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+        entries.push( this.parseExpression() );
+      }
+
+      return new AstArrayLiteral(
+          leftBracketToken,
+          entries,
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_BRACKET )
+      );
+
+    }
+    else if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACKET ) ) {
+
+      return new AstArrayLiteral(
+          leftBracketToken,
+          entries,
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_BRACKET )
+      );
+
+    }
+    else if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.SEMICOLON ) ) {
+
+      entries.push( this.parseExpression() );
+
+      while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.SEMICOLON ) ) {
+        entries.push( this.parseExpression() );
+      }
+
+      return new AstListLiteral(
+          leftBracketToken,
+          entries,
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_BRACKET )
+      );
+
+    }
+
+    throw Error( "Expected ',', ';', or ']'." );
 
   }
 
@@ -274,8 +347,6 @@ export class BarlomExpressionParser {
 
     let innerExpression = this.parseExpression();
 
-    var result : AstExpression;
-
     if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
 
       var tupleEntries = [innerExpression];
@@ -286,18 +357,22 @@ export class BarlomExpressionParser {
         tupleEntries.push( this.parseExpression() );
       }
 
-      result = new AstTupleLiteral( leftParenthesisToken, tupleEntries )
+      return new AstTupleLiteral(
+          leftParenthesisToken,
+          tupleEntries,
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS )
+      );
 
     }
     else {
 
-      result = new AstParenthesizedExpression( leftParenthesisToken, innerExpression )
+      return new AstParenthesizedExpression(
+          leftParenthesisToken,
+          innerExpression,
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS )
+      );
 
     }
-
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
-
-    return result;
 
   }
 
@@ -337,6 +412,9 @@ export class BarlomExpressionParser {
       case BarlomTokenType.IntegerLiteral_Hex:
         result = new AstIntegerLiteral_Hexadecimal( token );
         break;
+      case BarlomTokenType.LEFT_BRACKET:
+        result = this._parseBracketedExpression( token );
+        break;
       case BarlomTokenType.LEFT_PARENTHESIS:
         result = this._parseParenthesizedExpression( token );
         break;
@@ -373,6 +451,7 @@ export class BarlomExpressionParser {
       case BarlomTokenType.VersionLiteral:
         result = new AstVersionLiteral( token );
         break;
+      // TODO: more kinds of literals
       default:
         break;
     }
@@ -383,7 +462,7 @@ export class BarlomExpressionParser {
 
   }
 
-  private _parseRelationalExpression() : AstExpression {
+  private _parseRangeExpression() : AstExpression {
 
     var result = this._parseAdditiveExpression();
 
@@ -394,39 +473,71 @@ export class BarlomExpressionParser {
       let token = this._tokenStream.lookAhead1Token();
 
       switch ( token.tokenType ) {
+        case BarlomTokenType.RANGE_EXCLUSIVE:
+          let reToken = this._tokenStream.consumeBufferedToken();
+          let reRhs = this._parseAdditiveExpression();
+          result = new AstExclusiveRangeExpression( result, reToken, reRhs );
+          break;
+        case BarlomTokenType.RANGE_INCLUSIVE:
+          let riToken = this._tokenStream.consumeBufferedToken();
+          let riRhs = this._parseAdditiveExpression();
+          result = new AstInclusiveRangeExpression( result, riToken, riRhs );
+          break;
+        default:
+          keepLooking = false;
+          break
+      }
+
+    }
+
+    return result;
+
+  }
+
+  private _parseRelationalExpression() : AstExpression {
+
+    var result = this._parseRangeExpression();
+
+    var keepLooking = true;
+
+    while ( keepLooking ) {
+
+      let token = this._tokenStream.lookAhead1Token();
+
+      switch ( token.tokenType ) {
         case BarlomTokenType.COMPARE:
           let compareToken = this._tokenStream.consumeBufferedToken();
-          let compareRhs = this._parseAdditiveExpression();
+          let compareRhs = this._parseRangeExpression();
           result = new AstCompareExpression( result, compareToken, compareRhs );
           break;
         case BarlomTokenType.GREATER_THAN:
           let gtToken = this._tokenStream.consumeBufferedToken();
-          let gtRhs = this._parseAdditiveExpression();
+          let gtRhs = this._parseRangeExpression();
           result = new AstGreaterThanExpression( result, gtToken, gtRhs );
           break;
         case BarlomTokenType.GREATER_THAN_OR_EQUAL:
           let gteToken = this._tokenStream.consumeBufferedToken();
-          let gteRhs = this._parseAdditiveExpression();
+          let gteRhs = this._parseRangeExpression();
           result = new AstGreaterThanOrEqualExpression( result, gteToken, gteRhs );
           break;
         case BarlomTokenType.IS:
           let isToken = this._tokenStream.consumeBufferedToken();
-          let isRhs = this._parseAdditiveExpression();
+          let isRhs = this._parseRangeExpression();
           result = new AstIsExpression( result, isToken, isRhs );
           break;
         case BarlomTokenType.ISNOT:
           let isnotToken = this._tokenStream.consumeBufferedToken();
-          let isnotRhs = this._parseAdditiveExpression();
+          let isnotRhs = this._parseRangeExpression();
           result = new AstIsNotExpression( result, isnotToken, isnotRhs );
           break;
         case BarlomTokenType.LESS_THAN:
           let ltToken = this._tokenStream.consumeBufferedToken();
-          let ltRhs = this._parseAdditiveExpression();
+          let ltRhs = this._parseRangeExpression();
           result = new AstLessThanExpression( result, ltToken, ltRhs );
           break;
         case BarlomTokenType.LESS_THAN_OR_EQUAL:
           let lteToken = this._tokenStream.consumeBufferedToken();
-          let lteRhs = this._parseAdditiveExpression();
+          let lteRhs = this._parseRangeExpression();
           result = new AstLessThanOrEqualExpression( result, lteToken, lteRhs );
           break;
         default:
@@ -441,8 +552,6 @@ export class BarlomExpressionParser {
   }
 
   private _parseUnaryExpression() : AstExpression {
-
-    var keepLooking = true;
 
     let token = this._tokenStream.lookAhead1Token();
 
@@ -464,3 +573,4 @@ export class BarlomExpressionParser {
   private _tokenStream : BarlomTokenStream;
 
 }
+

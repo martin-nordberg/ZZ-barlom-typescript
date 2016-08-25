@@ -385,5 +385,73 @@ describe(
       }
     );
 
+    it(
+      "should parse values initialized with range expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = 1..10                      ",
+          "  value v02 = 'a'..'z'                   ",
+          "  value v03 = x-3 ..< x+3                ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with array literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = []                         ",
+          "  value v02 = [a,b,c]                    ",
+          "  value v03 = [x+2,x*2,x^2]              ",
+          "  value v04 = ['a','b']                  ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with array literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = [;]                        ",
+          "  value v02 = [a;b;c]                    ",
+          "  value v03 = [x+2;x*2;x^2]              ",
+          "  value v04 = ['a';'b']                  ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );

@@ -9,14 +9,18 @@ export class AstParenthesizedExpression
 
   constructor(
       leftParenthesisToken : BarlomToken,
-      innerExpression : AstExpression
+      innerExpression : AstExpression,
+      rightParenthesisToken : BarlomToken
   ) {
     super( leftParenthesisToken );
 
     this.innerExpression = Object.freeze( innerExpression );
+    this.rightParenthesisToken = Object.freeze( rightParenthesisToken );
 
     Object.freeze( this );
   }
+
+  public rightParenthesisToken : BarlomToken;
 
   public innerExpression : AstExpression;
 
