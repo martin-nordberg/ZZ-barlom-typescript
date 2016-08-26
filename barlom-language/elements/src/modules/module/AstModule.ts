@@ -17,11 +17,13 @@ export class AstModule
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
+
     super( leadingAnnotations, moduleToken, codeElementName, trailingAnnotations );
 
     this.codeElements = Object.freeze( codeElements );
 
     Object.freeze( this );
+
   }
 
   public codeElements : AstCodeElement[];

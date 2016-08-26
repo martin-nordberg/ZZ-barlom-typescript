@@ -14,7 +14,6 @@ export class AstConditionalOrExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, orToken, rightHandSide );
-
     Object.freeze( this );
   }
 

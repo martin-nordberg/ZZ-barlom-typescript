@@ -15,7 +15,6 @@ export class AstParameter
       // TODO: default value
   ) {
     super( [], name.entries[0], name, trailingAnnotations );
-
     Object.freeze( this );
   }
 

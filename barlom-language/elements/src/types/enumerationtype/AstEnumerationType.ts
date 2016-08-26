@@ -17,11 +17,13 @@ export class AstEnumerationType
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
+
     super( leadingAnnotations, enumerationTypeToken, codeElementName, trailingAnnotations );
 
     this.codeElements = Object.freeze( codeElements );
 
     Object.freeze( this );
+
   }
 
   public codeElements : AstCodeElement[];

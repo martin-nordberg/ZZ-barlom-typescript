@@ -14,7 +14,6 @@ export class AstDivisionExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, dividedByToken, rightHandSide );
-
     Object.freeze( this );
   }
 

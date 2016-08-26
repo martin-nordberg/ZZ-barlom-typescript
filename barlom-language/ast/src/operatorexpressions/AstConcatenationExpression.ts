@@ -1,27 +1,20 @@
 import { AstExpression } from '../expressions/AstExpression';
 import { BarlomToken } from '../../../lexer/src/BarlomToken';
+import { AstOperatorExpression } from './AstOperatorExpression';
 
 /**
  * AST node representing an expression that is the result of an & operator.
  */
 export class AstConcatenationExpression
-  extends AstExpression {
+  extends AstOperatorExpression {
 
   constructor(
       leftHandSide : AstExpression,
       concatenationToken : BarlomToken,
       rightHandSide : AstExpression
   ) {
-    super( concatenationToken );
-
-    this.leftHandSide = leftHandSide;
-    this.rightHandSide = rightHandSide;
-
+    super( leftHandSide, concatenationToken, rightHandSide );
     Object.freeze( this );
   }
-
-  public leftHandSide : AstExpression;
-
-  public rightHandSide : AstExpression;
 
 }

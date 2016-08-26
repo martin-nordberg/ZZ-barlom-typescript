@@ -12,12 +12,14 @@ export class AstListLiteral
       listEntries : AstExpression[],
       rightBracketToken : BarlomToken
   ) {
+
     super( leftBracketToken );
 
     this.listEntries = Object.freeze( listEntries );
     this.rightBracketToken = Object.freeze( rightBracketToken );
 
     Object.freeze( this );
+
   }
 
   public listEntries : AstExpression[];

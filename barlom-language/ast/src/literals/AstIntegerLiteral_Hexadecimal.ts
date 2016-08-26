@@ -11,7 +11,6 @@ export class AstIntegerLiteral_Hexadecimal
       literalToken : BarlomToken
   ) {
     super( literalToken );
-
     Object.freeze( this );
   }
 

@@ -437,8 +437,78 @@ describe(
           "function myfunction()                    ",
           "  value v01 = [;]                        ",
           "  value v02 = [a;b;c]                    ",
-          "  value v03 = [x+2;x*2;x^2]              ",
+          "  value v03 = [x+2; x*2; x^2]            ",
           "  value v04 = ['a';'b']                  ",
+          "  value v05 = [1.0]                      ",
+          "  value v06 = [[1,2],[3,4]]              ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with set literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = {}                         ",
+          "  value v02 = {theOne}                   ",
+          "  value v02 = {a,b,c}                    ",
+          "  value v03 = {'a','b','c'}              ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with map literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = {~>}                       ",
+          "  value v02 = {one~>1}                   ",
+          "  value v02 = {1~>'one',1+1~>'two'}      ",
+          "  value v03 = {'a'~>1,'b'~>2,'c'~>3}     ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with structure literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = {one=1}                    ",
+          "  value v02 = {one=1,two=2}              ",
+          "  value v02 = {a='a',b=3*6,c=3.4}        ",
           "  return 0                               ",
           "end                                      "
         ];

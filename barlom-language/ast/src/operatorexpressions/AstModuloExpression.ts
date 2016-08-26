@@ -14,7 +14,6 @@ export class AstModuloExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, modToken, rightHandSide );
-
     Object.freeze( this );
   }
 

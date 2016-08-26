@@ -12,12 +12,12 @@ export abstract class AstOperatorExpression
       operatorToken : BarlomToken,
       rightHandSide : AstExpression
   ) {
+
     super( operatorToken );
 
     this.leftHandSide = Object.freeze( leftHandSide );
     this.rightHandSide = Object.freeze( rightHandSide );
 
-    Object.freeze( this );
   }
 
   public leftHandSide : AstExpression;

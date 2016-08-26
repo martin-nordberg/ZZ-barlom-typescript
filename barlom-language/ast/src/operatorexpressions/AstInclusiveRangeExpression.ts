@@ -14,7 +14,6 @@ export class AstInclusiveRangeExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, inclusiveRangeToken, rightHandSide );
-
     Object.freeze( this );
   }
 

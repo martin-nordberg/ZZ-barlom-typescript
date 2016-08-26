@@ -14,7 +14,6 @@ export class AstIsNotExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, isNotToken, rightHandSide );
-
     Object.freeze( this );
   }
 

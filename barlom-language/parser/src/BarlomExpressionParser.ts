@@ -48,6 +48,9 @@ import { AstExclusiveRangeExpression } from '../../ast/src/operatorexpressions/A
 import { AstInclusiveRangeExpression } from '../../ast/src/operatorexpressions/AstInclusiveRangeExpression';
 import { AstArrayLiteral } from '../../ast/src/literals/AstArrayLiteral';
 import { AstListLiteral } from '../../ast/src/literals/AstListLiteral';
+import { AstSetLiteral } from '../../ast/src/literals/AstSetLiteral';
+import { AstMapLiteral } from '../../ast/src/literals/AstMapLiteral';
+import { AstStructureLiteral } from '../../ast/src/literals/AstStructureLiteral';
 
 
 
@@ -105,6 +108,69 @@ export class BarlomExpressionParser {
     }
 
     return result;
+
+  }
+
+  /**
+   * Parses a brace expression after the opening brace has been consumed.
+   * @param leftBraceToken the opening brace token.
+   * @returns {AstExpression}
+   * @private
+   */
+  private _parseBracedExpression( leftBraceToken : BarlomToken ) : AstExpression {
+
+    // empty set '{}'
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACE ) ) {
+      return new AstSetLiteral( leftBraceToken, [], this._tokenStream.consumeBufferedToken() );
+    }
+
+    // empty map '{~>}'
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.ARROW_TILDE_RIGHT ) ) {
+      return new AstMapLiteral(
+          leftBraceToken,
+          [],
+          [],
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_BRACE )
+      );
+    }
+
+    // structure literal
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.Identifier ) &&
+         this._tokenStream.hasLookAhead2Token( BarlomTokenType.EQUALS ) ) {
+      return this._parseStructureLiteral( leftBraceToken );
+    }
+
+    let entries = [this.parseExpression()];
+
+    // Set of one element
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACE ) ) {
+      return new AstSetLiteral( leftBraceToken, entries, this._tokenStream.consumeBufferedToken() );
+    }
+
+    // Set
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+
+      entries.push( this.parseExpression() );
+
+      while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+        entries.push( this.parseExpression() );
+      }
+
+      return new AstSetLiteral(
+          leftBraceToken,
+          entries,
+          this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_BRACE )
+      );
+
+    }
+
+    // Map
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.ARROW_TILDE_RIGHT ) ) {
+      return this._parseMapLiteral( leftBraceToken, entries[0] );
+    }
+
+
+    throw Error( "Expected ',', '~>', or '}'." );
 
   }
 
@@ -295,6 +361,38 @@ export class BarlomExpressionParser {
 
   }
 
+  /**
+   * Parses a map literal after the left brace, first key, and '~>' have been consumed.
+   * @param leftBraceToken the opening brace.
+   * @param firstKey the identifier expression of the first key
+   * @private
+   */
+  private _parseMapLiteral( leftBraceToken : BarlomToken, firstKey: AstExpression ) : AstMapLiteral {
+
+    var keys = [ firstKey ];
+
+    var values = [this.parseExpression()];
+
+    while ( true ) {
+
+      if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACE ) ) {
+        return new AstMapLiteral( leftBraceToken, keys, values, this._tokenStream.consumeBufferedToken() );
+      }
+
+      if ( !this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+        throw new Error( "Expected ',' or '}'." );
+      }
+
+      keys.push( this.parseExpression() );
+
+      this._tokenStream.consumeExpectedToken( BarlomTokenType.ARROW_TILDE_RIGHT );
+
+      values.push( this.parseExpression() );
+
+    }
+
+  }
+
   private _parseMultiplicativeExpression() : AstExpression {
 
     var result = this._parseExponentialExpression();
@@ -411,6 +509,9 @@ export class BarlomExpressionParser {
         break;
       case BarlomTokenType.IntegerLiteral_Hex:
         result = new AstIntegerLiteral_Hexadecimal( token );
+        break;
+      case BarlomTokenType.LEFT_BRACE:
+        result = this._parseBracedExpression( token );
         break;
       case BarlomTokenType.LEFT_BRACKET:
         result = this._parseBracketedExpression( token );
@@ -548,6 +649,39 @@ export class BarlomExpressionParser {
     }
 
     return result;
+
+  }
+
+  /**
+   * Parses a structure literal after the left brace has been consumed and the first identifier and '=' have
+   * been recognized.
+   * @param leftBraceToken the opening brace.
+   * @private
+   */
+  private _parseStructureLiteral( leftBraceToken : BarlomToken ) : AstStructureLiteral {
+
+    var identifiers = [ new AstIdentifierExpression( this._tokenStream.consumeBufferedToken() ) ];
+    this._tokenStream.consumeBufferedToken();
+
+    var values = [this.parseExpression()];
+
+    while ( true ) {
+
+      if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACE ) ) {
+        return new AstStructureLiteral( leftBraceToken, identifiers, values, this._tokenStream.consumeBufferedToken() );
+      }
+
+      if ( !this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+        throw new Error( "Expected ',' or '}'." );
+      }
+
+      identifiers.push( this.parseExpression() );
+
+      this._tokenStream.consumeExpectedToken( BarlomTokenType.EQUALS );
+
+      values.push( this.parseExpression() );
+
+    }
 
   }
 

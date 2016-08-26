@@ -14,7 +14,6 @@ export class AstAdditionExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, plusToken, rightHandSide );
-
     Object.freeze( this );
   }
 

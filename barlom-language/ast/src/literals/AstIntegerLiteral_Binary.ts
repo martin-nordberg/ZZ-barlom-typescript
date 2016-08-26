@@ -11,7 +11,6 @@ export class AstIntegerLiteral_Binary
       literalToken : BarlomToken
   ) {
     super( literalToken );
-
     Object.freeze( this );
   }
 

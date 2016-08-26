@@ -15,11 +15,13 @@ export class AstReturnStatement
       returnedExpression : AstExpression,
       trailingAnnotations : AstAnnotation[]
   ) {
+
     super( leadingAnnotations, returnToken, trailingAnnotations );
 
     this.returnedExpression = Object.freeze( returnedExpression );
 
     Object.freeze( this );
+
   }
 
   private returnedExpression : AstExpression;

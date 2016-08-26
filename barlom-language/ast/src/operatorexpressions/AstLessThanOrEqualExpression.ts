@@ -14,7 +14,6 @@ export class AstLessThanOrEqualExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, lessThanOrEqualToken, rightHandSide );
-
     Object.freeze( this );
   }
 

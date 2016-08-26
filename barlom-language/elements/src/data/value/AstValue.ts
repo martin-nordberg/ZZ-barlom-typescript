@@ -17,11 +17,13 @@ export class AstValue
       trailingAnnotations : AstAnnotation[],
       valueExpression : AstExpression
   ) {
+
     super( leadingAnnotations, valueToken, codeElementName, trailingAnnotations );
 
     this.valueExpression = Object.freeze( valueExpression );
 
     Object.freeze( this );
+
   }
 
   public valueExpression : AstExpression;

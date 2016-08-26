@@ -143,6 +143,20 @@ export class BarlomTokenStream
   }
 
   /**
+   * Determines whether the second token in the input has the given token type.
+   * @param tokenType the token type to look for.
+   * @returns {boolean}
+   */
+  public hasLookAhead2Token( tokenType : BarlomTokenType ) : boolean {
+
+    this._readNext2TokensIfNotBuffered();
+
+    // check the token type
+    return this._tokenBuffer[this._next].tokenType === tokenType;
+
+  }
+
+  /**
    * Determines whether the next token in the input has the given token type and text value.
    * @param tokenType the token type to look for.
    * @param tokenText the text value of the expected token.
@@ -176,11 +190,7 @@ export class BarlomTokenStream
    */
   public lookAhead2Token() : BarlomToken {
 
-    // Read the next two tokens if not already buffered.
-    while ( this._last <= this._next + 1 ) {
-      this._tokenBuffer[this._last] = this._lexer.readToken();
-      this._last = ( this._last + 1 ) % BUFFER_SIZE;
-    }
+    this._readNext2TokensIfNotBuffered();
 
     return this._tokenBuffer[this._next + 1];
 
@@ -201,6 +211,21 @@ export class BarlomTokenStream
   private _readNextTokenIfNotBuffered() {
 
     if ( this._last === this._next ) {
+      this._tokenBuffer[this._last] = this._lexer.readToken();
+      this._last = ( this._last + 1 ) % BUFFER_SIZE;
+    }
+
+  }
+
+  /**
+   * Reads the next two tokens if they are not already buffered.
+   * @private
+   */
+  private _readNext2TokensIfNotBuffered() {
+
+    this._readNextTokenIfNotBuffered();
+
+    if ( this._last === ( this._next + 1 ) % BUFFER_SIZE ) {
       this._tokenBuffer[this._last] = this._lexer.readToken();
       this._last = ( this._last + 1 ) % BUFFER_SIZE;
     }

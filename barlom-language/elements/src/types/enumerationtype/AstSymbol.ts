@@ -16,7 +16,6 @@ export class AstSymbol
       trailingAnnotations : AstAnnotation[]
   ) {
     super( leadingAnnotations, symbolToken, codeElementName, trailingAnnotations );
-
     Object.freeze( this );
   }
 

@@ -17,11 +17,13 @@ export class AstVariantType
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
+
     super( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations );
 
     this.codeElements = Object.freeze( codeElements );
 
     Object.freeze( this );
+
   }
 
   public codeElements : AstCodeElement[];

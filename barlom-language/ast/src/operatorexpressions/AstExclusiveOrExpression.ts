@@ -14,7 +14,6 @@ export class AstExclusiveOrExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, xorToken, rightHandSide );
-
     Object.freeze( this );
   }
 

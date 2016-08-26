@@ -11,7 +11,6 @@ export class AstCodeLiteral
       literalToken : BarlomToken
   ) {
     super( literalToken );
-
     Object.freeze( this );
   }
 

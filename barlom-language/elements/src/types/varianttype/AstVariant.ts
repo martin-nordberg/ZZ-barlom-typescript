@@ -17,11 +17,13 @@ export class AstVariant
       parameters : AstParameter[],
       trailingAnnotations : AstAnnotation[]
   ) {
+
     super( leadingAnnotations, variantToken, codeElementName, trailingAnnotations );
 
     this.parameters = Object.freeze( parameters );
 
     Object.freeze( this );
+
   }
 
   public parameters : AstParameter[];

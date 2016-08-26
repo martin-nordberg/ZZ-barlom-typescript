@@ -14,7 +14,6 @@ export class AstExclusiveRangeExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, exclusiveRangeToken, rightHandSide );
-
     Object.freeze( this );
   }
 

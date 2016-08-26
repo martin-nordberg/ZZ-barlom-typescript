@@ -11,7 +11,6 @@ export class AstTextLiteral_DoubleQuoted
       literalToken : BarlomToken
   ) {
     super( literalToken );
-
     Object.freeze( this );
   }
 

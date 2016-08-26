@@ -11,11 +11,13 @@ export class AstUnaryPositiveExpression
       plusToken : BarlomToken,
       rightHandSide : AstExpression
   ) {
+
     super( plusToken );
 
     this.rightHandSide = Object.freeze( rightHandSide );
 
     Object.freeze( this );
+
   }
 
   public rightHandSide : AstExpression;

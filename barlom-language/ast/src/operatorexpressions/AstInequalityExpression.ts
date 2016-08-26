@@ -14,7 +14,6 @@ export class AstInequalityExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, notEqualsToken, rightHandSide );
-
     Object.freeze( this );
   }
 

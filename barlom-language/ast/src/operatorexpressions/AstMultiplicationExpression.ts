@@ -14,7 +14,6 @@ export class AstMultiplicationExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, timesToken, rightHandSide );
-
     Object.freeze( this );
   }
 

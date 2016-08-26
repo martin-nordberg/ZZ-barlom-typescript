@@ -12,12 +12,14 @@ export class AstTupleLiteral
       tupleEntries : AstExpression[],
       rightParenthesisToken : BarlomToken
   ) {
+
     super( leftParenthesisToken );
 
     this.tupleEntries = Object.freeze( tupleEntries );
     this.rightParenthesisToken = Object.freeze( rightParenthesisToken );
 
     Object.freeze( this );
+
   }
 
   public rightParenthesisToken : BarlomToken;

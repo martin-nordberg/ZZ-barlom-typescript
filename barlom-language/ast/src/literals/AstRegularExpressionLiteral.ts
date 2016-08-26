@@ -11,7 +11,6 @@ export class AstRegularExpressionLiteral
       literalToken : BarlomToken
   ) {
     super( literalToken );
-
     Object.freeze( this );
   }
 

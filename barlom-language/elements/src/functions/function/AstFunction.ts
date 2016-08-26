@@ -19,12 +19,14 @@ export class AstFunction
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
+
     super( leadingAnnotations, functionToken, codeElementName, trailingAnnotations );
 
     this.parameters = Object.freeze( parameters );
     this.codeElements = Object.freeze( codeElements );
 
     Object.freeze( this );
+
   }
 
   public codeElements : AstCodeElement[];

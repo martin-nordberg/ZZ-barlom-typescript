@@ -11,11 +11,13 @@ export class AstUnaryNegationExpression
       minusToken : BarlomToken,
       rightHandSide : AstExpression
   ) {
+
     super( minusToken );
 
     this.rightHandSide = Object.freeze( rightHandSide );
 
     Object.freeze( this );
+
   }
 
   public rightHandSide : AstExpression;

@@ -14,7 +14,6 @@ export class AstExponentiationExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, powerToken, rightHandSide );
-
     Object.freeze( this );
   }
 

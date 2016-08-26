@@ -14,7 +14,6 @@ export class AstIsExpression
       rightHandSide : AstExpression
   ) {
     super( leftHandSide, isToken, rightHandSide );
-
     Object.freeze( this );
   }
 
