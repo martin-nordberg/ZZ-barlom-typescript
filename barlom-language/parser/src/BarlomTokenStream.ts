@@ -4,7 +4,7 @@ import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { ITokenStream } from '../../parserspi/src/ITokenStream';
 
 
-const BUFFER_SIZE : number = 5;
+const BUFFER_SIZE : number = 3;
 
 /**
  * Buffered token stream for Barlom tokens from the Barlom lexer.
@@ -78,13 +78,7 @@ export class BarlomTokenStream
 
     // Check the token type.
     if ( this._tokenBuffer[this._next].tokenType !== tokenType ) {
-      throw new Error(
-          "Expected " + BarlomTokenType[tokenType] +
-          "; found " + BarlomTokenType[this._tokenBuffer[this._next].tokenType] +
-          " '" + this._tokenBuffer[this._next].text + "' at (" +
-          this._tokenBuffer[this._next].line + "," +
-          this._tokenBuffer[this._next].column + ")."
-      );
+      this.expected( BarlomTokenType[tokenType] );
     }
 
     return this.consumeBufferedToken();
@@ -103,13 +97,7 @@ export class BarlomTokenStream
 
     // Check the token type.
     if ( this._tokenBuffer[this._next].tokenType !== tokenType || this._tokenBuffer[this._next].text !== tokenText ) {
-      throw new Error(
-          "Expected " + BarlomTokenType[tokenType] + " '" + tokenText +
-          "'; found " + BarlomTokenType[this._tokenBuffer[this._next].tokenType] +
-          " '" + this._tokenBuffer[this._next].text + "' at (" +
-          this._tokenBuffer[this._next].line + "," +
-          this._tokenBuffer[this._next].column + ")."
-      );
+      this.expected( BarlomTokenType[tokenType] + " '" + tokenText + "'" );
     }
 
     return this.consumeBufferedToken();
@@ -126,6 +114,18 @@ export class BarlomTokenStream
 
     return this.consumeBufferedToken();
 
+  }
+
+  /**
+   * Throws an error when the expected input is not present.
+   * @param text the expected tokens or input type.
+   */
+  public expected( text : string ) : string {
+
+    let token = this._tokenBuffer[this._next];
+
+    throw new Error( "Expected " + text + "; found " + BarlomTokenType[token.tokenType] +
+                     " '" + token.text + "' at (" + token.line + "," + token.column + ")." );
   }
 
   /**
@@ -152,7 +152,7 @@ export class BarlomTokenStream
     this._readNext2TokensIfNotBuffered();
 
     // check the token type
-    return this._tokenBuffer[this._next].tokenType === tokenType;
+    return this._tokenBuffer[(this._next+1)%BUFFER_SIZE].tokenType === tokenType;
 
   }
 
@@ -192,7 +192,7 @@ export class BarlomTokenStream
 
     this._readNext2TokensIfNotBuffered();
 
-    return this._tokenBuffer[this._next + 1];
+    return this._tokenBuffer[(this._next+1)%BUFFER_SIZE];
 
   }
 

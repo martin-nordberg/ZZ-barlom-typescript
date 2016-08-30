@@ -52,6 +52,7 @@ export enum BarlomTokenType {
   ARROW_TILDE_TILDE_TILDE,    // Arrow `~~~`
   AS,    // Keyword `as`
   AT,    // Operator `@`
+  BEGIN,    // Keyword `begin`
   BITWISE_AND,    // Operator `~and~`    Bitwise AND
   BITWISE_NAND,    // Operator `~nand~`    Bitwise NAND
   BITWISE_NOR,    // Operator `~nor~`    Bitwise NOR

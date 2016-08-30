@@ -279,8 +279,9 @@ describe(
 
         var code = [
           "function myfunction()                    ",
+          "  value v00 = x                          ",
           "  value v01 = x = y                      ",
-          "  value v02 = x =/= y                    ",
+          "  value v02 = x <> y                     ",
           "  return 0                               ",
           "end                                      "
         ];
@@ -462,8 +463,8 @@ describe(
           "function myfunction()                    ",
           "  value v01 = {}                         ",
           "  value v02 = {theOne}                   ",
-          "  value v02 = {a,b,c}                    ",
-          "  value v03 = {'a','b','c'}              ",
+          "  value v03 = {a,b,c}                    ",
+          "  value v04 = {'a','b','c'}              ",
           "  return 0                               ",
           "end                                      "
         ];
@@ -485,8 +486,8 @@ describe(
           "function myfunction()                    ",
           "  value v01 = {~>}                       ",
           "  value v02 = {one~>1}                   ",
-          "  value v02 = {1~>'one',1+1~>'two'}      ",
-          "  value v03 = {'a'~>1,'b'~>2,'c'~>3}     ",
+          "  value v03 = {1~>'one',1+1~>'two'}      ",
+          "  value v04 = {'a'~>1,'b'~>2,'c'~>3}     ",
           "  return 0                               ",
           "end                                      "
         ];
@@ -508,7 +509,30 @@ describe(
           "function myfunction()                    ",
           "  value v01 = {one=1}                    ",
           "  value v02 = {one=1,two=2}              ",
-          "  value v02 = {a='a',b=3*6,c=3.4}        ",
+          "  value v03 = {a='a',b=3*6,c=3.4}        ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with function expression literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = (x) -> x^2                 ",
+          "  value v02 = (a,b) -> a & b             ",
+          "  value v03 = (p,q,r) -> ( p + q ) * r   ",
+          "  value v04 = () -> 3 + 39               ",
           "  return 0                               ",
           "end                                      "
         ];
