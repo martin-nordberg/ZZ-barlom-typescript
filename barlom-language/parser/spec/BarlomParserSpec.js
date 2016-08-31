@@ -671,5 +671,27 @@ describe(
       }
     );
 
+    it(
+      "should parse assert statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  assert 1 + 1 = 2                       ",
+          "  assert p > 3 : message( 'too small' )  ",
+          "  assert false                           ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );

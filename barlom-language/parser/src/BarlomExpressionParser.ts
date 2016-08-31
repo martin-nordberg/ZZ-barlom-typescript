@@ -78,6 +78,30 @@ export class BarlomExpressionParser {
   }
 
   /**
+   * Parses a sequence of arguments just after the opening parenthesis has been recognized.
+   * @returns {AstExpression[]} the arguments parsed.
+   */
+  parseArguments() : AstExpression[] {
+
+    let result : AstExpression[] = [];
+
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.RIGHT_PARENTHESIS ) ) {
+      return result;
+    }
+
+    result.push( this.parseExpression() );
+
+    while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+      result.push( this.parseExpression() );
+    }
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
+
+    return result;
+
+  }
+
+  /**
    * Parses a general expression
    * @returns {AstExpression}
    */
@@ -117,30 +141,6 @@ export class BarlomExpressionParser {
       }
 
     }
-
-    return result;
-
-  }
-
-  /**
-   * Parses a sequence of arguments just after the opening parenthesis has been recognized.
-   * @returns {AstExpression[]} the arguments parsed.
-   */
-  private _parseArguments() : AstExpression[] {
-
-    let result : AstExpression[] = [];
-
-    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.RIGHT_PARENTHESIS ) ) {
-      return result;
-    }
-
-    result.push( this.parseExpression() );
-
-    while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
-      result.push( this.parseExpression() );
-    }
-
-    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
 
     return result;
 
@@ -665,7 +665,7 @@ export class BarlomExpressionParser {
           break;
         case BarlomTokenType.LEFT_PARENTHESIS:
           this._tokenStream.consumeBufferedToken();
-          let argExpressions = this._parseArguments();
+          let argExpressions = this.parseArguments();
           result = new AstFunctionCallExpression( result, token, argExpressions );
           break;
         default:

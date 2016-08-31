@@ -1,3 +1,4 @@
+import { AssertStatementParserPlugin } from '../../elements/src/statements/assertstatement/AssertStatementParserPlugin';
 import { AstAnnotation } from '../../ast/src/annotations/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
 import { AstCompilationUnit } from '../../ast/src/compilationunit/AstCompilationUnit';
@@ -20,6 +21,7 @@ import { SymbolParserPlugin } from '../../elements/src/types/enumerationtype/Sym
 import { VariantParserPlugin } from '../../elements/src/types/varianttype/VariantParserPlugin';
 import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
 import { ValueParserPlugin } from '../../elements/src/data/value/ValueParserPlugin';
+import { AstParametricAnnotation } from '../../ast/src/annotations/AstParametricAnnotationAnnotation';
 
 
 /**
@@ -42,7 +44,7 @@ export class BarlomParser
     this._codeElementParsers = {};
     this._isParsingCodeElements = false;
 
-    // TODO: specify the allowed child elements per code element
+    this._registerCodeElementParser( new AssertStatementParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
@@ -250,8 +252,14 @@ export class BarlomParser
           break;
 
         case BarlomTokenType.Identifier:
-          result.push( new AstNamedAnnotation( token ) );
-          // TODO: handle arguments
+          if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.LEFT_PARENTHESIS ) ) {
+            let argExpressions = new BarlomExpressionParser( this._tokenStream, this ).parseArguments();
+            result.push( new AstParametricAnnotation( token, argExpressions ) );
+          }
+          else {
+            result.push( new AstNamedAnnotation( token ) );
+          }
+
           break;
 
         default:
