@@ -33,8 +33,6 @@ export class ModuleParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    tokenStream.consumeExpectedToken( BarlomTokenType.END );
-
     return new AstModule( leadingAnnotations, moduleToken, path, trailingAnnotations, codeElements );
 
   }

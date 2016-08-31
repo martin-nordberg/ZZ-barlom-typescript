@@ -89,6 +89,43 @@ describe(
           "    variant V(x,y)                      ",
           "  end                                   ",
           "                                        ",
+          "  variant_type V2                       ",
+          "    variant A(x)                        ",
+          "    variant B(x,y)                      ",
+          "  end                                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
+    it(
+      "should parse a simple function", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my sample module */                  ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "  function f()                          ",
+          "    return 42                           ",
+          "  end                                   ",
+          "                                        ",
           "end                                     ",
           "                                        "
         ].join( '\n' );
@@ -109,7 +146,7 @@ describe(
     );
 
     it(
-      "should parse an empty function", function () {
+      "should parse a nested function", function () {
 
         var code = [
           "use x.y                                 ",
@@ -118,6 +155,10 @@ describe(
           "module a.b.c.mymodule                   ",
           "                                        ",
           "  function f()                          ",
+          "    function g()                        ",
+          "      return 42                         ",
+          "    end                                 ",
+          "    return 42                           ",
           "  end                                   ",
           "                                        ",
           "end                                     ",
@@ -543,6 +584,41 @@ describe(
 
         expect( cmpUnit.codeElement ).not.toBeNull();
         expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with function block literals", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v00 = 0                          ",
+          "  value v01 = (x) -> begin               ",
+          "    value y = x^2                        ",
+          "    return y                             ",
+          "  end                                    ",
+          "  value v02 = (a,b) -> begin             ",
+          "    return a & b                         ",
+          "  end                                    ",
+          "  value v03 = (p,q,r) -> begin           ",
+          "    return ( p + q ) * r                 ",
+          "  end                                    ",
+          "  value v04 = () -> begin                ",
+          "    value three = 3                      ",
+          "    value more = 39                      ",
+          "    return three + more                  ",
+          "  end                                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 6 );
 
       }
     );

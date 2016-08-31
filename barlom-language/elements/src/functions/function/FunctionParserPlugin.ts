@@ -35,8 +35,6 @@ export class FunctionParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    tokenStream.consumeExpectedToken( BarlomTokenType.END );
-
     return new AstFunction( leadingAnnotations, functionToken, path, parameters, trailingAnnotations, codeElements );
 
   }

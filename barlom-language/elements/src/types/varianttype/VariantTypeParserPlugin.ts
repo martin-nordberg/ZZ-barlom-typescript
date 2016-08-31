@@ -33,8 +33,6 @@ export class VariantTypeParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    tokenStream.consumeExpectedToken( BarlomTokenType.END );
-
     return new AstVariantType( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations, codeElements );
 
   }

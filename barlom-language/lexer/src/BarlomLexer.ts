@@ -16,6 +16,7 @@ import { Scanner } from './Scanner';
 let keywords = {};
 keywords['and'] = BarlomTokenType.AND;
 keywords['as'] = BarlomTokenType.AS;
+keywords['begin'] = BarlomTokenType.BEGIN;
 keywords['div'] = BarlomTokenType.DIV;
 keywords['end'] = BarlomTokenType.END;
 keywords['false'] = BarlomTokenType.FALSE;

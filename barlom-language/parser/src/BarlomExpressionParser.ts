@@ -52,6 +52,8 @@ import { AstSetLiteral } from '../../ast/src/literals/AstSetLiteral';
 import { AstMapLiteral } from '../../ast/src/literals/AstMapLiteral';
 import { AstStructureLiteral } from '../../ast/src/literals/AstStructureLiteral';
 import { AstFunctionExpressionLiteral } from '../../ast/src/literals/AstFunctionExpressionLiteral';
+import { ICoreParser } from '../../parserspi/src/ICoreParser';
+import { AstFunctionBlockLiteral } from '../../ast/src/literals/AstFunctionBlockLiteral';
 
 
 
@@ -63,11 +65,14 @@ export class BarlomExpressionParser {
   /**
    * Constructs a new expression parser for the given code that came from the given file.
    * @param tokenStream the token stream to parse from.
+   * @param coreParser the full parser to use when code elements need to be parsed.
    */
   constructor(
-      tokenStream : BarlomTokenStream
+      tokenStream : BarlomTokenStream,
+      coreParser : ICoreParser
   ) {
     this._tokenStream = tokenStream;
+    this._coreParser = coreParser;
   }
 
   /**
@@ -75,11 +80,14 @@ export class BarlomExpressionParser {
    * @returns {AstExpression}
    */
   parseExpression() : AstExpression {
-
     return this._parseConditionalOrExpression();
-
   }
 
+  /**
+   * Parses an expression potentially containing '+' or '-' operators.
+   * @returns {AstExpression} the parsed expression.
+   * @private
+   */
   private _parseAdditiveExpression() : AstExpression {
 
     var result = this._parseMultiplicativeExpression();
@@ -115,17 +123,17 @@ export class BarlomExpressionParser {
   /**
    * Parses a brace expression after the opening brace has been consumed.
    * @param leftBraceToken the opening brace token.
-   * @returns {AstExpression}
+   * @returns {AstExpression} the set, map, or structure literal parsed
    * @private
    */
   private _parseBracedExpression( leftBraceToken : BarlomToken ) : AstExpression {
 
-    // empty set '{}'
+    // Empty set '{}'
     if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.RIGHT_BRACE ) ) {
       return new AstSetLiteral( leftBraceToken, [], this._tokenStream.consumeBufferedToken() );
     }
 
-    // empty map '{~>}'
+    // Empty map '{~>}'
     if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.ARROW_TILDE_RIGHT ) ) {
       return new AstMapLiteral(
           leftBraceToken,
@@ -135,7 +143,7 @@ export class BarlomExpressionParser {
       );
     }
 
-    // structure literal
+    // Structure literal
     if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.Identifier ) &&
          this._tokenStream.hasLookAhead2Token( BarlomTokenType.EQUALS ) ) {
       return this._parseStructureLiteral( leftBraceToken );
@@ -362,6 +370,21 @@ export class BarlomExpressionParser {
   }
 
   /**
+   * Parses a function block literal after the 'begin' key word has been consumed.
+   * @param parameters the already parsed parameters
+   * @param arrowToken the arrow
+   * @returns {AstExpression} the function block literal
+   * @private
+   */
+  private _parseFunctionBlockLiteral( parameters : AstExpression[], arrowToken : BarlomToken ) : AstExpression {
+
+    let statements = this._coreParser.parseCodeElements();
+
+    return new AstFunctionBlockLiteral( arrowToken, parameters, statements );
+
+  }
+
+  /**
    * Parses a function literal after the arrow has been consumed.
    * @param parameters the already parsed parameters
    * @param arrowToken the arrow
@@ -371,7 +394,7 @@ export class BarlomExpressionParser {
   private _parseFunctionLiteral( parameters : AstExpression[], arrowToken : BarlomToken ) : AstExpression {
 
     if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.BEGIN ) ) {
-      // TODO
+      return this._parseFunctionBlockLiteral( parameters, arrowToken );
     }
 
     return new AstFunctionExpressionLiteral(
@@ -746,6 +769,8 @@ export class BarlomExpressionParser {
     }
 
   }
+
+  private _coreParser : ICoreParser;
 
   private _tokenStream : BarlomTokenStream;
 

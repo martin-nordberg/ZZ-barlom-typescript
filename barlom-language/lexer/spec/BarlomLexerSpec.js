@@ -90,6 +90,39 @@ describe(
     );
 
     it(
+      "should scan keywords", function () {
+        var lexer = new BarlomLexer( "and as begin div end false in is isnot mod not notin or self true undefined use xor", "example.barlom" );
+                                 //   12345678901234567890123456789012345678901234567890123456789012345678901234567890123
+                                 //            1         2         3         4         5         6         7         8
+        var tokens = lexer.readAllTokens();
+
+        expect( tokens ).toHaveTokenTypes(
+          [
+            BarlomTokenType.AND, "and", 1, 1,
+            BarlomTokenType.AS, "as", 1, 5,
+            BarlomTokenType.BEGIN, "begin", 1, 8,
+            BarlomTokenType.DIV, "div", 1, 14,
+            BarlomTokenType.END, "end", 1, 18,
+            BarlomTokenType.FALSE, "false", 1, 22,
+            BarlomTokenType.IN, "in", 1, 28,
+            BarlomTokenType.IS, "is", 1, 31,
+            BarlomTokenType.ISNOT, "isnot", 1, 34,
+            BarlomTokenType.MOD, "mod", 1, 40,
+            BarlomTokenType.NOT, "not", 1, 44,
+            BarlomTokenType.NOTIN, "notin", 1, 48,
+            BarlomTokenType.OR, "or", 1, 54,
+            BarlomTokenType.SELF, "self", 1, 57,
+            BarlomTokenType.TRUE, "true", 1, 62,
+            BarlomTokenType.UNDEFINED, "undefined", 1, 67,
+            BarlomTokenType.USE, "use", 1, 77,
+            BarlomTokenType.XOR, "xor", 1, 81,
+            BarlomTokenType.EOF, "", 1, 84
+          ]
+        );
+      }
+    );
+
+    it(
       "should scan dot tokens", function () {
         var lexer = new BarlomLexer( ". .. ..< ... .?", "example.barlom" );
 

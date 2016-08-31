@@ -22,7 +22,7 @@ export interface ICoreParser {
   parseCodeElementName() : AstCodeElementName;
 
   /**
-   * Parses a series of code elements end with either 'end' or EOF.
+   * Parses a series of code elements ending 'end'.
    */
   parseCodeElements() : AstCodeElement[];
 

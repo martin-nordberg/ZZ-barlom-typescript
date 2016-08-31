@@ -33,8 +33,6 @@ export class EnumerationTypeParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    tokenStream.consumeExpectedToken( BarlomTokenType.END );
-
     return new AstEnumerationType( leadingAnnotations, enumTypeToken, codeElementName, trailingAnnotations, codeElements );
 
   }

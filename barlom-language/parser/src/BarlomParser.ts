@@ -90,7 +90,7 @@ export class BarlomParser
   }
 
   /**
-   * Parses a sequence of code elements terminated by 'end' or EOF.
+   * Parses a sequence of code elements terminated by 'end' (inclusive).
    * @returns {AstCodeElement[]} the code elements parsed.
    */
   public parseCodeElements() : AstCodeElement[] {
@@ -104,8 +104,7 @@ export class BarlomParser
       // TODO: this is a rather clunky way of making nested code element names not be qualified
       this._isParsingCodeElements = true;
 
-      while ( !this._tokenStream.hasLookAhead1Token( BarlomTokenType.END ) &&
-              !this._tokenStream.hasLookAhead1Token( BarlomTokenType.EOF ) ) {
+      while ( !this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.END ) ) {
         result.push( this.parseCodeElement() );
       }
 
@@ -143,7 +142,7 @@ export class BarlomParser
    * @returns {AstExpression} the parsed expression.
    */
   parseExpression() : AstExpression {
-    return new BarlomExpressionParser( this._tokenStream ).parseExpression();
+    return new BarlomExpressionParser( this._tokenStream, this ).parseExpression();
   }
 
   /**
