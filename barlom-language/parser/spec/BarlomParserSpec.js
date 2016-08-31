@@ -623,5 +623,53 @@ describe(
       }
     );
 
+    it(
+      "should parse values initialized with function call expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = f()                        ",
+          "  value v02 = f2(17)                     ",
+          "  value v03 = f3(1,2,3)                  ",
+          "  value v04 = h(1+2,'a'&'b')             ",
+          "  value v05 = p( g(4,5,6) )              ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse values initialized with field reference expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  value v01 = a.b                        ",
+          "  value v02 = p.q.r                      ",
+          "  value v03 = f(1,2).g('a')              ",
+          "  value v04 = ('a'&'b').length           ",
+          "  value v05 = 'abc'.reversed()           ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );

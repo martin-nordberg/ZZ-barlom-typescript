@@ -54,6 +54,8 @@ import { AstStructureLiteral } from '../../ast/src/literals/AstStructureLiteral'
 import { AstFunctionExpressionLiteral } from '../../ast/src/literals/AstFunctionExpressionLiteral';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { AstFunctionBlockLiteral } from '../../ast/src/literals/AstFunctionBlockLiteral';
+import { AstFieldReferenceExpression } from '../../ast/src/operatorexpressions/AstFieldReferenceExpression';
+import { AstFunctionCallExpression } from '../../ast/src/expressions/AstFunctionCallExpression';
 
 
 
@@ -115,6 +117,30 @@ export class BarlomExpressionParser {
       }
 
     }
+
+    return result;
+
+  }
+
+  /**
+   * Parses a sequence of arguments just after the opening parenthesis has been recognized.
+   * @returns {AstExpression[]} the arguments parsed.
+   */
+  private _parseArguments() : AstExpression[] {
+
+    let result : AstExpression[] = [];
+
+    if ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.RIGHT_PARENTHESIS ) ) {
+      return result;
+    }
+
+    result.push( this.parseExpression() );
+
+    while ( this._tokenStream.advanceOverLookAhead1Token( BarlomTokenType.COMMA ) ) {
+      result.push( this.parseExpression() );
+    }
+
+    this._tokenStream.consumeExpectedToken( BarlomTokenType.RIGHT_PARENTHESIS );
 
     return result;
 
@@ -564,7 +590,6 @@ export class BarlomExpressionParser {
         result = new AstBooleanLiteral( token );
         break;
       case BarlomTokenType.Identifier:
-        // TODO: function call
         result = new AstIdentifierExpression( token );
         break;
       case BarlomTokenType.IntegerLiteral_Binary:
@@ -623,7 +648,32 @@ export class BarlomExpressionParser {
         this._tokenStream.expected( "expression instead of '" + token.text + "' " );
     }
 
-    // TODO: dot continues the expression
+    // Left parenthesis continue the expression as a function call ...
+    // Dot continues the expression as a field reference ...
+
+    var keepLooking = true;
+
+    while ( keepLooking ) {
+
+      let token = this._tokenStream.lookAhead1Token();
+
+      switch ( token.tokenType ) {
+        case BarlomTokenType.DOT:
+          this._tokenStream.consumeBufferedToken();
+          let identifier = new AstIdentifierExpression( this._tokenStream.consumeExpectedToken( BarlomTokenType.Identifier ) );
+          result = new AstFieldReferenceExpression( result, token, identifier );
+          break;
+        case BarlomTokenType.LEFT_PARENTHESIS:
+          this._tokenStream.consumeBufferedToken();
+          let argExpressions = this._parseArguments();
+          result = new AstFunctionCallExpression( result, token, argExpressions );
+          break;
+        default:
+          keepLooking = false;
+          break
+      }
+
+    }
 
     return result;
 
