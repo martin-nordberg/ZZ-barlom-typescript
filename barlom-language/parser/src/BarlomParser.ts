@@ -1,4 +1,5 @@
 import { AssertStatementParserPlugin } from '../../elements/src/statements/assertstatement/AssertStatementParserPlugin';
+import { AssignmentStatementParserPlugin } from '../../elements/src/statements/assignmentstatement/AssignmentStatementParserPlugin';
 import { AstAnnotation } from '../../ast/src/annotations/AstAnnotation';
 import { AstCodeElement } from '../../ast/src/core/AstCodeElement';
 import { AstCompilationUnit } from '../../ast/src/compilationunit/AstCompilationUnit';
@@ -45,6 +46,7 @@ export class BarlomParser
     this._isParsingCodeElements = false;
 
     this._registerCodeElementParser( new AssertStatementParserPlugin() );
+    this._registerCodeElementParser( new AssignmentStatementParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
@@ -184,6 +186,14 @@ export class BarlomParser
 
     }
 
+  }
+
+  /**
+   * Parses an expression that can be assigned to.
+   * @returns {AstExpression} the parsed expression.
+   */
+  parseLValueExpression() : AstExpression {
+    return new BarlomExpressionParser( this._tokenStream, this ).parseLValueExpression();
   }
 
   /**

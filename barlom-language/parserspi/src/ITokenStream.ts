@@ -43,6 +43,12 @@ export interface ITokenStream {
   consumeToken() : BarlomToken;
 
   /**
+   * Throws an error when the expected input is not present.
+   * @param text the expected tokens or input type.
+   */
+  expected( text : string ) : void;
+
+  /**
    * Determines whether the next token in the input has the given token type.
    * @param tokenType the token type to look for.
    * @returns {boolean}

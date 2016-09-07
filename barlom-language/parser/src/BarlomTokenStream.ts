@@ -120,7 +120,7 @@ export class BarlomTokenStream
    * Throws an error when the expected input is not present.
    * @param text the expected tokens or input type.
    */
-  public expected( text : string ) : string {
+  public expected( text : string ) : void {
 
     let token = this._tokenBuffer[this._next];
 

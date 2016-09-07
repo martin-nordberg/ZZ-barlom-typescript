@@ -39,6 +39,11 @@ export interface ICoreParser {
   parseLeadingAnnotations() : AstAnnotation[];
 
   /**
+   * Parses an expression that can be assigned to.
+   */
+  parseLValueExpression() : AstExpression;
+
+  /**
    * Parses a series of parameters within parentheses.
    */
   parseParameters() : AstParameter[];

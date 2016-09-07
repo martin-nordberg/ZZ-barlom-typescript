@@ -110,6 +110,40 @@ export class BarlomExpressionParser {
   }
 
   /**
+   * Parses a minimal (non-operator) expression that can be on the left hand side of an assignment statement.
+   * @returns {AstExpression}
+   */
+  parseLValueExpression() : AstExpression {
+
+    let token = this._tokenStream.consumeToken();
+
+    var result : AstExpression = undefined ;
+
+    switch ( token.tokenType ) {
+      case BarlomTokenType.Identifier:
+        result = new AstIdentifierExpression( token );
+        break;
+      case BarlomTokenType.LEFT_BRACE:
+        result = this._parseBracedExpression( token );
+        break;
+      case BarlomTokenType.LEFT_BRACKET:
+        result = this._parseBracketedExpression( token );
+        break;
+      case BarlomTokenType.LEFT_PARENTHESIS:
+        result = this._parseParenthesizedExpression( token );
+        break;
+      case BarlomTokenType.SELF:
+        result = new AstSelfLiteral( token );
+        break;
+      default:
+        this._tokenStream.expected( "lvalue expression instead of '" + token.text + "' " );
+    }
+
+    return this._parsePrimaryExpressionExtension( result );
+
+  }
+
+  /**
    * Parses an expression potentially containing '+' or '-' operators.
    * @returns {AstExpression} the parsed expression.
    * @private
@@ -648,8 +682,16 @@ export class BarlomExpressionParser {
         this._tokenStream.expected( "expression instead of '" + token.text + "' " );
     }
 
+    return this._parsePrimaryExpressionExtension( result );
+
+  }
+
+  private _parsePrimaryExpressionExtension( baseExpression : AstExpression ) {
+
     // Left parenthesis continue the expression as a function call ...
     // Dot continues the expression as a field reference ...
+
+    var result = baseExpression;
 
     var keepLooking = true;
 

@@ -693,5 +693,31 @@ describe(
       }
     );
 
+    it(
+      "should parse assignment statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  let a = 3                              ",
+          "  let q += a*b                           ",
+          "  let self.q.w -= e*r*t+y                ",
+          "  let x ^= 2                             ",
+          "  let y *= 10                            ",
+          "  let z /= 8.3                           ",
+          "  let q &= 'more'                        ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );
