@@ -20,6 +20,7 @@ import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParser
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
 import { RaiseErrorStatementParserPlugin } from '../../elements/src/statements/raiseerrorstatement/RaiseErrorStatementParserPlugin';
+import { RepeatForStatementParserPlugin } from '../../elements/src/statements/repeatforstatement/RepeatForStatementParserPlugin';
 import { RepeatUntilStatementParserPlugin } from '../../elements/src/statements/repeatuntilstatement/RepeatUntilStatementParserPlugin';
 import { RepeatWhileStatementParserPlugin } from '../../elements/src/statements/repeatwhilestatement/RepeatWhileStatementParserPlugin';
 import { ReturnStatementParserPlugin } from '../../elements/src/statements/returnstatement/ReturnStatementParserPlugin';
@@ -58,6 +59,7 @@ export class BarlomParser
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new RaiseErrorStatementParserPlugin() );
+    this._registerCodeElementParser( new RepeatForStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatUntilStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatWhileStatementParserPlugin() );
     this._registerCodeElementParser( new ReturnStatementParserPlugin() );

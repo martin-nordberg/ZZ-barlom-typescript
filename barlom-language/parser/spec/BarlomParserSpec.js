@@ -830,5 +830,28 @@ describe(
       }
     );
 
+    it(
+      "should parse repeat-until statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  repeat_for n in names call f(n) end    ",
+          "  repeat_for line : /*laugh*/ in lines   ",
+          "    call printLine( line )               ",
+          "  end                                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 3 );
+
+      }
+    );
+
   }
 );
