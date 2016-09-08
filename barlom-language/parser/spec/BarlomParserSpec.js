@@ -719,5 +719,26 @@ describe(
       }
     );
 
+    it(
+      "should parse call statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  call f()                               ",
+          "  call g(1,2,3)                          ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );

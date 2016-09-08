@@ -23,6 +23,7 @@ import { VariantParserPlugin } from '../../elements/src/types/varianttype/Varian
 import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
 import { ValueParserPlugin } from '../../elements/src/data/value/ValueParserPlugin';
 import { AstParametricAnnotation } from '../../ast/src/annotations/AstParametricAnnotationAnnotation';
+import { CallStatementParserPlugin } from '../../elements/src/statements/callstatement/CallStatementParserPlugin';
 
 
 /**
@@ -47,6 +48,7 @@ export class BarlomParser
 
     this._registerCodeElementParser( new AssertStatementParserPlugin() );
     this._registerCodeElementParser( new AssignmentStatementParserPlugin() );
+    this._registerCodeElementParser( new CallStatementParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
