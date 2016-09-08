@@ -24,6 +24,6 @@ export class AstRaiseErrorStatement
 
   }
 
-  private errorExpression : AstExpression;
+  public errorExpression : AstExpression;
 
 }

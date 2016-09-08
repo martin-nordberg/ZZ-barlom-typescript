@@ -28,10 +28,10 @@ export class AstAssignmentStatement
 
   }
 
-  private leftHandSide : AstExpression;
+  public leftHandSide : AstExpression;
 
-  private operatorToken : BarlomToken;
+  public operatorToken : BarlomToken;
 
-  private rightHandSide : AstExpression;
+  public rightHandSide : AstExpression;
 
 }

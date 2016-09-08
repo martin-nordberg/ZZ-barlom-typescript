@@ -761,5 +761,28 @@ describe(
       }
     );
 
+    it(
+      "should parse unless statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  unless done call doMore() end          ",
+          "  unless x > y                           ",
+          "    let z = y - x                        ",
+          "  end                                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 3 );
+
+      }
+    );
+
   }
 );

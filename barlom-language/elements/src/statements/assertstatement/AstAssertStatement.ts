@@ -24,6 +24,6 @@ export class AstAssertStatement
 
   }
 
-  private assertedExpression : AstExpression;
+  public assertedExpression : AstExpression;
 
 }

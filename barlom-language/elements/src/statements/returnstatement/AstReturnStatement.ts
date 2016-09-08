@@ -24,6 +24,6 @@ export class AstReturnStatement
 
   }
 
-  private returnedExpression : AstExpression;
+  public returnedExpression : AstExpression;
 
 }
