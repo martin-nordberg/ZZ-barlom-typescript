@@ -784,5 +784,51 @@ describe(
       }
     );
 
+    it(
+      "should parse repeat-while statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  repeat_while not done call doIt() end  ",
+          "  repeat_while x > y                     ",
+          "    let x = x - 3                        ",
+          "  end                                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 3 );
+
+      }
+    );
+
+    it(
+      "should parse repeat-until statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  repeat_until noMore() call doIt() end  ",
+          "  repeat_until x < y                     ",
+          "    let x = x - 3                        ",
+          "  end                                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 3 );
+
+      }
+    );
+
   }
 );

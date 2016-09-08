@@ -56,6 +56,7 @@ import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { AstFunctionBlockLiteral } from '../../ast/src/literals/AstFunctionBlockLiteral';
 import { AstFieldReferenceExpression } from '../../ast/src/operatorexpressions/AstFieldReferenceExpression';
 import { AstFunctionCallExpression } from '../../ast/src/expressions/AstFunctionCallExpression';
+import { AstUnaryNotExpression } from '../../ast/src/operatorexpressions/AstUnaryNotExpression';
 
 
 
@@ -852,6 +853,10 @@ export class BarlomExpressionParser {
         let minusToken = this._tokenStream.consumeBufferedToken();
         let minusRhs = this._parseUnaryExpression();
         return new AstUnaryNegationExpression( minusToken, minusRhs );
+      case BarlomTokenType.NOT:
+        let notToken = this._tokenStream.consumeBufferedToken();
+        let notRhs = this._parseUnaryExpression();
+        return new AstUnaryNotExpression( notToken, notRhs );
       case BarlomTokenType.PLUS:
         let plusToken = this._tokenStream.consumeBufferedToken();
         let plusRhs = this._parseUnaryExpression();

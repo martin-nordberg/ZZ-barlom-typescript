@@ -1,30 +1,30 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
-import { AstUnlessStatement } from './AstUnlessStatement';
+import { AstRepeatWhileStatement } from './AstRepeatWhileStatement';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
 /**
- * Parser plugin that recognizes an unless statement.
+ * Parser plugin that recognizes a repeat-while statement.
  */
-export class UnlessStatementParserPlugin
+export class RepeatWhileStatementParserPlugin
   implements ICodeElementParserPlugin {
 
   getTagText() : string {
-    return 'unless';
+    return 'repeat_while';
   }
 
   /**
-   * Parses an unless statement after its leading annotations and tag have been consumed.
-   * @returns {AstUnlessStatement} the parsed statement.
+   * Parses a repeat-while statement after its leading annotations and tag have been consumed.
+   * @returns {AstRepeatWhileStatement} the parsed statement.
    */
   parseCodeElement(
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      unlessToken : BarlomToken
-  ) : AstUnlessStatement {
+      repeatWhileToken : BarlomToken
+  ) : AstRepeatWhileStatement {
 
     let guardExpression = coreParser.parseExpression();
 
@@ -32,7 +32,7 @@ export class UnlessStatementParserPlugin
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstUnlessStatement( leadingAnnotations, unlessToken, guardExpression, statements, trailingAnnotations );
+    return new AstRepeatWhileStatement( leadingAnnotations, repeatWhileToken, guardExpression, statements, trailingAnnotations );
 
   }
 
