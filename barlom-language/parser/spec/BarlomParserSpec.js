@@ -740,5 +740,26 @@ describe(
       }
     );
 
+    it(
+      "should parse raise error statements", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  raise_error MyException()              ",
+          "  raise_error Problem('very bad')        ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
   }
 );
