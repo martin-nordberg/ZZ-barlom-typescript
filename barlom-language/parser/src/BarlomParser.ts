@@ -13,6 +13,7 @@ import { AstUseDeclaration } from '../../ast/src/compilationunit/AstUseDeclarati
 import { BarlomExpressionParser } from './BarlomExpressionParser';
 import { BarlomTokenStream } from './BarlomTokenStream';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
+import { BehaviorParserPlugin } from '../../elements/src/functions/function/BehaviorParserPlugin';
 import { CallStatementParserPlugin } from '../../elements/src/statements/callstatement/CallStatementParserPlugin';
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
@@ -54,6 +55,7 @@ export class BarlomParser
 
     this._registerCodeElementParser( new AssertStatementParserPlugin() );
     this._registerCodeElementParser( new AssignmentStatementParserPlugin() );
+    this._registerCodeElementParser( new BehaviorParserPlugin() );
     this._registerCodeElementParser( new CallStatementParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );

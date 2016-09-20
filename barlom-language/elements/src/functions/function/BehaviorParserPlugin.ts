@@ -7,49 +7,36 @@ import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
 import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
+import { AstBehavior } from './AstBehavior';
 
 /**
- * Parser plugin that recognizes a function.
+ * Parser plugin that recognizes a behavior (abstract function).
  */
-export class FunctionParserPlugin
+export class BehaviorParserPlugin
   implements ICodeElementParserPlugin {
 
   getTagText() : string {
-    return 'function';
+    return 'behavior';
   }
 
   /**
-   * Parses a function after its leading annotations and tag have been consumed.
-   * @returns {AstCodeElement} the parsed function.
+   * Parses a behavior after its leading annotations and tag have been consumed.
+   * @returns {AstBehavior} the parsed function.
    */
   parseCodeElement(
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
       functionToken : BarlomToken
-  ) : AstCodeElement {
+  ) : AstBehavior {
 
     let path = coreParser.parseCodeElementName();
 
-    if ( tokenStream.hasLookAhead1Token( BarlomTokenType.LEFT_PARENTHESIS ) ) {
+    let parameters = coreParser.parseParameters();
 
-      let parameters = coreParser.parseParameters();
+    let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-      let trailingAnnotations = coreParser.parseTrailingAnnotations();
-
-      let codeElements = coreParser.parseCodeElements();
-
-      return new AstFunction( leadingAnnotations, functionToken, path, parameters, trailingAnnotations, codeElements );
-
-    }
-    else {
-
-      tokenStream.consumeExpectedToken( BarlomTokenType.EQUALS );
-
-      let functionExpression = coreParser.parseExpression();
-
-      return new AstShortFunction( leadingAnnotations, functionToken, path, functionExpression );
-    }
+    return new AstBehavior( leadingAnnotations, functionToken, path, parameters, trailingAnnotations );
 
   }
 

@@ -873,5 +873,27 @@ describe(
       }
     );
 
+    it(
+      "should parse behavior declarations", function () {
+
+        var code = [
+          "function myfunction(x)                   ",
+          "  behavior f()                           ",
+          "  behavior g(x)                          ",
+          "  behavior h(x,y)                        ",
+          "  return f(x)                            ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 4 );
+
+      }
+    );
+
   }
 );
