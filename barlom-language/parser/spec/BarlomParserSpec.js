@@ -853,5 +853,25 @@ describe(
       }
     );
 
+    it(
+      "should parse short function declarations", function () {
+
+        var code = [
+          "function myfunction(x)                   ",
+          "  function f = (y) -> y^2                ",
+          "  return f(x)                            ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
   }
 );

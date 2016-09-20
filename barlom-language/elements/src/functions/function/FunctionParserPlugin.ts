@@ -1,5 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
+import { AstCodeElement } from '../../../../ast/src/core/AstCodeElement';
 import { AstFunction } from './AstFunction';
+import { AstShortFunction } from './AstShortFunction';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
 import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
@@ -25,17 +27,29 @@ export class FunctionParserPlugin
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
       functionToken : BarlomToken
-  ) : AstFunction {
+  ) : AstCodeElement {
 
     let path = coreParser.parseCodeElementName();
 
-    let parameters = coreParser.parseParameters();
+    if ( tokenStream.hasLookAhead1Token( BarlomTokenType.LEFT_PARENTHESIS ) ) {
 
-    let trailingAnnotations = coreParser.parseTrailingAnnotations();
+      let parameters = coreParser.parseParameters();
 
-    let codeElements = coreParser.parseCodeElements();
+      let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstFunction( leadingAnnotations, functionToken, path, parameters, trailingAnnotations, codeElements );
+      let codeElements = coreParser.parseCodeElements();
+
+      return new AstFunction( leadingAnnotations, functionToken, path, parameters, trailingAnnotations, codeElements );
+
+    }
+    else {
+
+      tokenStream.consumeExpectedToken( BarlomTokenType.EQUALS );
+
+      let functionExpression = coreParser.parseExpression();
+
+      return new AstShortFunction( leadingAnnotations, functionToken, path, functionExpression );
+    }
 
   }
 
