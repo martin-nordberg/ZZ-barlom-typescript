@@ -12,6 +12,10 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 export class ModuleParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'module';
   }

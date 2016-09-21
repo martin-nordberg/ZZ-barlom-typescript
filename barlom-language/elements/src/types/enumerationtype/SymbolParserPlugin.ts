@@ -11,6 +11,10 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 export class SymbolParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'symbol';
   }

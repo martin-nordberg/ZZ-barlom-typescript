@@ -11,6 +11,10 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 export class CallStatementParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'call';
   }

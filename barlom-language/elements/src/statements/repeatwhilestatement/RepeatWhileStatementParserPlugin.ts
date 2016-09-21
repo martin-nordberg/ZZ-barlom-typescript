@@ -11,6 +11,10 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 export class RepeatWhileStatementParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'repeat_while';
   }

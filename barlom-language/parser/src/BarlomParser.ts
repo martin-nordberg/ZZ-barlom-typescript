@@ -15,6 +15,7 @@ import { BarlomTokenStream } from './BarlomTokenStream';
 import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { BehaviorParserPlugin } from '../../elements/src/functions/function/BehaviorParserPlugin';
 import { CallStatementParserPlugin } from '../../elements/src/statements/callstatement/CallStatementParserPlugin';
+import { CheckStatementParserPlugin } from '../../elements/src/statements/checkstatement/CheckStatementParserPlugin';
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
 import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
@@ -57,6 +58,7 @@ export class BarlomParser
     this._registerCodeElementParser( new AssignmentStatementParserPlugin() );
     this._registerCodeElementParser( new BehaviorParserPlugin() );
     this._registerCodeElementParser( new CallStatementParserPlugin() );
+    this._registerCodeElementParser( new CheckStatementParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
@@ -332,17 +334,22 @@ export class BarlomParser
   }
 
   /**
-   * Adds the given plugin to this parser. Registers the plugin's tag for token conversion and plugin activation.
+   * Adds the given plugin to this parser. Registers the plugin's tag(s) for token conversion and plugin activation.
    * @param parserPlugin the plugin to register.
    * @private
    */
   private _registerCodeElementParser( parserPlugin : ICodeElementParserPlugin ) {
 
-    let tagText = parserPlugin.getTagText();
+    var tagText = parserPlugin.getTagText();
 
     this._tokenStream.registerTag( tagText );
 
     this._codeElementParsers[tagText] = parserPlugin;
+
+    let auxTags = parserPlugin.getAuxiliaryTags();
+    for ( var i=0 ; i<auxTags.length ; i+=1 ) {
+      this._tokenStream.registerTag( auxTags[i] );
+    }
 
   }
 

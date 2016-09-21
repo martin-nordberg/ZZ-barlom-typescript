@@ -9,6 +9,8 @@ import { ITokenStream } from './ITokenStream';
  */
 export interface ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[];
+
   /**
    * Returns the text of the tag that triggers the beginning of code elements recognized by this parser.
    */

@@ -895,5 +895,33 @@ describe(
       }
     );
 
+    it(
+      "should parse check statements", function () {
+
+        var code = [
+          "function myfunction(x)                   ",
+          "  check                                  ",
+          "    call f()                             ",
+          "  detect e : MyException                 ",
+          "    call f2(e)                           ",
+          "  regardless                             ",
+          "    call cleanUp()                       ",
+          "  end                                    ",
+          "  return f(x)                            ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
+    // TODO: check statements
+
   }
 );

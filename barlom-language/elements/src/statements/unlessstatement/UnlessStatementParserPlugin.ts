@@ -11,6 +11,10 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 export class UnlessStatementParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'unless';
   }

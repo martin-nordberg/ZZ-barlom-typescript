@@ -11,6 +11,10 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 export class RaiseErrorStatementParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'raise_error';
   }
@@ -23,14 +27,14 @@ export class RaiseErrorStatementParserPlugin
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      callToken : BarlomToken
+      raiseToken : BarlomToken
   ) : AstRaiseErrorStatement {
 
     let calledExpression = coreParser.parseExpression();
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstRaiseErrorStatement( leadingAnnotations, callToken, calledExpression, trailingAnnotations );
+    return new AstRaiseErrorStatement( leadingAnnotations, raiseToken, calledExpression, trailingAnnotations );
 
   }
 

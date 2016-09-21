@@ -12,6 +12,10 @@ import { AstValue } from './AstValue';
 export class ValueParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'value';
   }

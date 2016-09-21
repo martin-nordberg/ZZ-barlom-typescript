@@ -12,6 +12,10 @@ import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
 export class RepeatForStatementParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'repeat_for';
   }

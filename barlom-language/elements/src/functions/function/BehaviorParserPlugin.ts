@@ -15,6 +15,10 @@ import { AstBehavior } from './AstBehavior';
 export class BehaviorParserPlugin
   implements ICodeElementParserPlugin {
 
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
+
   getTagText() : string {
     return 'behavior';
   }

@@ -11,12 +11,12 @@ export class AstAssertStatement
 
   constructor(
       leadingAnnotations : AstAnnotation[],
-      returnToken : BarlomToken,
+      assertToken : BarlomToken,
       assertedExpression : AstExpression,
       trailingAnnotations : AstAnnotation[]
   ) {
 
-    super( leadingAnnotations, returnToken, trailingAnnotations );
+    super( leadingAnnotations, assertToken, trailingAnnotations );
 
     this.assertedExpression = Object.freeze( assertedExpression );
 
