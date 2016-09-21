@@ -921,6 +921,42 @@ describe(
       }
     );
 
+    it(
+      "should parse if statements", function () {
+
+        var code = [
+          "function myfunction(x)                   ",
+          "  if 1+1 = 2                             ",
+          "    call f()                             ",
+          "  end                                    ",
+          "  if 1+1 = 2                             ",
+          "    call f()                             ",
+          "  else                                   ",
+          "    call g()                             ",
+          "  end                                    ",
+          "  if 1+1 = 2                             ",
+          "    call f()                             ",
+          "  else if 1+1 = 3                        ",
+          "    call g()                             ",
+          "  else if 1+1 = 4                        ",
+          "    call h()                             ",
+          "  else                                   ",
+          "    call q()                             ",
+          "  end                                    ",
+          "  return f(x)                            ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 4 );
+
+      }
+    );
+
     // TODO: check statements
 
   }

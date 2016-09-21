@@ -64,13 +64,21 @@ export interface ITokenStream {
   hasLookAhead1TokenValue( tokenType : BarlomTokenType, tokenText : string ) : boolean;
 
   /**
+   * Determines whether the second token in the input has the given token type and text value.
+   * @param tokenType the token type to look for.
+   * @param tokenText the text value of the expected token.
+   * @returns {boolean}
+   */
+  hasLookAhead2TokenValue( tokenType : BarlomTokenType, tokenText : string ) : boolean;
+
+  /**
    * Returns the next token in the input without consuming it.
    * @returns {boolean}
    */
   lookAhead1Token() : BarlomToken;
 
   /**
-   * Returns the next token in the input without consuming it.
+   * Returns the second token in the input without consuming it.
    * @returns {boolean}
    */
   lookAhead2Token() : BarlomToken;

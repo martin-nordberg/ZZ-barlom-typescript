@@ -173,6 +173,22 @@ export class BarlomTokenStream
   }
 
   /**
+   * Determines whether the second token in the input has the given token type and text value.
+   * @param tokenType the token type to look for.
+   * @param tokenText the text value of the expected token.
+   * @returns {boolean}
+   */
+  public hasLookAhead2TokenValue( tokenType : BarlomTokenType, tokenText : string ) : boolean {
+
+    this._readNext2TokensIfNotBuffered();
+
+    // Check the token type and text.
+    return this._tokenBuffer[(this._next+1)%BUFFER_SIZE].tokenType === tokenType &&
+        this._tokenBuffer[(this._next+1)%BUFFER_SIZE].text === tokenText;
+
+  }
+
+  /**
    * Returns the next token in the input without consuming it.
    * @returns {boolean}
    */

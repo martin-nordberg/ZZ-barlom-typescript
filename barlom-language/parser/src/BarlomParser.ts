@@ -20,6 +20,7 @@ import { CodeElementParserPlugin } from '../../parserspi/src/CodeElementParserPl
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
+import { IfStatementParserPlugin } from '../../elements/src/statements/ifstatement/IfStatementParserPlugin';
 import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
 import { RaiseErrorStatementParserPlugin } from '../../elements/src/statements/raiseerrorstatement/RaiseErrorStatementParserPlugin';
 import { RepeatForStatementParserPlugin } from '../../elements/src/statements/repeatforstatement/RepeatForStatementParserPlugin';
@@ -61,6 +62,7 @@ export class BarlomParser
     this._registerCodeElementParser( new CheckStatementParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
+    this._registerCodeElementParser( new IfStatementParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new RaiseErrorStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatForStatementParserPlugin() );

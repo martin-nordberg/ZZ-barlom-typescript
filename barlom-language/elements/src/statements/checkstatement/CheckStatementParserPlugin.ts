@@ -23,8 +23,8 @@ export class CheckStatementParserPlugin
   }
 
   /**
-   * Parses an assert statement after its leading annotations and tag have been consumed.
-   * @returns {AstAssertStatement} the parsed statement.
+   * Parses a check statement after its leading annotations and tag have been consumed.
+   * @returns {AstCheckStatement} the parsed statement.
    */
   parseCodeElement(
       tokenStream : ITokenStream,
