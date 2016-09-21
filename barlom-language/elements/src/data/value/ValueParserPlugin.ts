@@ -1,7 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 import { AstValue } from './AstValue';
@@ -10,11 +10,7 @@ import { AstValue } from './AstValue';
  * Parser plugin that recognizes a value.
  */
 export class ValueParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
     return 'value';

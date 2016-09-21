@@ -11,13 +11,13 @@ export class AstRepeatUntilStatement
 
   constructor(
       leadingAnnotations : AstAnnotation[],
-      repeatUntilToken : BarlomToken,
+      repeatToken : BarlomToken,
       guardExpression : AstExpression,
       statements : AstCodeElement[],
       trailingAnnotations : AstAnnotation[]
   ) {
 
-    super( leadingAnnotations, repeatUntilToken, trailingAnnotations );
+    super( leadingAnnotations, repeatToken, trailingAnnotations );
 
     this.guardExpression = Object.freeze( guardExpression );
     this.statements = Object.freeze( statements );

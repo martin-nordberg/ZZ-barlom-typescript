@@ -1,7 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstVariant } from './AstVariant';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
@@ -9,11 +9,7 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
  * Parser plugin that recognizes a variant within a variant type.
  */
 export class VariantParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
     return 'variant';

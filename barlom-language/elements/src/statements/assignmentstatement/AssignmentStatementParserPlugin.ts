@@ -1,6 +1,6 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 import { AstAssignmentStatement } from './AstAssignmentStatement';
@@ -10,11 +10,7 @@ import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
  * Parser plugin that recognizes an assignment statement.
  */
 export class AssignmentStatementParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
     return 'let';

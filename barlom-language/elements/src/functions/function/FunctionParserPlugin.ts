@@ -4,7 +4,7 @@ import { AstFunction } from './AstFunction';
 import { AstShortFunction } from './AstShortFunction';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
@@ -12,11 +12,7 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
  * Parser plugin that recognizes a function.
  */
 export class FunctionParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
     return 'function';

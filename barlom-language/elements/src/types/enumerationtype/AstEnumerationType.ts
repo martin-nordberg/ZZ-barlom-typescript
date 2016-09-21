@@ -12,13 +12,13 @@ export class AstEnumerationType
 
   constructor(
       leadingAnnotations : AstAnnotation[],
-      enumerationTypeToken : BarlomToken,
+      enumerationToken : BarlomToken,
       codeElementName : AstCodeElementName,
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
 
-    super( leadingAnnotations, enumerationTypeToken, codeElementName, trailingAnnotations );
+    super( leadingAnnotations, enumerationToken, codeElementName, trailingAnnotations );
 
     this.codeElements = Object.freeze( codeElements );
 

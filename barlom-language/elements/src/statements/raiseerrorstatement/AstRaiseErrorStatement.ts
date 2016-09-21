@@ -11,12 +11,12 @@ export class AstRaiseErrorStatement
 
   constructor(
       leadingAnnotations : AstAnnotation[],
-      raiseErrorToken : BarlomToken,
+      raiseToken : BarlomToken,
       errorExpression : AstExpression,
       trailingAnnotations : AstAnnotation[]
   ) {
 
-    super( leadingAnnotations, raiseErrorToken, trailingAnnotations );
+    super( leadingAnnotations, raiseToken, trailingAnnotations );
 
     this.errorExpression = Object.freeze( errorExpression );
 

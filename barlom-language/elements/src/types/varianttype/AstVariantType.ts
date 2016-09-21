@@ -12,13 +12,13 @@ export class AstVariantType
 
   constructor(
       leadingAnnotations : AstAnnotation[],
-      variantTypeToken : BarlomToken,
+      variantToken : BarlomToken,
       codeElementName : AstCodeElementName,
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
 
-    super( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations );
+    super( leadingAnnotations, variantToken, codeElementName, trailingAnnotations );
 
     this.codeElements = Object.freeze( codeElements );
 

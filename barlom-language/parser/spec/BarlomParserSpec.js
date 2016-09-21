@@ -43,7 +43,7 @@ describe(
           "use p.q.r.z                             ",
           "                                        ",
           "/* a good one */                        ",
-          "enumeration_type a.b.c.MyEnumeration    ",
+          "enumeration type a.b.c.MyEnumeration    ",
           "  : exported                            ",
           "                                        ",
           "  symbol A : /* First Letter */         ",
@@ -84,12 +84,12 @@ describe(
           "/* my sample module */                  ",
           "module a.b.c.mymodule                   ",
           "                                        ",
-          "  variant_type V1                       ",
+          "  variant type V1                       ",
           "    variant U(x)                        ",
           "    variant V(x,y)                      ",
           "  end                                   ",
           "                                        ",
-          "  variant_type V2                       ",
+          "  variant type V2                       ",
           "    variant A(x)                        ",
           "    variant B(x,y)                      ",
           "  end                                   ",
@@ -745,8 +745,8 @@ describe(
 
         var code = [
           "function myfunction()                    ",
-          "  raise_error MyException()              ",
-          "  raise_error Problem('very bad')        ",
+          "  raise error MyException()              ",
+          "  raise error Problem('very bad')        ",
           "  return 0                               ",
           "end                                      "
         ];
@@ -789,8 +789,8 @@ describe(
 
         var code = [
           "function myfunction()                    ",
-          "  repeat_while not done call doIt() end  ",
-          "  repeat_while x > y                     ",
+          "  repeat while not done call doIt() end  ",
+          "  repeat while x > y                     ",
           "    let x = x - 3                        ",
           "  end                                    ",
           "  return 0                               ",
@@ -812,8 +812,8 @@ describe(
 
         var code = [
           "function myfunction()                    ",
-          "  repeat_until noMore() call doIt() end  ",
-          "  repeat_until x < y                     ",
+          "  repeat until noMore() call doIt() end  ",
+          "  repeat until x < y                     ",
           "    let x = x - 3                        ",
           "  end                                    ",
           "  return 0                               ",
@@ -831,12 +831,12 @@ describe(
     );
 
     it(
-      "should parse repeat-until statements", function () {
+      "should parse repeat-for statements", function () {
 
         var code = [
           "function myfunction()                    ",
-          "  repeat_for n in names call f(n) end    ",
-          "  repeat_for line : /*laugh*/ in lines   ",
+          "  repeat for n in names call f(n) end    ",
+          "  repeat for line : /*laugh*/ in lines   ",
           "    call printLine( line )               ",
           "  end                                    ",
           "  return 0                               ",

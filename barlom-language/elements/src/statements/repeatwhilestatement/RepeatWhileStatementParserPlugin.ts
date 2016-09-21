@@ -1,7 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstRepeatWhileStatement } from './AstRepeatWhileStatement';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
@@ -9,14 +9,14 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
  * Parser plugin that recognizes a repeat-while statement.
  */
 export class RepeatWhileStatementParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
-    return 'repeat_while';
+    return 'repeat';
+  }
+
+  getTag2Text() : string {
+    return 'while';
   }
 
   /**
@@ -27,7 +27,7 @@ export class RepeatWhileStatementParserPlugin
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      repeatWhileToken : BarlomToken
+      repeatToken : BarlomToken
   ) : AstRepeatWhileStatement {
 
     let guardExpression = coreParser.parseExpression();
@@ -36,7 +36,7 @@ export class RepeatWhileStatementParserPlugin
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstRepeatWhileStatement( leadingAnnotations, repeatWhileToken, guardExpression, statements, trailingAnnotations );
+    return new AstRepeatWhileStatement( leadingAnnotations, repeatToken, guardExpression, statements, trailingAnnotations );
 
   }
 

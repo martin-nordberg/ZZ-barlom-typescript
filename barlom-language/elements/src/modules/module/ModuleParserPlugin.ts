@@ -1,8 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstModule } from './AstModule';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
@@ -10,11 +9,7 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
  * Parser plugin that recognizes a module.
  */
 export class ModuleParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
     return 'module';

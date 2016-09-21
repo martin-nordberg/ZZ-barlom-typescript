@@ -11,7 +11,7 @@ export class AstRepeatForStatement
 
   constructor(
       leadingAnnotations : AstAnnotation[],
-      repeatForToken : BarlomToken,
+      repeatToken : BarlomToken,
       iteratorExpression : AstExpression,
       iteratorAnnotations : AstAnnotation[],
       collectionExpression : AstExpression,
@@ -19,7 +19,7 @@ export class AstRepeatForStatement
       trailingAnnotations : AstAnnotation[]
   ) {
 
-    super( leadingAnnotations, repeatForToken, trailingAnnotations );
+    super( leadingAnnotations, repeatToken, trailingAnnotations );
 
     this.iteratorExpression = Object.freeze( iteratorExpression );
     this.iteratorAnnotations = Object.freeze( iteratorAnnotations );

@@ -1,7 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstRepeatForStatement } from './AstRepeatForStatement';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
@@ -10,14 +10,14 @@ import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
  * Parser plugin that recognizes a repeat-for statement.
  */
 export class RepeatForStatementParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
-    return 'repeat_for';
+    return 'repeat';
+  }
+
+  getTag2Text() : string {
+    return 'for';
   }
 
   /**
@@ -28,7 +28,7 @@ export class RepeatForStatementParserPlugin
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      repeatForToken : BarlomToken
+      repeatToken : BarlomToken
   ) : AstRepeatForStatement {
 
     let iteratorExpression = coreParser.parseCodeElementName();
@@ -43,7 +43,7 @@ export class RepeatForStatementParserPlugin
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    return new AstRepeatForStatement( leadingAnnotations, repeatForToken, iteratorExpression, iteratorAnnotations,
+    return new AstRepeatForStatement( leadingAnnotations, repeatToken, iteratorExpression, iteratorAnnotations,
                                       collectionExpression, statements, trailingAnnotations );
 
   }

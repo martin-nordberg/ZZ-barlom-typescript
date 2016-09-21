@@ -1,6 +1,6 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 import { AstCheckStatement } from './AstCheckStatement';
@@ -12,7 +12,7 @@ import { AstRegardlessFragment } from './AstRegardlessFragment';
  * Parser plugin that recognizes an assert statement.
  */
 export class CheckStatementParserPlugin
-  implements ICodeElementParserPlugin {
+  extends CodeElementParserPlugin {
 
   getAuxiliaryTags() : string[] {
     return ['detect','regardless'];

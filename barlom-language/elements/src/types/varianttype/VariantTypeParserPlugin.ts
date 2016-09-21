@@ -1,8 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstVariantType } from './AstVariantType';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
@@ -10,14 +9,14 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
  * Parser plugin that recognizes a variant type.
  */
 export class VariantTypeParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
-    return 'variant_type';
+    return 'variant';
+  }
+
+  getTag2Text() : string {
+    return 'type';
   }
 
   /**
@@ -28,7 +27,7 @@ export class VariantTypeParserPlugin
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      variantTypeToken : BarlomToken
+      variantToken : BarlomToken
   ) : AstVariantType {
 
     let codeElementName = coreParser.parseCodeElementName();
@@ -37,7 +36,7 @@ export class VariantTypeParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    return new AstVariantType( leadingAnnotations, variantTypeToken, codeElementName, trailingAnnotations, codeElements );
+    return new AstVariantType( leadingAnnotations, variantToken, codeElementName, trailingAnnotations, codeElements );
 
   }
 

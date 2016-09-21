@@ -16,9 +16,9 @@ import { BarlomTokenType } from '../../lexer/src/BarlomTokenType';
 import { BehaviorParserPlugin } from '../../elements/src/functions/function/BehaviorParserPlugin';
 import { CallStatementParserPlugin } from '../../elements/src/statements/callstatement/CallStatementParserPlugin';
 import { CheckStatementParserPlugin } from '../../elements/src/statements/checkstatement/CheckStatementParserPlugin';
+import { CodeElementParserPlugin } from '../../parserspi/src/CodeElementParserPlugin';
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
-import { ICodeElementParserPlugin } from '../../parserspi/src/ICodeElementParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
 import { RaiseErrorStatementParserPlugin } from '../../elements/src/statements/raiseerrorstatement/RaiseErrorStatementParserPlugin';
@@ -83,9 +83,22 @@ export class BarlomParser
 
     let leadingAnnotations = this.parseLeadingAnnotations();
 
-    let tagToken = this._tokenStream.consumeExpectedToken( BarlomTokenType.Tag );
+    var tagToken = this._tokenStream.consumeExpectedToken( BarlomTokenType.Tag );
+    var tagText = tagToken.text;
 
-    let codeElementParser : ICodeElementParserPlugin = this._codeElementParsers[tagToken.text];
+    var codeElementParser : CodeElementParserPlugin = null;
+
+    if ( this._tokenStream.hasLookAhead1Token( BarlomTokenType.Tag ) ) {
+      let tag2Text = this._tokenStream.lookAhead1Token().text;
+      codeElementParser = this._codeElementParsers[tagText+'$'+tag2Text];
+      if ( codeElementParser ) {
+        this._tokenStream.consumeBufferedToken();
+      }
+    }
+
+    if ( !codeElementParser ) {
+      codeElementParser = this._codeElementParsers[tagText];
+    }
 
     return codeElementParser.parseCodeElement( this._tokenStream, this, leadingAnnotations, tagToken );
 
@@ -338,13 +351,20 @@ export class BarlomParser
    * @param parserPlugin the plugin to register.
    * @private
    */
-  private _registerCodeElementParser( parserPlugin : ICodeElementParserPlugin ) {
+  private _registerCodeElementParser( parserPlugin : CodeElementParserPlugin ) {
 
     var tagText = parserPlugin.getTagText();
-
     this._tokenStream.registerTag( tagText );
 
-    this._codeElementParsers[tagText] = parserPlugin;
+    var tag2Text = parserPlugin.getTag2Text();
+    this._tokenStream.registerTag( tag2Text );
+
+    if ( tag2Text ) {
+      this._codeElementParsers[tagText+'$'+tag2Text] = parserPlugin;
+    }
+    else {
+      this._codeElementParsers[tagText] = parserPlugin;
+    }
 
     let auxTags = parserPlugin.getAuxiliaryTags();
     for ( var i=0 ; i<auxTags.length ; i+=1 ) {

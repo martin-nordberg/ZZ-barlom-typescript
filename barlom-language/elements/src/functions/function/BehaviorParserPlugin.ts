@@ -1,23 +1,15 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
-import { AstCodeElement } from '../../../../ast/src/core/AstCodeElement';
-import { AstFunction } from './AstFunction';
-import { AstShortFunction } from './AstShortFunction';
+import { AstBehavior } from './AstBehavior';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
-import { AstBehavior } from './AstBehavior';
 
 /**
  * Parser plugin that recognizes a behavior (abstract function).
  */
 export class BehaviorParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
     return 'behavior';

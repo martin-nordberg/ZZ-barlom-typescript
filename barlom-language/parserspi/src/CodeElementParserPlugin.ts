@@ -5,16 +5,30 @@ import { ICoreParser } from './ICoreParser';
 import { ITokenStream } from './ITokenStream';
 
 /**
- * Interface to a plugin that will parse one kind of code element.
+ * Abstract definition of a plugin that will parse one kind of code element.
  */
-export interface ICodeElementParserPlugin {
+export abstract class CodeElementParserPlugin {
 
-  getAuxiliaryTags() : string[];
+  /**
+   * Returns an array of auxiliary tags (additional keywords found in the middle of a code element).
+   * By default a parser plugin has no auxiliary tags.
+   */
+  getAuxiliaryTags() : string[] {
+    return [];
+  }
 
   /**
    * Returns the text of the tag that triggers the beginning of code elements recognized by this parser.
    */
-  getTagText() : string;
+  abstract getTagText() : string;
+
+  /**
+   * Returns the text of the optional second tag that triggers the beginning of code elements recognized by this parser.
+   * By default there is no second tag, so the result is null.
+   */
+  getTag2Text() : string {
+    return null;
+  }
 
   /**
    * Parses a code element after its leading annotations and initial tag have been recognized.
@@ -23,7 +37,7 @@ export interface ICodeElementParserPlugin {
    * @param leadingAnnotations the already parsed leading annotations.
    * @param tagToken the token that tags the code element.
    */
-  parseCodeElement(
+  abstract parseCodeElement(
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],

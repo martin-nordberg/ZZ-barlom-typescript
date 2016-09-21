@@ -1,8 +1,7 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstEnumerationType } from './AstEnumerationType';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
-import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
-import { ICodeElementParserPlugin } from '../../../../parserspi/src/ICodeElementParserPlugin';
+import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
@@ -10,14 +9,14 @@ import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
  * Parser plugin that recognizes an enumeration type.
  */
 export class EnumerationTypeParserPlugin
-  implements ICodeElementParserPlugin {
-
-  getAuxiliaryTags() : string[] {
-    return [];
-  }
+  extends CodeElementParserPlugin {
 
   getTagText() : string {
-    return 'enumeration_type';
+    return 'enumeration';
+  }
+
+  getTag2Text() : string {
+    return 'type';
   }
 
   /**
@@ -28,7 +27,7 @@ export class EnumerationTypeParserPlugin
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      enumTypeToken : BarlomToken
+      enumerationToken : BarlomToken
   ) : AstEnumerationType {
 
     let codeElementName = coreParser.parseCodeElementName();
@@ -37,7 +36,7 @@ export class EnumerationTypeParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    return new AstEnumerationType( leadingAnnotations, enumTypeToken, codeElementName, trailingAnnotations, codeElements );
+    return new AstEnumerationType( leadingAnnotations, enumerationToken, codeElementName, trailingAnnotations, codeElements );
 
   }
 
