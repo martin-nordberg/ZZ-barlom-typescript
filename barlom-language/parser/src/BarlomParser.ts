@@ -21,6 +21,7 @@ import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumeratio
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { IfStatementParserPlugin } from '../../elements/src/statements/ifstatement/IfStatementParserPlugin';
+import { MatchStatementParserPlugin } from '../../elements/src/statements/matchstatement/MatchStatementParserPlugin';
 import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
 import { RaiseErrorStatementParserPlugin } from '../../elements/src/statements/raiseerrorstatement/RaiseErrorStatementParserPlugin';
 import { RepeatForStatementParserPlugin } from '../../elements/src/statements/repeatforstatement/RepeatForStatementParserPlugin';
@@ -63,6 +64,7 @@ export class BarlomParser
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new IfStatementParserPlugin() );
+    this._registerCodeElementParser( new MatchStatementParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
     this._registerCodeElementParser( new RaiseErrorStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatForStatementParserPlugin() );
