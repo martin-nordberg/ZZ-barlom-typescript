@@ -214,7 +214,7 @@ describe(
       "should parse constants initialized by various primary expressions", function () {
 
         var code = [
-          "function myfunction()                    ",
+          "function myfunction()                       ",
           "  constant v01 = ('example')                ",
           "  constant v02 = $2016-01-01$               ",
           "  constant v03 = 123_456                    ",
@@ -232,8 +232,8 @@ describe(
           "  constant v15 = ~/[a-z1-2]+/ig             ",
           "  constant v16 = q                          ",
           "  constant v16 = (1,2,3)                    ",
-          "  return 0                               ",
-          "end                                      "
+          "  return 0                                  ",
+          "end                                         "
         ];
 
         var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
@@ -270,6 +270,42 @@ describe(
           "  value v16 = (1,2,3)                    ",
           "  return 0                               ",
           "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
+      "should parse variables initialized by various primary expressions", function () {
+
+        var code = [
+          "function myfunction()                       ",
+          "  variable v01 = ('example')                ",
+          "  variable v02 = $2016-01-01$               ",
+          "  variable v03 = 123_456                    ",
+          "  variable v04 = 0b0101001100               ",
+          "  variable v05 = true                       ",
+          "  variable v06 = false                      ",
+          "  variable v07 = 123.456                    ",
+          "  variable v08 = 123E45                     ",
+          "  variable v09 = self                       ",
+          "  variable v10 = {{{ abc {{x}} def }}}      ",
+          "  variable v11 = \"text\"                   ",
+          "  variable v12 = ''' abc\ndef\nghi '''      ",
+          "  variable v13 = undefined                  ",
+          "  variable v14 = 1.2.3                      ",
+          "  variable v15 = ~/[a-z1-2]+/ig             ",
+          "  variable v16 = q                          ",
+          "  variable v16 = (1,2,3)                    ",
+          "  return 0                                  ",
+          "end                                         "
         ];
 
         var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );

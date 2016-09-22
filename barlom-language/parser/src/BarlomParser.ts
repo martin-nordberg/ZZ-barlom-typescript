@@ -31,9 +31,10 @@ import { RepeatWhileStatementParserPlugin } from '../../elements/src/statements/
 import { ReturnStatementParserPlugin } from '../../elements/src/statements/returnstatement/ReturnStatementParserPlugin';
 import { SymbolParserPlugin } from '../../elements/src/types/enumerationtype/SymbolParserPlugin';
 import { UnlessStatementParserPlugin } from '../../elements/src/statements/unlessstatement/UnlessStatementParserPlugin';
+import { ValueParserPlugin } from '../../elements/src/data/value/ValueParserPlugin';
+import { VariableParserPlugin } from '../../elements/src/data/variable/VariableParserPlugin';
 import { VariantParserPlugin } from '../../elements/src/types/varianttype/VariantParserPlugin';
 import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
-import { ValueParserPlugin } from '../../elements/src/data/value/ValueParserPlugin';
 
 
 
@@ -76,6 +77,7 @@ export class BarlomParser
     this._registerCodeElementParser( new SymbolParserPlugin() );
     this._registerCodeElementParser( new UnlessStatementParserPlugin() );
     this._registerCodeElementParser( new ValueParserPlugin() );
+    this._registerCodeElementParser( new VariableParserPlugin() );
     this._registerCodeElementParser( new VariantParserPlugin() );
     this._registerCodeElementParser( new VariantTypeParserPlugin() );
   }
