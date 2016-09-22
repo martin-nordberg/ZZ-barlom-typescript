@@ -211,6 +211,42 @@ describe(
     );
 
     it(
+      "should parse constants initialized by various primary expressions", function () {
+
+        var code = [
+          "function myfunction()                    ",
+          "  constant v01 = ('example')                ",
+          "  constant v02 = $2016-01-01$               ",
+          "  constant v03 = 123_456                    ",
+          "  constant v04 = 0b0101001100               ",
+          "  constant v05 = true                       ",
+          "  constant v06 = false                      ",
+          "  constant v07 = 123.456                    ",
+          "  constant v08 = 123E45                     ",
+          "  constant v09 = self                       ",
+          "  constant v10 = {{{ abc {{x}} def }}}      ",
+          "  constant v11 = \"text\"                   ",
+          "  constant v12 = ''' abc\ndef\nghi '''      ",
+          "  constant v13 = undefined                  ",
+          "  constant v14 = 1.2.3                      ",
+          "  constant v15 = ~/[a-z1-2]+/ig             ",
+          "  constant v16 = q                          ",
+          "  constant v16 = (1,2,3)                    ",
+          "  return 0                               ",
+          "end                                      "
+        ];
+
+        var parser = new BarlomParser( code.join( '\n' ), "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( code.length-2 );
+
+      }
+    );
+
+    it(
       "should parse values initialized by various primary expressions", function () {
 
         var code = [

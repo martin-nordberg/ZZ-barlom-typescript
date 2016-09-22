@@ -17,6 +17,7 @@ import { BehaviorParserPlugin } from '../../elements/src/functions/function/Beha
 import { CallStatementParserPlugin } from '../../elements/src/statements/callstatement/CallStatementParserPlugin';
 import { CheckStatementParserPlugin } from '../../elements/src/statements/checkstatement/CheckStatementParserPlugin';
 import { CodeElementParserPlugin } from '../../parserspi/src/CodeElementParserPlugin';
+import { ConstantParserPlugin } from '../../elements/src/data/constant/ConstantParserPlugin';
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
@@ -61,6 +62,7 @@ export class BarlomParser
     this._registerCodeElementParser( new BehaviorParserPlugin() );
     this._registerCodeElementParser( new CallStatementParserPlugin() );
     this._registerCodeElementParser( new CheckStatementParserPlugin() );
+    this._registerCodeElementParser( new ConstantParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
     this._registerCodeElementParser( new IfStatementParserPlugin() );
