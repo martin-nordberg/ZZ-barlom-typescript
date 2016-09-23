@@ -35,6 +35,34 @@ describe(
     );
 
     it(
+      "should parse a module containing a package", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "module a.b.c.mymodule                   ",
+          "  package d                             ",
+          "  end                                   ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 1 );
+
+      }
+    );
+
+    it(
       "should parse use declarations and an enumeration type", function () {
 
         var code = [
@@ -92,6 +120,89 @@ describe(
           "  variant type V2                       ",
           "    variant A(x)                        ",
           "    variant B(x,y)                      ",
+          "  end                                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
+    it(
+      "should parse a structure type", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my sample module */                  ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "  structure type S1                     ",
+          "    variable x : Integer                ",
+          "    variable y : Integer                ",
+          "  end                                   ",
+          "                                        ",
+          "  structure type S2                     ",
+          "    variable firstName : String         ",
+          "    variable lastName : String          ",
+          "  end                                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
+    it(
+      "should parse a graph type", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my sample module */                  ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "  graph type G1                         ",
+          "    vertex type V1                      ",
+          "      variable x : Boolean              ",
+          "    end                                 ",
+          "    edge type E1                        ",
+          "      : connecting( V1, V1 )            ",
+          "      : directed                        ",
+          "      variable weight : Integer         ",
+          "    end                                 ",
+          "  end                                   ",
+          "                                        ",
+          "  graph type G2                         ",
+          "    vertex type V2                      ",
+          "      variable z : Number               ",
+          "    end                                 ",
           "  end                                   ",
           "                                        ",
           "end                                     ",

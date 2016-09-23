@@ -18,23 +18,28 @@ import { CallStatementParserPlugin } from '../../elements/src/statements/callsta
 import { CheckStatementParserPlugin } from '../../elements/src/statements/checkstatement/CheckStatementParserPlugin';
 import { CodeElementParserPlugin } from '../../parserspi/src/CodeElementParserPlugin';
 import { ConstantParserPlugin } from '../../elements/src/data/constant/ConstantParserPlugin';
+import { EdgeTypeParserPlugin } from '../../elements/src/types/graphtype/EdgeTypeParserPlugin';
 import { EnumerationTypeParserPlugin } from '../../elements/src/types/enumerationtype/EnumerationTypeParserPlugin';
 import { FunctionParserPlugin } from '../../elements/src/functions/function/FunctionParserPlugin';
+import { GraphTypeParserPlugin } from '../../elements/src/types/graphtype/GraphTypeParserPlugin';
 import { ICoreParser } from '../../parserspi/src/ICoreParser';
 import { IfStatementParserPlugin } from '../../elements/src/statements/ifstatement/IfStatementParserPlugin';
 import { MatchStatementParserPlugin } from '../../elements/src/statements/matchstatement/MatchStatementParserPlugin';
 import { ModuleParserPlugin } from '../../elements/src/modules/module/ModuleParserPlugin';
+import { PackageParserPlugin } from '../../elements/src/modules/package/PackageParserPlugin';
 import { RaiseErrorStatementParserPlugin } from '../../elements/src/statements/raiseerrorstatement/RaiseErrorStatementParserPlugin';
 import { RepeatForStatementParserPlugin } from '../../elements/src/statements/repeatforstatement/RepeatForStatementParserPlugin';
 import { RepeatUntilStatementParserPlugin } from '../../elements/src/statements/repeatuntilstatement/RepeatUntilStatementParserPlugin';
 import { RepeatWhileStatementParserPlugin } from '../../elements/src/statements/repeatwhilestatement/RepeatWhileStatementParserPlugin';
 import { ReturnStatementParserPlugin } from '../../elements/src/statements/returnstatement/ReturnStatementParserPlugin';
+import { StructureTypeParserPlugin } from '../../elements/src/types/structuretype/StructureTypeParserPlugin';
 import { SymbolParserPlugin } from '../../elements/src/types/enumerationtype/SymbolParserPlugin';
 import { UnlessStatementParserPlugin } from '../../elements/src/statements/unlessstatement/UnlessStatementParserPlugin';
 import { ValueParserPlugin } from '../../elements/src/data/value/ValueParserPlugin';
 import { VariableParserPlugin } from '../../elements/src/data/variable/VariableParserPlugin';
 import { VariantParserPlugin } from '../../elements/src/types/varianttype/VariantParserPlugin';
 import { VariantTypeParserPlugin } from '../../elements/src/types/varianttype/VariantTypeParserPlugin';
+import { VertexTypeParserPlugin } from '../../elements/src/types/graphtype/VertexTypeParserPlugin';
 
 
 
@@ -64,22 +69,27 @@ export class BarlomParser
     this._registerCodeElementParser( new CallStatementParserPlugin() );
     this._registerCodeElementParser( new CheckStatementParserPlugin() );
     this._registerCodeElementParser( new ConstantParserPlugin() );
+    this._registerCodeElementParser( new EdgeTypeParserPlugin() );
     this._registerCodeElementParser( new EnumerationTypeParserPlugin() );
     this._registerCodeElementParser( new FunctionParserPlugin() );
+    this._registerCodeElementParser( new GraphTypeParserPlugin() );
     this._registerCodeElementParser( new IfStatementParserPlugin() );
     this._registerCodeElementParser( new MatchStatementParserPlugin() );
     this._registerCodeElementParser( new ModuleParserPlugin() );
+    this._registerCodeElementParser( new PackageParserPlugin() );
     this._registerCodeElementParser( new RaiseErrorStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatForStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatUntilStatementParserPlugin() );
     this._registerCodeElementParser( new RepeatWhileStatementParserPlugin() );
     this._registerCodeElementParser( new ReturnStatementParserPlugin() );
+    this._registerCodeElementParser( new StructureTypeParserPlugin() );
     this._registerCodeElementParser( new SymbolParserPlugin() );
     this._registerCodeElementParser( new UnlessStatementParserPlugin() );
     this._registerCodeElementParser( new ValueParserPlugin() );
     this._registerCodeElementParser( new VariableParserPlugin() );
     this._registerCodeElementParser( new VariantParserPlugin() );
     this._registerCodeElementParser( new VariantTypeParserPlugin() );
+    this._registerCodeElementParser( new VertexTypeParserPlugin() );
   }
 
   /**

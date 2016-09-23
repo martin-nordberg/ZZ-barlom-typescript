@@ -5,6 +5,7 @@ import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementPa
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 import { AstVariable } from './AstVariable';
+import { AstExpression } from '../../../../ast/src/expressions/AstExpression';
 
 /**
  * Parser plugin that recognizes a variable.
@@ -31,9 +32,10 @@ export class VariableParserPlugin
 
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
-    tokenStream.consumeExpectedToken( BarlomTokenType.EQUALS );
-
-    let variableExpression = coreParser.parseExpression();
+    var variableExpression : AstExpression = null;
+    if ( tokenStream.advanceOverLookAhead1Token( BarlomTokenType.EQUALS ) ) {
+      variableExpression = coreParser.parseExpression();
+    }
 
     return new AstVariable( leadingAnnotations, variableToken, path, trailingAnnotations, variableExpression );
 
