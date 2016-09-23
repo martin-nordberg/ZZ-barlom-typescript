@@ -1,5 +1,5 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
-import { AstEnumerationType } from './AstEnumerationType';
+import { AstObjectType } from './AstObjectType';
 import { AstParameter } from '../../../../ast/src/parameters/AstParameter';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
 import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
@@ -8,13 +8,13 @@ import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
 
 /**
- * Parser plugin that recognizes an enumeration type.
+ * Parser plugin that recognizes a object type.
  */
-export class EnumerationTypeParserPlugin
+export class ObjectTypeParserPlugin
   extends CodeElementParserPlugin {
 
   getTagText() : string {
-    return 'enumeration';
+    return 'object';
   }
 
   getTag2Text() : string {
@@ -22,15 +22,15 @@ export class EnumerationTypeParserPlugin
   }
 
   /**
-   * Parses an enumeration type after its leading annotations and tag have been consumed.
-   * @returns {AstEnumerationType} the parsed enumeration type.
+   * Parses a object type after its leading annotations and tag have been consumed.
+   * @returns {AstObjectType} the parsed object type.
    */
   parseCodeElement(
       tokenStream : ITokenStream,
       coreParser : ICoreParser,
       leadingAnnotations : AstAnnotation[],
-      enumerationToken : BarlomToken
-  ) : AstEnumerationType {
+      objectToken : BarlomToken
+  ) : AstObjectType {
 
     let codeElementName = coreParser.parseCodeElementName();
 
@@ -43,7 +43,7 @@ export class EnumerationTypeParserPlugin
 
     let codeElements = coreParser.parseCodeElements();
 
-    return new AstEnumerationType( leadingAnnotations, enumerationToken, codeElementName, parameters, trailingAnnotations, codeElements );
+    return new AstObjectType( leadingAnnotations, objectToken, codeElementName, parameters, trailingAnnotations, codeElements );
 
   }
 

@@ -1,6 +1,8 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
 import { AstGraphType } from './AstGraphType';
+import { AstParameter } from '../../../../ast/src/parameters/AstParameter';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
+import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
 import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
@@ -32,11 +34,16 @@ export class GraphTypeParserPlugin
 
     let codeElementName = coreParser.parseCodeElementName();
 
+    var parameters : AstParameter[] = [];
+    if ( tokenStream.hasLookAhead1Token( BarlomTokenType.LEFT_PARENTHESIS ) ) {
+      parameters = coreParser.parseParameters();
+    }
+
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
     let codeElements = coreParser.parseCodeElements();
 
-    return new AstGraphType( leadingAnnotations, graphToken, codeElementName, trailingAnnotations, codeElements );
+    return new AstGraphType( leadingAnnotations, graphToken, codeElementName, parameters, trailingAnnotations, codeElements );
 
   }
 

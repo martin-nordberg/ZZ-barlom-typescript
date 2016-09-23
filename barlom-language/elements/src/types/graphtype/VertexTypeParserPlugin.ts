@@ -1,6 +1,8 @@
 import { AstAnnotation } from '../../../../ast/src/annotations/AstAnnotation';
+import { AstParameter } from '../../../../ast/src/parameters/AstParameter';
 import { AstVertexType } from './AstVertexType';
 import { BarlomToken } from '../../../../lexer/src/BarlomToken';
+import { BarlomTokenType } from '../../../../lexer/src/BarlomTokenType';
 import { CodeElementParserPlugin } from '../../../../parserspi/src/CodeElementParserPlugin';
 import { ICoreParser } from '../../../../parserspi/src/ICoreParser';
 import { ITokenStream } from '../../../../parserspi/src/ITokenStream';
@@ -32,11 +34,16 @@ export class VertexTypeParserPlugin
 
     let codeElementName = coreParser.parseCodeElementName();
 
+    var parameters : AstParameter[] = [];
+    if ( tokenStream.hasLookAhead1Token( BarlomTokenType.LEFT_PARENTHESIS ) ) {
+      parameters = coreParser.parseParameters();
+    }
+
     let trailingAnnotations = coreParser.parseTrailingAnnotations();
 
     let codeElements = coreParser.parseCodeElements();
 
-    return new AstVertexType( leadingAnnotations, vertexToken, codeElementName, trailingAnnotations, codeElements );
+    return new AstVertexType( leadingAnnotations, vertexToken, codeElementName, parameters, trailingAnnotations, codeElements );
 
   }
 

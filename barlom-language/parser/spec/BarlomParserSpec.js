@@ -180,6 +180,46 @@ describe(
     );
 
     it(
+      "should parse an object type", function () {
+
+        var code = [
+          "use x.y                                 ",
+          "                                        ",
+          "/* my sample module */                  ",
+          "module a.b.c.mymodule                   ",
+          "                                        ",
+          "  object type O1                        ",
+          "    variable x : Integer                ",
+          "    function f = (x) -> x^2             ",
+          "  end                                   ",
+          "                                        ",
+          "  object type O2                        ",
+          "    variable firstName : String         ",
+          "    function getFirstName()             ",
+          "      return self.firstName             ",
+          "    end                                 ",
+          "  end                                   ",
+          "                                        ",
+          "end                                     ",
+          "                                        "
+        ].join( '\n' );
+
+        var parser = new BarlomParser( code, "example.barlom" );
+
+        var cmpUnit = parser.parseCompilationUnit();
+
+        expect( cmpUnit.useDeclarations.length ).toBe( 1 );
+        expect( cmpUnit.useDeclarations[0].codeElementName.entries.length ).toBe( 2 );
+
+        expect( cmpUnit.codeElement ).not.toBeNull();
+        expect( cmpUnit.codeElement.leadingAnnotations.length ).toBe( 1 );
+        expect( cmpUnit.codeElement.trailingAnnotations.length ).toBe( 0 );
+        expect( cmpUnit.codeElement.codeElements.length ).toBe( 2 );
+
+      }
+    );
+
+    it(
       "should parse a graph type", function () {
 
         var code = [

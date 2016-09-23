@@ -14,6 +14,7 @@ export class AstEdgeType
       leadingAnnotations : AstAnnotation[],
       edgeToken : BarlomToken,
       codeElementName : AstCodeElementName,
+      parameters : AstParameter[],
       trailingAnnotations : AstAnnotation[],
       codeElements : AstCodeElement[]
   ) {
@@ -21,6 +22,7 @@ export class AstEdgeType
     super( leadingAnnotations, edgeToken, codeElementName, trailingAnnotations );
 
     this.codeElements = Object.freeze( codeElements );
+    this.parameters = Object.freeze( parameters );
 
     Object.freeze( this );
 
